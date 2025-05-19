@@ -1,0 +1,5 @@
+[
+  { "id": 1, "nombre": "Viviana", "apellido": "Cordova", "cedula": "1107303293" },
+  { "id": 2, "nombre": "Douglas", "apellido": "Pardo", "cedula": "6" },
+  { "id": 3, "nombre": "Arelys", "apellido": "Ajila", "cedula": "1" }
+]
