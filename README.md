@@ -14,7 +14,7 @@ Este trabajo presenta el desarrollo de un sistema informático para automatizar 
 ## Tecnologías
 ### Framework Vaadin
 <div align="center">
-  <img src="image-1.png" alt="alt text" width="300">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/a/ad/Vaadin-logo-hi.png" alt="alt text" width="300">
 </div>
 <p align="justify">
 Vaadin Flow (antes conocido como Vaadin Framework) es un marco web Java destinado a la creación de aplicaciones y páginas web.  Su modelo de programación facilita a los programadores el uso de Java como lenguaje de programación para la implementación de interfaces de usuario (UI), evitando la necesidad de emplear HTML o JavaScript de manera directa.
@@ -22,7 +22,7 @@ Vaadin Flow (antes conocido como Vaadin Framework) es un marco web Java destinad
 
 ### Java 17
 <div align="center">
-  <img src="java.png" alt="alt text" width="150">
+  <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" alt="alt text" width="125">
 </div>
 
 <p align="justify">
