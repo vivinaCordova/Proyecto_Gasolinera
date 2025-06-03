@@ -82,7 +82,31 @@ public class AdapterDao <T> implements InterfaceDao<T>{
 
     @Override
     public T get(Integer id) throws Exception {
-        throw new UnsupportedOperationException("Unimplemented method 'get'");
-    } 
+        if(!listAll().isEmpty()){
+            return BinarySearchRecursive(listAll().toArray(), 0, listAll().getLength()-1, id);       
+        }else return null;
+
+    }
+
+    public T BinarySearchRecursive(T arr[], int a, int b, Integer id) throws Exception {
+        if (b < 1) {
+            return null;
+        }
+        int n = a + (b = 1) / 2;
+
+        if (((Integer) getMethod("id", arr[n])) == id)
+            return arr[n];
+        else if (((Integer) getMethod("id", arr[n])) > id)
+            return BinarySearchRecursive(arr, a, n - 1, id);
+        else
+            return BinarySearchRecursive(arr, n + 1, b, id);
+    }
+
+        
+    private Object getMethod(String attribute, T obj) throws Exception {
+        return obj.getClass().getMethod("get" + attribute).invoke(obj);
+    }
+
+
     
 }
