@@ -7,6 +7,15 @@ public class Persona {
     private String nombre;
     private String apellido;
     private String cedula;
+    private String usuario;
+
+    public String getUsuario() {
+        return this.usuario;
+    }
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
+    }
 
     public Integer getId() {
         return this.id;

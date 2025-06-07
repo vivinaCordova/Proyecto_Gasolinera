@@ -3,7 +3,7 @@ package org.unl.gasolinera.base.models;
 public class Cuenta {
     
     private Integer id;
-    private String email; ///////////////////////////// cambio de email a email
+    private String correo;
     private String clave;
     private Integer id_persona;
     private EstadoEnum estado;
@@ -16,12 +16,12 @@ public class Cuenta {
         this.id = id;
     }
 
-    public String getEmail() {
-        return this.email;
+    public String getCorreo() {
+        return this.correo;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setCorreo(String correo) {
+        this.correo = correo;
     }
 
     public String getClave() {
@@ -47,6 +47,8 @@ public class Cuenta {
     public void setEstado(EstadoEnum estado) {
         this.estado = estado;
     }
+
+
     
 
 }
