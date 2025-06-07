@@ -1,5 +1,7 @@
 package org.unl.gasolinera.base.controller.dao.dao_models;
 
+import java.util.HashMap;
+
 import org.unl.gasolinera.base.controller.dao.AdapterDao;
 import org.unl.gasolinera.base.models.Persona;
 
@@ -46,7 +48,7 @@ public class DaoPersona extends AdapterDao<Persona> {
     }
 
     public static void main(String[] args) {
-        DaoPersona da= new DaoPersona();
+        /*DaoPersona da= new DaoPersona();
         da.getObj().setId(da.listAll().getLength()+1);
         da.getObj().setNombre("Viviana");
         da.getObj().setApellido("Cordova");
@@ -54,7 +56,19 @@ public class DaoPersona extends AdapterDao<Persona> {
         if(da.save())
             System.out.println("GUARDADO");
         else
-        System.out.println("Error");
+        System.out.println("Error");*/
+
+        DaoPersona dp = new DaoPersona();
+        try {
+            DaoCuenta dc = new DaoCuenta();
+            HashMap mapa = dc.login("Arelys", "Are");
+            if(mapa != null){
+                System.out.println(mapa.get("usuario"));
+            }
+        } catch (Exception e) {
+            System.out.println("HUbo un error"+e);
+            e.printStackTrace();
+        }
     }
 
 
