@@ -61,13 +61,12 @@ public class DaoPersona extends AdapterDao<Persona> {
         DaoPersona dp = new DaoPersona();
         try {
             DaoCuenta dc = new DaoCuenta();
-            HashMap mapa = dc.login("Arelys", "Are");
+            HashMap mapa = dc.login("arelys@mail.com", "Are");
             if(mapa != null){
                 System.out.println(mapa.get("usuario"));
             }
         } catch (Exception e) {
-            System.out.println("HUbo un error"+e);
-            e.printStackTrace();
+            System.out.println("Hubo un error"+e);
         }
     }
 

@@ -1,6 +1,5 @@
 [
-  { "id": 1, "usuario": "Arelys", "clave": "Are" },
-  { "id": 2, "usuario": "Shami", "clave": "Shami123" },
-  { "id": 3, "usuario": "Carolina", "clave": "17Enero" },
-  { "id": 4, "usuario": "Douglas", "clave": "1234" }
+    { "id": 1, "correo": "arelys@mail.com", "clave": "Are", "estado": true, "id_persona": 1 },
+    { "id": 2, "correo": "shami@mail.com", "clave": "Shami123", "estado": true, "id_persona": 2 },
+    { "id": 3, "correo": "carolina@mail.com", "clave": "17Enero", "estado": true, "id_persona": 3 }
 ]

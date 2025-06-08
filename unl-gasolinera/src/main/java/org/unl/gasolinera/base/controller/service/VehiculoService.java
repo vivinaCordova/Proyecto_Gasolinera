@@ -44,7 +44,7 @@ public class VehiculoService {
             for(int i = 0; i < arreglo.length; i++) {
                 HashMap<String, String> aux = new HashMap<>();
                 aux.put("value", arreglo[i].getId().toString(i));
-                aux.put("label", arreglo[i].getNombre());
+                aux.put("label", arreglo[i].getNombres());
                 lista.add(aux);
             }
         }
@@ -61,7 +61,7 @@ public class VehiculoService {
                 aux.put("placa", arreglo[i].getPlaca());
                 aux.put("modelo", arreglo[i].getModelo());
                 aux.put("marca", arreglo[i].getMarca());
-                aux.put("propietario", new DaoPersona().listAll().get(arreglo[i].getIdPropietario()-1).getNombre());
+                aux.put("propietario", new DaoPersona().listAll().get(arreglo[i].getIdPropietario()-1).getNombres());
                 aux.put("idPropietario", new DaoPersona().listAll().get(arreglo[i].getIdPropietario()-1).getId().toString());
                 lista.add(aux);
             }
