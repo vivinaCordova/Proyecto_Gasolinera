@@ -1,5 +1,26 @@
 [
-  { "id": 1, "nombre": "Viviana", "apellido": "Cordova", "cedula": "1107303293" },
-  { "id": 2, "nombre": "Douglas", "apellido": "Pardo", "cedula": "6" },
-  { "id": 3, "nombre": "Arelys", "apellido": "Ajila", "cedula": "1" }
+  {
+    "id": 1,
+    "usuario": "viviana123",
+    "nombres": "Viviana",
+    "apellidos": "Cordova",
+    "cedula": "1107303293",
+    "edad": 30
+  },
+  {
+    "id": 2,
+    "usuario": "douglas_p",
+    "nombres": "Douglas",
+    "apellidos": "Pardo",
+    "cedula": "6",
+    "edad": 25
+  },
+  {
+    "id": 3,
+    "usuario": "arelys_ajila",
+    "nombres": "Arelys",
+    "apellidos": "Ajila",
+    "cedula": "1",
+    "edad": 28
+  }
 ]

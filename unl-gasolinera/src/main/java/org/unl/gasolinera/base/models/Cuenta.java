@@ -1,12 +1,11 @@
 package org.unl.gasolinera.base.models;
 
 public class Cuenta {
-    
     private Integer id;
     private String correo;
     private String clave;
+    private Boolean estado;
     private Integer id_persona;
-    private EstadoEnum estado;
 
     public Integer getId() {
         return this.id;
@@ -32,6 +31,14 @@ public class Cuenta {
         this.clave = clave;
     }
 
+    public Boolean getEstado() {
+        return this.estado;
+    }
+
+    public void setEstado(Boolean estado) {
+        this.estado = estado;
+    }
+
     public Integer getId_persona() {
         return this.id_persona;
     }
@@ -39,16 +46,5 @@ public class Cuenta {
     public void setId_persona(Integer id_persona) {
         this.id_persona = id_persona;
     }
-
-    public EstadoEnum getEstado() {
-        return this.estado;
-    }
-
-    public void setEstado(EstadoEnum estado) {
-        this.estado = estado;
-    }
-
-
-    
 
 }
