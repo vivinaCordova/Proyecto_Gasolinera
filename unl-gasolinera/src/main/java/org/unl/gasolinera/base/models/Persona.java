@@ -3,10 +3,11 @@ package org.unl.gasolinera.base.models;
 
 public class Persona {
     private Integer id;
-    private Integer idCuenta;
-    private String nombre;
-    private String apellido;
+    private String usuario;
+    private String nombres;
+    private String apellidos;
     private String cedula;
+    private Integer edad;
 
     public Integer getId() {
         return this.id;
@@ -16,20 +17,28 @@ public class Persona {
         this.id = id;
     }
 
-    public String getNombre() {
-        return this.nombre;
+    public String getUsuario() {
+        return this.usuario;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
     }
 
-    public String getApellido() {
-        return this.apellido;
+    public String getNombres() {
+        return this.nombres;
     }
 
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
+    public void setNombres(String nombres) {
+        this.nombres = nombres;
+    }
+
+    public String getApellidos() {
+        return this.apellidos;
+    }
+
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
     }
 
     public String getCedula() {
@@ -39,13 +48,13 @@ public class Persona {
     public void setCedula(String cedula) {
         this.cedula = cedula;
     }
-    
-    public Integer getIdCuenta() {
-        return this.idCuenta;
+
+    public Integer getEdad() {
+        return this.edad;
     }
 
-    public void setIdCuenta(Integer idCuenta) {
-        this.idCuenta = idCuenta;
+    public void setEdad(Integer edad) {
+        this.edad = edad;
     }
 
 }

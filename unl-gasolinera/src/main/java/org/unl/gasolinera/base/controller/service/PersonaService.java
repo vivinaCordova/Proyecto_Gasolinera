@@ -30,8 +30,8 @@ public class PersonaService {
 
     public void createPersona(@NotEmpty String nombre, @NotEmpty String apellido, @NotEmpty String cedula) throws Exception {
         if(nombre.trim().length() > 0 && apellido.trim().length() > 0  && cedula.trim().length() > 0) {
-            da.getObj().setNombre(nombre);
-            da.getObj().setApellido(apellido);
+            da.getObj().setNombres(nombre);
+            da.getObj().setApellidos(apellido);
             da.getObj().setCedula(cedula);
             if(!da.save())
                 throw new  Exception("No se pudo guardar los datos de Persona");
@@ -46,7 +46,7 @@ public class PersonaService {
             for(int i = 0; i < arreglo.length; i++) {
                 HashMap<String, String> aux = new HashMap<>();
                 aux.put("value", arreglo[i].getId().toString(i));
-                aux.put("label", arreglo[i].getUsuario());
+                aux.put("label", arreglo[i].getCorreo());
                 lista.add(aux);
             }
         }
@@ -60,11 +60,11 @@ public class PersonaService {
             for(int i = 0; i < arreglo.length; i++) {
                 HashMap<String, String> aux = new HashMap<>();
                 aux.put("id", arreglo[i].getId().toString(i));             
-                aux.put("nombre", arreglo[i].getNombre());
-                aux.put("apellido", arreglo[i].getApellido());
+                aux.put("nombre", arreglo[i].getNombres());
+                aux.put("apellido", arreglo[i].getApellidos());
                 aux.put("cedula", arreglo[i].getCedula());
-                aux.put("cuenta", new DaoCuenta().listAll().get(arreglo[i].getIdCuenta()-1).getUsuario());
-                aux.put("idCuenta", new DaoCuenta().listAll().get(arreglo[i].getIdCuenta()-1).getId().toString());
+                //aux.put("cuenta", new DaoCuenta().listAll().get(arreglo[i].getIdCuenta()-1).getCorreo());
+                //aux.put("idCuenta", new DaoCuenta().listAll().get(arreglo[i].getIdCuenta()-1).getId().toString());
                 lista.add(aux);
             }
         }
