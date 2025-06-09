@@ -30,6 +30,13 @@ public class ProveedorService {
                 throw new  Exception("No se pudo guardar los datos de la Proveedor");
         }
     }
+    public List<String> listTipo() {
+        List<String> lista = new ArrayList<>();
+        for (TipoCombustibleEnum r : TipoCombustibleEnum.values()) {
+            lista.add(r.toString());
+        }
+        return lista;
+    }
     public List<HashMap> listProveedor(){
         List<HashMap> lista = new ArrayList<>();
         if(!db.listAll().isEmpty()) {

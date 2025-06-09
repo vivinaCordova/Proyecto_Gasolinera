@@ -3,7 +3,6 @@ package org.unl.gasolinera.base.controller.dao.dao_models;
 import org.unl.gasolinera.base.controller.dao.AdapterDao;
 import org.unl.gasolinera.base.models.EstadoOrdenCompraEnum;
 import org.unl.gasolinera.base.models.Tanque;
-import org.unl.gasolinera.base.models.TipoCombustibleEnum;
 
 public class DaoTanque extends AdapterDao <Tanque>{
     
@@ -50,35 +49,29 @@ public class DaoTanque extends AdapterDao <Tanque>{
             return false;
         }
     }
+    //public String enviarAlerta(){
 
+    //}
+    //public void aumentarStock(){
+
+    //}
+    //public float reducirStock(){
+
+    //}
     public static void main(String[] args) {
         DaoTanque da= new DaoTanque();
-        da.setObj(new Tanque());
         da.getObj().setId(da.listAll().getLength()+1);
-        da.getObj().setCapacidad(24000);
-        da.getObj().setCapacidadMinima(10000);    
-        da.getObj().setCapacidadTotal(30000);
-        da.getObj().setEstado(EstadoOrdenCompraEnum.valueOf("PROCESO"));
-        da.getObj().setIdOrden(1);
+        da.getObj().setCapacidad(150000);
+        da.getObj().setCapacidadMinima(100000);
+        da.getObj().setCapacidadTotal(0);
         da.getObj().setIdOrdenCompra(1);
-        da.getObj().setTipo(TipoCombustibleEnum.valueOf("ECOPAIS"));
+        da.getObj().setEstado(EstadoOrdenCompraEnum.valueOf("COMPLETADO"));
+        da.getObj().setIdOrden(1);
+        
         if(da.save())
             System.out.println("GUARDADO");
         else
-            System.out.println("Error");
-        
-        da.getObj().setId(da.listAll().getLength()+1);
-        da.getObj().setCapacidad(200);
-        da.getObj().setCapacidadMinima(10000);    
-        da.getObj().setCapacidadTotal(30000);
-        da.getObj().setEstado(EstadoOrdenCompraEnum.valueOf("PROCESO"));
-        da.getObj().setIdOrden(2);
-        da.getObj().setIdOrdenCompra(2);
-        da.getObj().setTipo(TipoCombustibleEnum.valueOf("SUPER"));
-        if(da.save())
-            System.out.println("GUARDADO");
-        else
-            System.out.println("Error");
-        
+        System.out.println("Error");
+
     }
 }

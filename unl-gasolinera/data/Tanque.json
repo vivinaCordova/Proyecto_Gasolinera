@@ -1,0 +1,11 @@
+[
+    {
+        "id": 1,
+        "capacidad": 150000.0,
+        "capacidadTotal": 0.0,
+        "capacidadMinima": 100000.0,
+        "estado": "COMPLETADO",
+        "idOrden": 1,
+        "idOrdenCompra": 1
+    }
+]

@@ -11,8 +11,13 @@ import org.unl.gasolinera.base.models.EstadoOrdenCompraEnum;
 import org.unl.gasolinera.base.models.OrdenCompra;
 import org.unl.gasolinera.base.models.Proveedor;
 
+import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.vaadin.hilla.BrowserCallable;
+
 import jakarta.validation.constraints.NotEmpty;
 
+@BrowserCallable
+@AnonymousAllowed
 public class OrdenCompraService {
     private DaoOrdenCompra db;
 
@@ -37,6 +42,13 @@ public class OrdenCompraService {
                 lista.add(aux); 
             }
 
+        }
+        return lista;
+    }
+    public List<String> listEstado() {
+        List<String> lista = new ArrayList<>();
+        for (EstadoOrdenCompraEnum r : EstadoOrdenCompraEnum.values()) {
+            lista.add(r.toString());
         }
         return lista;
     }

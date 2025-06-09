@@ -27,7 +27,7 @@ public class CuentaService {
     }
 
     public void createCuenta(@NotEmpty @NotBlank String usuario,@NotEmpty @NotBlank String clave) throws Exception{
-        da.getObj().setUsuario(usuario);
+        //da.getObj().setUsuario(usuario);
         da.getObj().setClave(clave);
         if(!da.save())
             throw new  Exception("No se pudo guardar los datos de Cuenta");
