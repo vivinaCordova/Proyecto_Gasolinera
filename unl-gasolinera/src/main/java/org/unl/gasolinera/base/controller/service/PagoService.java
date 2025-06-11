@@ -3,9 +3,12 @@ package org.unl.gasolinera.base.controller.service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.unl.gasolinera.base.controller.PagoControl;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoOrdenDespacho;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoPago;
 import org.unl.gasolinera.base.models.EstadoPagoEnum;
@@ -117,4 +120,14 @@ public class PagoService {
         System.out.println("Transacción: " + pago.getNroTransaccion());
         System.out.println("Estado: " + pago.getEstadoP());
     }
+
+    public Map<String, String> checkout(@RequestParam float total, @RequestParam String currency) {
+        try {
+            HashMap<String, String> response = new PagoControl().request(total, currency);
+            return response; // contiene checkoutId
+        } catch (Exception e) {
+            return Map.of("estado", "false", "error", e.getMessage());
+        }
+    }
+
 }

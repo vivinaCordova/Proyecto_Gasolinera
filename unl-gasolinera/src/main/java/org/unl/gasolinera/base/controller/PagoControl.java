@@ -32,7 +32,7 @@ public class PagoControl {
                 + "entityId=8a8294175d602369015d73bf009f1808"
                 + "&amount=" + new Utiles().tranformStringFloatTwoDecimal(total)
                 + "&currency=" + currency
-                + "&paymentType=CC"
+                + "&paymentType=DC"
                 + "&integrity=true";
 
         DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
@@ -121,7 +121,7 @@ public class PagoControl {
         try {
             // System.out.println(pc.request(67.00f, "USD"));
             // checkout
-            String json = "{\"result\":{\"code\":\"000.200.100\",\"description\":\"successfully created checkout\"},\"buildNumber\":\"c6ca2f7e2ab6517140c927f556eac7d0a372941b@2025-06-03 14:14:03 +0000\",\"timestamp\":\"2025-06-03 20:48:21+0000\",\"ndc\":\"3A9AA8CFC309475335B3B56398C96ACF.uat01-vm-tx02\",\"id\":\"3A9AA8CFC309475335B3B56398C96ACF.uat01-vm-tx02\",\"integrity\":\"sha384-CGYjAK7QlS3M/T8WNbNkVz3wr5umg+pRWXKAr2q35qHL82Bj13NmkhgPK8EUjsa0\"}";
+            String json = "{\"result\":{\"code\":\"000.200.100\",\"description\":\"suDCessfully created checkout\"},\"buildNumber\":\"c6ca2f7e2ab6517140c927f556eac7d0a372941b@2025-06-03 14:14:03 +0000\",\"timestamp\":\"2025-06-03 20:48:21+0000\",\"ndc\":\"3A9AA8CFC309475335B3B56398C96ACF.uat01-vm-tx02\",\"id\":\"3A9AA8CFC309475335B3B56398C96ACF.uat01-vm-tx02\",\"integrity\":\"sha384-CGYjAK7QlS3M/T8WNbNkVz3wr5umg+pRWXKAr2q35qHL82Bj13NmkhgPK8EUjsa0\"}";
             String jsonError = "{\r\n" + //
                     "  \"result\":{\r\n" + //
                     "    \"code\":\"200.300.404\",\r\n" + //
@@ -156,14 +156,14 @@ public class PagoControl {
 
             String jsonpayok = "{\r\n" + //
                     "  \"id\":\"8ac7a49f973ace7901973b2d3d2f565f\",\r\n" + //
-                    "  \"paymentType\":\"CC\",\r\n" + //
+                    "  \"paymentType\":\"DC\",\r\n" + //
                     "  \"paymentBrand\":\"MASTER\",\r\n" + //
                     "  \"amount\":\"92.01\",\r\n" + //
                     "  \"currency\":\"EUR\",\r\n" + //
                     "  \"descriptor\":\"7700.5633.1938 OPP_Channel\",\r\n" + //
                     "  \"result\":{\r\n" + //
                     "    \"code\":\"000.100.110\",\r\n" + //
-                    "    \"description\":\"Request successfully processed in 'Merchant in Integrator Test Mode'\"\r\n" + //
+                    "    \"description\":\"Request suDCessfully processed in 'Merchant in Integrator Test Mode'\"\r\n" + //
                     "  },\r\n" + //
                     "  \"resultDetails\":{\r\n" + //
                     "    \"ExtendedDescription\":\"Authorized\",\r\n" + //
@@ -204,7 +204,7 @@ public class PagoControl {
                     "  \"timestamp\":\"2025-06-04 13:41:50+0000\",\r\n" + //
                     "  \"ndc\":\"6627583709900EB76656DA222471C19C.uat01-vm-tx04\",\r\n" + //
                     "  \"source\":\"OPPUI\",\r\n" + //
-                    "  \"paymentMethod\":\"CC\",\r\n" + //
+                    "  \"paymentMethod\":\"DC\",\r\n" + //
                     "  \"shortId\":\"7700.5633.1938\"\r\n" + //
                     "}";
 
