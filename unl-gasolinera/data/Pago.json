@@ -1,1 +1,16 @@
-[{"id":1,"nroTransaccion":1,"estadoP":"COMPLETADO","idOrdenDespacho":1}]
+[
+    {
+        "id": 1,
+        "nroTransaccion": 1,
+        "estadoP": true,
+        "idOrdenDespacho": 1
+        
+    },
+    {
+        "id": 2,
+        "nroTransaccion": 2,
+        "estadoP": true,
+        "idOrdenDespacho": 2
+        
+    }
+]
