@@ -15,8 +15,9 @@ import com.fasterxml.jackson.databind.util.TypeKey;
 import com.google.gson.Gson;
 
 public class PagoControl {
-    public static String CODE[] = { "000.200.100", "000.000.000", "000.000.100", "000.200.000" };
-    public static String CODEPAY[] = { "000.100.111", "000.100.110", "000.100.112" };
+
+    public static String CODE[] = {"000.200.100", "000.000.000", "000.000.100", "000.200.000"};
+    public static String CODEPAY[] = {"000.100.111", "000.100.110", "000.100.112"};
 
     public HashMap<String, String> request(float total, String currency) throws IOException {
         URL url = new URL("https://eu-test.oppwa.com/v1/checkouts");
@@ -32,7 +33,7 @@ public class PagoControl {
                 + "entityId=8a8294175d602369015d73bf009f1808"
                 + "&amount=" + new Utiles().tranformStringFloatTwoDecimal(total)
                 + "&currency=" + currency
-                + "&paymentType=DC"
+                + "&paymentType=CD"
                 + "&integrity=true";
 
         DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
@@ -42,10 +43,11 @@ public class PagoControl {
         int responseCode = conn.getResponseCode();
         InputStream is;
 
-        if (responseCode >= 400)
+        if (responseCode >= 400) {
             is = conn.getErrorStream();
-        else
+        } else {
             is = conn.getInputStream();
+        }
 
         // Gson g = new Gson();
         return readJsonCheckout(IOUtils.toString(is));
@@ -55,7 +57,7 @@ public class PagoControl {
         HashMap<String, String> respMap = new HashMap<>();
         Gson g = new Gson();
         HashMap mapa = g.fromJson(jsonValue, HashMap.class);
-        
+        //mapa.forEach((key, value) -> System.out.println(key + " " + value));
         com.google.gson.internal.LinkedTreeMap<TypeKey, TypedValue> lista = (com.google.gson.internal.LinkedTreeMap) mapa
                 .get("result");
         String codigo = lista.get("code") + "";
@@ -68,7 +70,7 @@ public class PagoControl {
         } else {
             respMap.put("id", "No definido");
             respMap.put("error", lista.get("parameterErrors") + "");
-            
+            // System.out.println(lista.get("parameterErrors"));
         }
 
         return respMap;
@@ -83,7 +85,7 @@ public class PagoControl {
                 .get("result");
         String codigo = lista.get("code") + "";
         respMap.put("codigo", codigo);
-        
+        // respMap.put("error", "");
         respMap.put("descripcion", lista.get("description") + "");
         respMap.put("estado", "false");
         if (new Utiles().constanceArray(CODEPAY, codigo)) {
@@ -91,13 +93,14 @@ public class PagoControl {
             respMap.put("estado", "true");
         } else {
             respMap.put("tarjeta", "No definida");
-            
+            // respMap.put("error", lista.get("parameterErrors")+"");
+            // System.out.println(lista.get("parameterErrors"));
         }
 
         return respMap;
     }
 
-    private HashMap<String, String> requestPay(String id) throws IOException {
+    public HashMap<String, String> requestPay(String id) throws IOException {
         URL url = new URL(
                 "https://eu-test.oppwa.com/v1/checkouts/" + id + "/payment?entityId=8a8294175d602369015d73bf009f1808");
 
@@ -108,12 +111,14 @@ public class PagoControl {
         int responseCode = conn.getResponseCode();
         InputStream is;
 
-        if (responseCode >= 400)
+        if (responseCode >= 400) {
             is = conn.getErrorStream();
-        else
+        } else {
             is = conn.getInputStream();
+        }
 
-        return requestPay(id);
+        String jsonResponse = org.apache.commons.io.IOUtils.toString(is);
+        return readJsonPay(jsonResponse);
     }
 
     public static void main(String[] args) {
@@ -121,7 +126,7 @@ public class PagoControl {
         try {
             // System.out.println(pc.request(67.00f, "USD"));
             // checkout
-            String json = "{\"result\":{\"code\":\"000.200.100\",\"description\":\"suDCessfully created checkout\"},\"buildNumber\":\"c6ca2f7e2ab6517140c927f556eac7d0a372941b@2025-06-03 14:14:03 +0000\",\"timestamp\":\"2025-06-03 20:48:21+0000\",\"ndc\":\"3A9AA8CFC309475335B3B56398C96ACF.uat01-vm-tx02\",\"id\":\"3A9AA8CFC309475335B3B56398C96ACF.uat01-vm-tx02\",\"integrity\":\"sha384-CGYjAK7QlS3M/T8WNbNkVz3wr5umg+pRWXKAr2q35qHL82Bj13NmkhgPK8EUjsa0\"}";
+            String json = "{\"result\":{\"code\":\"000.200.100\",\"description\":\"successfully created checkout\"},\"buildNumber\":\"c6ca2f7e2ab6517140c927f556eac7d0a372941b@2025-06-03 14:14:03 +0000\",\"timestamp\":\"2025-06-03 20:48:21+0000\",\"ndc\":\"3A9AA8CFC309475335B3B56398C96ACF.uat01-vm-tx02\",\"id\":\"3A9AA8CFC309475335B3B56398C96ACF.uat01-vm-tx02\",\"integrity\":\"sha384-CGYjAK7QlS3M/T8WNbNkVz3wr5umg+pRWXKAr2q35qHL82Bj13NmkhgPK8EUjsa0\"}";
             String jsonError = "{\r\n" + //
                     "  \"result\":{\r\n" + //
                     "    \"code\":\"200.300.404\",\r\n" + //
@@ -138,7 +143,9 @@ public class PagoControl {
                     "  \"timestamp\":\"2025-06-04 13:30:03+0000\",\r\n" + //
                     "  \"ndc\":\"04FA0B06D7C9F5778958BD5552FE4135.uat01-vm-tx04\"\r\n" + //
                     "}";
-            
+            // Gson g = new Gson();
+            // HashMap mapa = g.fromJson(json, HashMap.class);
+            // mapa.forEach((key, value) -> System.out.println(key + " " + value));
             System.out.println(pc.readJsonCheckout(json).toString());
 
             // SEARCH PAY
@@ -156,14 +163,14 @@ public class PagoControl {
 
             String jsonpayok = "{\r\n" + //
                     "  \"id\":\"8ac7a49f973ace7901973b2d3d2f565f\",\r\n" + //
-                    "  \"paymentType\":\"DC\",\r\n" + //
+                    "  \"paymentType\":\"CD\",\r\n" + //
                     "  \"paymentBrand\":\"MASTER\",\r\n" + //
                     "  \"amount\":\"92.01\",\r\n" + //
                     "  \"currency\":\"EUR\",\r\n" + //
                     "  \"descriptor\":\"7700.5633.1938 OPP_Channel\",\r\n" + //
                     "  \"result\":{\r\n" + //
                     "    \"code\":\"000.100.110\",\r\n" + //
-                    "    \"description\":\"Request suDCessfully processed in 'Merchant in Integrator Test Mode'\"\r\n" + //
+                    "    \"description\":\"Request successfully processed in 'Merchant in Integrator Test Mode'\"\r\n" + //
                     "  },\r\n" + //
                     "  \"resultDetails\":{\r\n" + //
                     "    \"ExtendedDescription\":\"Authorized\",\r\n" + //
@@ -204,13 +211,24 @@ public class PagoControl {
                     "  \"timestamp\":\"2025-06-04 13:41:50+0000\",\r\n" + //
                     "  \"ndc\":\"6627583709900EB76656DA222471C19C.uat01-vm-tx04\",\r\n" + //
                     "  \"source\":\"OPPUI\",\r\n" + //
-                    "  \"paymentMethod\":\"DC\",\r\n" + //
+                    "  \"paymentMethod\":\"CC\",\r\n" + //
                     "  \"shortId\":\"7700.5633.1938\"\r\n" + //
                     "}";
 
             System.out.println(pc.readJsonPay(jsonpayok).toString());
 
-            
+            /*
+             * com.google.gson.internal.LinkedTreeMap<TypeKey, TypedValue> lista =
+             * (com.google.gson.internal.LinkedTreeMap)mapa.get("result");
+             * 
+             * System.out.println(lista.get("code"));
+             * if("000.200.100".equalsIgnoreCase(lista.get("code").toString())){
+             * System.out.println("Trassaccion OK");
+             * // System.out.println(mapa.get("id").toString());
+             * }
+             */
+            // HashMap code = g.fromJson(mapa.get("result").toString(), HashMap.class);
+            // System.out.println(code.get("code"));
 
         } catch (Exception e) {
             System.out.println("Error " + e);
