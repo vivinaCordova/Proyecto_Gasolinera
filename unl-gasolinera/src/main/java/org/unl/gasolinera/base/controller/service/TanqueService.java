@@ -1,15 +1,17 @@
 package org.unl.gasolinera.base.controller.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoOrdenCompra;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoOrdenDespacho;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoTanque;
-import org.unl.gasolinera.base.models.EstadoOrdenCompraEnum;
+import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.OrdenCompra;
 import org.unl.gasolinera.base.models.OrdenDespacho;
+import org.unl.gasolinera.base.models.Tanque;
 import org.unl.gasolinera.base.models.TipoCombustibleEnum;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
@@ -17,8 +19,6 @@ import com.vaadin.hilla.BrowserCallable;
 
 
 import jakarta.validation.constraints.NotEmpty;
-import org.unl.gasolinera.base.models.Tanque;
-
 
 @BrowserCallable
 @AnonymousAllowed
@@ -29,14 +29,31 @@ public class TanqueService {
         db = new DaoTanque();
     }
 
-    public void createTanque(float capacidad, float capacidadTotal, float capacidadMinima, @NotEmpty String tipo,
-            @NotEmpty String estado, Integer idOrden, Integer idOrdenCompra, Integer idProveedor) throws Exception {
-        if (tipo.trim().length() > 0 && capacidad > 0 && capacidadTotal > 0  && capacidadMinima > 0 ) {
+    public List<HashMap> listAll() throws Exception{
+        return Arrays.asList(db.all().toArray());
+    }
+    public List<Tanque> listAlla(){
+        return (List<Tanque>)Arrays.asList(db.listAll().toArray());
+    }
+    public List<HashMap> order(String attribute, Integer type ) throws Exception {
+        return Arrays.asList(db.orderByTanque(type, attribute).toArray());
+    }
+    public List<HashMap> search(String attribute, String text ,Integer type ) throws Exception {
+        LinkedList<HashMap<String, Object>> lista = db.search(attribute, text, type);
+        if(!lista.isEmpty())
+           return Arrays.asList(lista.toArray());
+        else 
+            return new ArrayList<>();   
+    
+    }
+    public void createTanque(float capacidad, float capacidadTotal, float capacidadMinima, @NotEmpty String tipo, Integer idOrdenCompra, Integer idOrdenDespacho) throws Exception {
+        if (tipo.trim().length() > 0 && capacidad > 0 && capacidadTotal > 0  && capacidadMinima > 0 && tipo.toString().length() > 0 && idOrdenCompra > 0 &&idOrdenDespacho >0  ) {
             db.getObj().setCapacidad(capacidad);
             db.getObj().setCapacidadMinima(capacidadMinima);
             db.getObj().setCapacidadTotal(capacidadTotal);
             db.getObj().setTipo(TipoCombustibleEnum.valueOf(tipo));
-
+            db.getObj().setIdOrdenCompra(idOrdenCompra);
+            db.getObj().setIdOrdenDespacho(idOrdenDespacho);
             if (!db.save())
                 throw new Exception("No se pudo guardar los datos de la Tanque");
         }
@@ -78,28 +95,6 @@ public class TanqueService {
         List<String> lista = new ArrayList<>();
         for (TipoCombustibleEnum r : TipoCombustibleEnum.values()) {
             lista.add(r.toString());
-        }
-        return lista;
-    }
-    public List<HashMap> listTanque() {
-        List<HashMap> lista = new ArrayList<>();
-        if (!db.listAll().isEmpty()) {
-            Tanque[] arreglo = db.listAll().toArray();
-
-            for (int i = 0; i < arreglo.length; i++) {
-
-                HashMap<String, String> aux = new HashMap<>();
-                aux.put("id", arreglo[i].getId().toString());
-                aux.put("capacidad", String.valueOf(arreglo[i].getCapacidad()));
-                aux.put("capacidadTotal", String.valueOf(arreglo[i].getCapacidadTotal()));
-                aux.put("capacidaddMinima", String.valueOf(arreglo[i].getCapacidadMinima()));
-                aux.put("tipo", arreglo[i].getTipo().toString());
-                aux.put("ordenCompra", String.valueOf(new DaoOrdenCompra().listAll().get(arreglo[i].getIdOrdenCompra() - 1).getCantidad()));
-                aux.put("id_ordenCompra",new DaoOrdenCompra().listAll().get(arreglo[i].getIdOrdenCompra() - 1).toString());
-                aux.put("ordenDespacho", String.valueOf(new DaoOrdenDespacho().listAll().get(arreglo[i].getIdOrden() - 1).getNroGalones()));
-                aux.put("id_OrdenDespacho",new DaoOrdenDespacho().listAll().get(arreglo[i].getIdOrden() - 1).toString());
-                lista.add(aux);
-            }
         }
         return lista;
     }

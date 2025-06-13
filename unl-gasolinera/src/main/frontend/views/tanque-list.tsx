@@ -1,5 +1,5 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, NumberField, TextField, VerticalLayout } from '@vaadin/react-components';
+import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, HorizontalLayout, Icon, NumberField, Select, TextField, VerticalLayout } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
 import { TanqueService, TaskService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
@@ -7,7 +7,7 @@ import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
 
 import { useDataProvider } from '@vaadin/hilla-react-crud';
-import Tanque from 'Frontend/generated/org/unl/gasolinera/taskmanagement/domain/Tanque';
+import Tanque from 'Frontend/generated/org/unl/gasolinera/taskmanagement/domain/Task';
 import { useCallback, useEffect, useState } from 'react';
 
 export const config: ViewConfig = {
@@ -31,16 +31,18 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
   const tipo = useSignal('');
   const createTanque = async () => {
     try {
-      if (capacidad.value.trim().length > 0 && capacidadMinima.value.trim().length > 0 && capacidadTotal.value.trim().length > 0 && ordenCompra.value.trim().length > 0 && ordenDespacho.value.trim().length > 0 && tipo.value.trim().length > 0){
+      if (capacidad.value.trim().length > 0 && capacidadMinima.value.trim().length >0){
         const id_ordenCompra = parseInt(ordenCompra.value)+1;
-        const id_OrdenDespacho = parseInt(ordenDespacho.value)+1;
-        await TanqueService.createTanque(parseInt(capacidad.value), parseInt(capacidadMinima.value),parseInt(capacidadTotal.value), tipo.value, id_OrdenDespacho, id_ordenCompra);
+        const id_ordenDespacho = parseInt(ordenDespacho.value)+1;
+        await TanqueService.createTanque(parseInt(capacidad.value), parseInt(capacidadMinima.value),parseInt(capacidadTotal.value), tipo.value, id_ordenDespacho, id_ordenCompra);
         if (props.onTanqueCreated) {
           props.onTanqueCreated();
         }
         capacidad.value = '';
         capacidadMinima.value = '';
         capacidadTotal.value = '';
+        ordenCompra.value = '';
+        ordenDespacho.value = '';
         tipo.value = '';
         dialogOpened.value = false;
         Notification.show('Tanque creado', { duration: 5000, position: 'bottom-end', theme: 'success' });
@@ -153,38 +155,96 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
     </>
   );
 }
-
-//LISTA DE TanqueS
+//LiSTA TANQUES
 export default function TanqueView() {
-  
-  const dataProvider = useDataProvider<Tanque>({ 
-    list: () => TanqueService.listTanque(),
-  });
+  const [items, setItems] = useState([]);
+  //useEffect(() =>{
+  const callData = () => {
+    TanqueService.listAll().then(function (data) {
+      //items.values = data;
+      setItems(data);
+    });
+  };
+  useEffect(() => {
+    callData();
+  }, []);
+  const order = (event, columnId) => {
+    console.log(event);
+    const direction = event.detail.value;
+    console.log(`Sort direction changed for column ${columnId} to ${direction}`);
 
-  function indexIndex({model}:{model:GridItemModel<Tanque>}) {
+    var dir = (direction == 'asc') ? 1 : 2;
+    TanqueService.order(columnId, dir).then(function (data) {
+      setItems(data);
+    });
+  }
+  function indexIndex({ model }: { model: GridItemModel<Tanque> }) {
     return (
       <span>
-        {model.index + 1} 
+        {model.index + 1}
       </span>
     );
   }
+  const criterio = useSignal('');
+  const texto = useSignal('');
+  const itemSelect = [
+    {
 
+      label: 'Tipo de Combustible',
+      value: 'tipo',
+    },
+
+  ]
+  const search = async () => {
+    try {
+      TanqueService.search(criterio.value, texto.value, 0).then(function (data) { 
+        setItems(data);
+      });
+      criterio.value = '';
+      texto.value = '';
+      Notification.show('busqueda realizada', { duration: 5000, position: 'bottom-end', theme: 'success' });
+
+    } catch (error) {
+      console.log(error);
+      handleError(error);
+    }
+  };
   return (
-
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
 
-      <ViewToolbar title="Lista de Tanquees">
+      <ViewToolbar title="Lista de Canciones">
         <Group>
-          <TanqueEntryForm onTanqueCreated={dataProvider.refresh}/>
+          <TanqueEntryForm onTanqueCreated={callData}/>
         </Group>
       </ViewToolbar>
-      <Grid dataProvider={dataProvider.dataProvider}>
+      <HorizontalLayout theme="spacing">
+        <Select items={itemSelect}
+          value={criterio.value}
+          onValueChanged={(evt) => (criterio.value = evt.detail.value)}
+          placeholder="seleccione criterio">
+
+        </Select>
+        <TextField
+          placeholder="Search"
+          style={{ width: '50%' }}
+          value={texto.value}
+          onValueChanged={(evt) => (texto.value = evt.detail.value)}
+
+        >
+          <Icon slot="prefix" icon="vaadin:search" />
+        </TextField>
+        <Button onClick={search} theme="primary">
+          Buscar
+        </Button>
+      </HorizontalLayout>
+
+      <Grid items={items}>
         <GridColumn  renderer={indexIndex} header="Nro" />
-        <GridColumn path="capacidad" header="Capacidad" />
-        <GridColumn path="capacidadMinima" header="Capacidad Minima"/>
-        <GridColumn path="capacidadTotal" header="Capacidad Maxima"/>
-        <GridColumn path="ordenCompra" header="Orden Compra"/>
-        <GridColumn path="ordenDespacho" header="Orden Despacho"/>
+        <GridSortColumn path="capacidad" header="Capacidad" />
+        <GridSortColumn path="capacidadMinima" header="Capacidad Minima"onDirectionChanged={(e) => order(e, 'nombre')}/>
+        <GridSortColumn path="capacidadTotal" header="Capacidad Maxima"onDirectionChanged={(e) => order(e, 'nombre')}/>
+        <GridSortColumn path="ordenCompra" header="Orden Compra"onDirectionChanged={(e) => order(e, 'nombre')}/>
+        <GridSortColumn path="ordenDespacho" header="Orden Despacho"onDirectionChanged={(e) => order(e, 'nombre')}/>
         <GridColumn path="tipo" header="Tipo">
 
         </GridColumn>

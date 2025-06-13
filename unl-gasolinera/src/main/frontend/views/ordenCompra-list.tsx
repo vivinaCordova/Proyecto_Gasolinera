@@ -1,5 +1,5 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, NumberField, TextField, VerticalLayout } from '@vaadin/react-components';
+import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, HorizontalLayout, Icon, NumberField, Select, TextField, VerticalLayout } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
 import { OrdenCompraService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
@@ -7,7 +7,7 @@ import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
 import OrdenCompra from 'Frontend/generated/org/unl/gasolinera/taskmanagement/domain/Task';
 import { useDataProvider } from '@vaadin/hilla-react-crud';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export const config: ViewConfig = {
   title: 'Orden Compra',
@@ -27,9 +27,8 @@ function OrdenCompraEntryForm(props: OrdenCompraEntryFormProps) {
   const proveedor = useSignal('');
   const createOrdenCompra = async () => {
     try {
-      if (cantidad.value.trim().length > 0 && estado.value.trim().length > 0 && proveedor.value.trim().length > 0){
+      if (cantidad.value.trim().length > 0 && estado.value.trim().length > 0 ){
         const idProveedor = parseInt(proveedor.value)+1;
-        //const id_OrdenDespacho = parseInt(ordenDespacho.value)+1;
         await OrdenCompraService.createOrdenCompra(parseInt(cantidad.value), idProveedor,(estado.value));
         if (props.onOrdenCompraCreated) {
           props.onOrdenCompraCreated();
@@ -94,9 +93,9 @@ function OrdenCompraEntryForm(props: OrdenCompraEntryFormProps) {
             value={cantidad.value}
             onValueChanged={(evt) => (cantidad.value = evt.detail.value)}
             />
-          <ComboBox label="Tipo" 
+          <ComboBox label="Proveedor" 
             items={listaProveedor.value}
-            placeholder='Seleccione un tipo'
+            placeholder='Seleccione a el provedor'
             aria-label='Seleccione un tipo de combustible'
             value={proveedor.value}
             onValueChanged={(evt) => (proveedor.value = evt.detail.value)}
@@ -123,32 +122,94 @@ function OrdenCompraEntryForm(props: OrdenCompraEntryFormProps) {
 
 //LISTA DE OrdenCompraS
 export default function OrdenCompraView() {
-  
-  const dataProvider = useDataProvider<OrdenCompra>({ 
-    list: () => OrdenCompraService.listOrdenCompra(),
-  });
+  const [items, setItems] = useState([]);
+  //useEffect(() =>{
+  const callData = () => {
+    OrdenCompraService.listAll().then(function (data) {
+      //items.values = data;
+      setItems(data);
+    });
+  };
+  useEffect(() => {
+    callData();
+  }, []);
+  const order = (event, columnId) => {
+    console.log(event);
+    const direction = event.detail.value;
+    console.log(`Sort direction changed for column ${columnId} to ${direction}`);
 
-  function indexIndex({model}:{model:GridItemModel<OrdenCompra>}) {
+    var dir = (direction == 'asc') ? 1 : 2;
+    OrdenCompraService.order(columnId, dir).then(function (data) {
+      setItems(data);
+    });
+  }
+  function indexIndex({ model }: { model: GridItemModel<OrdenCompra> }) {
     return (
       <span>
-        {model.index + 1} 
+        {model.index + 1}
       </span>
     );
   }
+  const criterio = useSignal('');
+  const texto = useSignal('');
+  const itemSelect = [
+    {
+      label: 'Cantidad de pedido',
+      value: 'cantidad',
+    },
+    {
 
+      label: 'Proveedor',
+      value: 'proveedor',
+    },
+
+  ]
+  const search = async () => {
+    try {
+      OrdenCompraService.search(criterio.value, texto.value, 0).then(function (data) { 
+        setItems(data);
+      });
+      criterio.value = '';
+      texto.value = '';
+      Notification.show('busqueda realizada', { duration: 5000, position: 'bottom-end', theme: 'success' });
+
+    } catch (error) {
+      console.log(error);
+      handleError(error);
+    }
+  };
   return (
-
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
 
-      <ViewToolbar title="Lista de OrdenCompraes">
+      <ViewToolbar title="Lista de Proveedores">
         <Group>
-          <OrdenCompraEntryForm onOrdenCompraCreated={dataProvider.refresh}/>
+          <OrdenCompraEntryForm onOrdenCompraCreated={callData}/>
         </Group>
       </ViewToolbar>
-      <Grid dataProvider={dataProvider.dataProvider}>
+      <HorizontalLayout theme="spacing">
+        <Select items={itemSelect}
+          value={criterio.value}
+          onValueChanged={(evt) => (criterio.value = evt.detail.value)}
+          placeholder="seleccione criterio">
+
+        </Select>
+        <TextField
+          placeholder="Search"
+          style={{ width: '50%' }}
+          value={texto.value}
+          onValueChanged={(evt) => (texto.value = evt.detail.value)}
+
+        >
+          <Icon slot="prefix" icon="vaadin:search" />
+        </TextField>
+        <Button onClick={search} theme="primary">
+          Buscar
+        </Button>
+      </HorizontalLayout>
+      <Grid items={items}>
         <GridColumn  renderer={indexIndex} header="Nro" />
-        <GridColumn path="cantidad" header="Cantidad" />
-        <GridColumn path="proveedor" header="Proveedor"/>
+        <GridSortColumn path="cantidad" header="Cantidad" onDirectionChanged={(e) => order(e, 'nombre')}/>
+        <GridSortColumn path="proveedor" header="Proveedor"onDirectionChanged={(e) => order(e, 'nombre')}/>
         <GridColumn path="estado" header="Estado">
 
         </GridColumn>

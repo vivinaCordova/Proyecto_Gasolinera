@@ -1,5 +1,5 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, TextField, VerticalLayout } from '@vaadin/react-components';
+import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, HorizontalLayout, Icon, Select, TextField, VerticalLayout } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
 import { ProveedorService} from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
@@ -7,7 +7,7 @@ import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
 import Proveedor from 'Frontend/generated/org/unl/gasolinera/taskmanagement/domain/Task';
 import { useDataProvider } from '@vaadin/hilla-react-crud';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export const config: ViewConfig = {
   title: 'Proveedor',
@@ -89,7 +89,7 @@ function ProveedorEntryForm(props: ProveedorEntryFormProps) {
             value={nombre.value}
             onValueChanged={(evt) => (nombre.value = evt.detail.value)}
             />
-          <ComboBox label="Correo Electronico" 
+          <TextField label="Correo Electronico" 
             placeholder='Ingrese Correo Electronico'
             aria-label='Ingrese Correo Electronico'
             value={correoElectronico.value}
@@ -117,33 +117,101 @@ function ProveedorEntryForm(props: ProveedorEntryFormProps) {
 
 //LISTA DE ProveedorS
 export default function ProveedorView() {
-  
-  const dataProvider = useDataProvider<Proveedor>({ 
-    list: () => ProveedorService.listProveedor(),
-  });
+  const [items, setItems] = useState([]);
+  //useEffect(() =>{
+  const callData = () => {
+    ProveedorService.listAll().then(function (data) {
+      //items.values = data;
+      setItems(data);
+    });
+  };
+  useEffect(() => {
+    callData();
+  }, []);
+  const order = (event, columnId) => {
+    console.log(event);
+    const direction = event.detail.value;
+    console.log(`Sort direction changed for column ${columnId} to ${direction}`);
 
-  function indexIndex({model}:{model:GridItemModel<Proveedor>}) {
+    var dir = (direction == 'asc') ? 1 : 2;
+    ProveedorService.order(columnId, dir).then(function (data) {
+      setItems(data);
+    });
+  }
+  function indexIndex({ model }: { model: GridItemModel<Proveedor> }) {
     return (
       <span>
-        {model.index + 1} 
+        {model.index + 1}
       </span>
     );
   }
+  const criterio = useSignal('');
+  const texto = useSignal('');
+  const itemSelect = [
+    {
+      label: 'Nombre',
+      value: 'nombre',
+    },
+    {
 
+      label: 'Correo Electronico',
+      value: 'correoElectronico',
+    },
+    {
+
+      label: 'Tipo de Combustible',
+      value: 'tipo',
+    },
+
+  ]
+  const search = async () => {
+    try {
+      ProveedorService.search(criterio.value, texto.value, 0).then(function (data) { 
+        setItems(data);
+      });
+      criterio.value = '';
+      texto.value = '';
+      Notification.show('busqueda realizada', { duration: 5000, position: 'bottom-end', theme: 'success' });
+
+    } catch (error) {
+      console.log(error);
+      handleError(error);
+    }
+  };
   return (
-
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
 
       <ViewToolbar title="Lista de Proveedores">
         <Group>
-          <ProveedorEntryForm onProveedorCreated={dataProvider.refresh}/>
+          <ProveedorEntryForm onProveedorCreated={callData}/>
         </Group>
       </ViewToolbar>
-      <Grid dataProvider={dataProvider.dataProvider}>
+      <HorizontalLayout theme="spacing">
+        <Select items={itemSelect}
+          value={criterio.value}
+          onValueChanged={(evt) => (criterio.value = evt.detail.value)}
+          placeholder="seleccione criterio">
+
+        </Select>
+        <TextField
+          placeholder="Search"
+          style={{ width: '50%' }}
+          value={texto.value}
+          onValueChanged={(evt) => (texto.value = evt.detail.value)}
+
+        >
+          <Icon slot="prefix" icon="vaadin:search" />
+        </TextField>
+        <Button onClick={search} theme="primary">
+          Buscar
+        </Button>
+      </HorizontalLayout>
+      <Grid items={items}>
         <GridColumn  renderer={indexIndex} header="Nro" />
-        <GridColumn path="nombre" header="Nombre" />
-        <GridColumn path="correoElectronico" header="Correo Electronico"/>
-        <GridColumn path="tipo" header="Tipo">
+        <GridSortColumn path="nombre" header="Nombre" onDirectionChanged={(e) => order(e, 'nombre')}/>
+        <GridSortColumn path="tipoCombustible" header="Tipo"onDirectionChanged={(e) => order(e, 'nombre')}/>
+        <GridColumn path="correoElectronico" header="Correo Electronico">
+        
 
         </GridColumn>
       </Grid>

@@ -4,14 +4,23 @@ public class OrdenCompra {
     private Integer id;
     private float cantidad;
     private Integer idProveedor;
+    private Integer idTanque;
     private EstadoOrdenCompraEnum estado;
 
-    public EstadoOrdenCompraEnum getEstado() {
-        return this.estado;
+    public Integer getId() {
+        return this.id;
     }
 
-    public void setEstado(EstadoOrdenCompraEnum estado) {
-        this.estado = estado;
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public float getCantidad() {
+        return this.cantidad;
+    }
+
+    public void setCantidad(float cantidad) {
+        this.cantidad = cantidad;
     }
 
     public Integer getIdProveedor() {
@@ -21,19 +30,22 @@ public class OrdenCompra {
     public void setIdProveedor(Integer idProveedor) {
         this.idProveedor = idProveedor;
     }
-    public float getCantidad() {
-        return this.cantidad;
+
+    public Integer getIdTanque() {
+        return this.idTanque;
     }
 
-    public void setCantidad(float cantidad) {
-        this.cantidad = cantidad;
-    }
-    public Integer getId() {
-        return this.id;
+    public void setIdTanque(Integer idTanque) {
+        this.idTanque = idTanque;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public EstadoOrdenCompraEnum getEstado() {
+        return this.estado;
     }
+
+    public void setEstado(EstadoOrdenCompraEnum estado) {
+        this.estado = estado;
+    }
+    
     
 }

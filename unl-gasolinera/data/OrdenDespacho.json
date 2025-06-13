@@ -1,1 +1,11 @@
-[]
+[
+    {
+        "id": 1,
+        "nroGalones": 9.2,
+        "codigo": "a001",
+        "fecha": "Jun 12, 2025, 10:19:00 PM",
+        "precioTotal": 20.6,
+        "estado": "COMPLETADO",
+        "idVehiculo": 1
+    }
+]
