@@ -1,0 +1,29 @@
+[
+    {
+        "id": 1,
+        "capacidad": 500.0,
+        "capacidadTotal": 346.0,
+        "capacidadMinima": 245.0,
+        "tipo": "SUPER",
+        "idOrdenCompra": 1,
+        "idOrdenDespacho": 1
+    },
+    {
+        "id": 2,
+        "capacidad": 200.0,
+        "capacidadTotal": 14421.0,
+        "capacidadMinima": 112421.0,
+        "tipo": "SUPER",
+        "idOrdenCompra": 1,
+        "idOrdenDespacho": 1
+    },
+    {
+        "id": 3,
+        "capacidad": 121.0,
+        "capacidadTotal": 121.0,
+        "capacidadMinima": 1211.0,
+        "tipo": "EXTRA",
+        "idOrdenCompra": 1,
+        "idOrdenDespacho": 1
+    }
+]

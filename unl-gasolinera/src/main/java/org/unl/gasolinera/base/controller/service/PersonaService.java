@@ -46,7 +46,11 @@ public class PersonaService {
             for(int i = 0; i < arreglo.length; i++) {
                 HashMap<String, String> aux = new HashMap<>();
                 aux.put("value", arreglo[i].getId().toString(i));
+<<<<<<< HEAD
                 aux.put("label", arreglo[i].getCorreo());
+=======
+                //aux.put("label", arreglo[i].getUsuario());
+>>>>>>> Viviana
                 lista.add(aux);
             }
         }
@@ -63,8 +67,13 @@ public class PersonaService {
                 aux.put("nombre", arreglo[i].getNombres());
                 aux.put("apellido", arreglo[i].getApellidos());
                 aux.put("cedula", arreglo[i].getCedula());
+<<<<<<< HEAD
                 //aux.put("cuenta", new DaoCuenta().listAll().get(arreglo[i].getIdCuenta()-1).getCorreo());
                 //aux.put("idCuenta", new DaoCuenta().listAll().get(arreglo[i].getIdCuenta()-1).getId().toString());
+=======
+                //aux.put("cuenta", new DaoCuenta().listAll().get(arreglo[i].getIdCuenta()-1).getUsuario());
+                aux.put("idCuenta", new DaoCuenta().listAll().get(arreglo[i].getIdCuenta()-1).getId().toString());
+>>>>>>> Viviana
                 lista.add(aux);
             }
         }
