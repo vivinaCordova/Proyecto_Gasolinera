@@ -19,8 +19,6 @@ import org.unl.gasolinera.base.models.OrdenDespacho;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 
-import jakarta.validation.constraints.NotEmpty;
-
 @BrowserCallable
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 @AnonymousAllowed
@@ -33,7 +31,7 @@ public class PagoService {
         db = new DaoPago();
     }
 
-    public void create(@NotEmpty Integer nroTansaccion, @NotEmpty Boolean estadoP, Integer idOrdenDespacho) throws Exception {
+    public void create(Integer nroTansaccion, Boolean estadoP, Integer idOrdenDespacho) throws Exception {
         if (nroTansaccion > 0 && estadoP != null && idOrdenDespacho > 0) {
             db.getObj().setNroTransaccion(nroTansaccion);
         }
@@ -44,9 +42,9 @@ public class PagoService {
         }
     }
 
-    public void update(@NotEmpty Integer id, @NotEmpty Integer nroTansaccion, @NotEmpty Boolean estadoP, Integer idOrdenDespacho) throws Exception {
+    public void update(Integer id, Integer nroTansaccion, Boolean estadoP, Integer idOrdenDespacho) throws Exception {
         if (nroTansaccion > 0 && estadoP != null && idOrdenDespacho > 0) {
-            db.setObj(db.listAll().get(id - 1));
+            db.setObj(db.listAll().get(id));
         }
         db.getObj().setNroTransaccion(nroTansaccion);
         db.getObj().setEstadoP(estadoP);
@@ -62,7 +60,7 @@ public class PagoService {
         if (!db.listAll().isEmpty()) {
             OrdenDespacho[] arreglo = da.listAll().toArray();
             for (int i = 0; i < arreglo.length; i++) {
-                HashMap<String, String> aux = new HashMap<>();
+                HashMap<String, Object> aux = new HashMap<>();
                 aux.put("value", arreglo[i].getId().toString(i));
                 aux.put("label", arreglo[i].getCodigo());
                 lista.add(aux);
@@ -88,6 +86,21 @@ public class PagoService {
         }
     }
 
+    public void crearPago(Integer idOrdenDespacho, Boolean estado) throws Exception {
+        System.out.println("Llamada a crearPago: idOrdenDespacho=" + idOrdenDespacho + ", estado=" + estado);
+        if (idOrdenDespacho == null || estado == null) {
+            throw new Exception("Datos incompletos para crear el pago");
+        }
+        int nroTransaccion = db.listAll().getLength() + 1;
+        org.unl.gasolinera.base.models.Pago nuevoPago = new org.unl.gasolinera.base.models.Pago();
+        nuevoPago.setNroTransaccion(nroTransaccion);
+        nuevoPago.setEstadoP(estado);
+        nuevoPago.setIdOrdenDespacho(idOrdenDespacho);
+        db.setObj(nuevoPago);
+        if (!db.save()) {
+            throw new Exception("No se pudo guardar el pago");
+        }
+    }
 
     /*public String realizarCobro(Integer idPago) throws Exception {
         Pago pago = db.listAll().get(idPago - 1);
@@ -106,16 +119,17 @@ public class PagoService {
         System.out.println("Transacción: " + pago.getNroTransaccion());
         System.out.println("Estado: " + pago.getEstadoP());
     }*/
-    public Map<String, String> checkout(@RequestParam float total, @RequestParam String currency) {
+    public Map<String, Object> checkout(@RequestParam float total, @RequestParam String currency) {
         try {
-            HashMap<String, String> response = new PagoControl().request(total, currency);
-            return response; // contiene checkoutId
+            HashMap<String, Object> response = new PagoControl().request(total, currency);
+            System.out.println("Respuesta checkout backend: " + response);
+            return response;
         } catch (Exception e) {
             return Map.of("estado", "false", "error", e.getMessage());
         }
     }
 
-    public HashMap<String, String> consultarEstadoPago(String idCheckout) throws IOException {
+    public HashMap<String, Object> consultarEstadoPago(String idCheckout) throws IOException {
         PagoControl pagoControl = new PagoControl();
         return pagoControl.requestPay(idCheckout);
     }
@@ -124,7 +138,7 @@ public class PagoService {
     /*public static void main(String[] args) {
         PagoService service = new PagoService();
         try {
-            HashMap<String, String> resultado = service.consultarEstadoPago("8920F4D08D3C0D65606BB9670B00C4E5.uat01-vm-tx04");
+            HashMap<String, Object> resultado = service.consultarEstadoPago("8920F4D08D3C0D65606BB9670B00C4E5.uat01-vm-tx04");
             System.out.println("Estado del pago: " + resultado.get("estado"));
         } catch (IOException e) {
             e.printStackTrace();

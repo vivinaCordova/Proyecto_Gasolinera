@@ -28,10 +28,11 @@ public class DaoPago extends AdapterDao<Pago> {
 
     public Boolean save() {
         try {
+            System.out.println("Entrando a save() de DaoPago");
             obj.setId(listAll().getLength() + 1);
             this.persist(obj);
+            System.out.println("Pago guardado correctamente en persist()");
             return true;
-
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(e);
@@ -237,4 +238,5 @@ public class DaoPago extends AdapterDao<Pago> {
             System.out.println("Error");
         }
     }
+
 }
