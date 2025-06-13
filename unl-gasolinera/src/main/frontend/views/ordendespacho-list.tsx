@@ -1,13 +1,15 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, NumberField, TextField, VerticalLayout } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
-import { OrdenDespachoService, TaskService } from 'Frontend/generated/endpoints';
+import { OrdenDespachoService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
-import Task from 'Frontend/generated/org/unl/gasolinera/taskmanagement/domain/Task';
 import { useDataProvider } from '@vaadin/hilla-react-crud';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { PagoService } from 'Frontend/generated/endpoints';
+
+// export async function crearPago(idOrdenDespacho: number, estado: boolean): Promise<void>
 
 export const config: ViewConfig = {
   title: 'Orden de Despacho',
@@ -165,8 +167,56 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
 export default function OrdenDespachoView() {
   const dataProvider = useDataProvider<any>({
     list: () => OrdenDespachoService.listOrdenDespacho(),
-    
   });
+
+  const [ordenPago, setOrdenPago] = useState<any | null>(null);
+  const [checkoutId, setCheckoutId] = useState<string | null>(null);
+  const [mensajePago, setMensajePago] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const ordenPagoId = ordenPago?.id || localStorage.getItem('ordenPagoId');
+    if (id && ordenPagoId) {
+      PagoService.consultarEstadoPago(id).then(async resultado => {
+        if (resultado && resultado.estado === "true") {
+          setMensajePago("Pago realizado con éxito");
+          // Llama correctamente a crearPago con parámetros individuales
+          console.log('Llamando crearPago', Number(ordenPagoId), true);
+          await PagoService.crearPago(
+            Number(ordenPagoId),
+            true
+          );
+        } else if (resultado && resultado.estado === "false") {
+          setMensajePago("Pago rechazado");
+          console.log('Llamando crearPago', Number(ordenPagoId), false);
+          await PagoService.crearPago(
+            Number(ordenPagoId),
+            false
+          );
+        }
+        setOrdenPago(null);
+        setCheckoutId(null);
+        localStorage.removeItem('ordenPagoId');
+        window.history.replaceState({}, '', window.location.pathname);
+        dataProvider.refresh();
+      });
+    }
+    // eslint-disable-next-line
+  }, [window.location.search]);
+
+  useEffect(() => {
+    if (checkoutId) {
+      const script = document.createElement('script');
+      script.src = `https://eu-test.oppwa.com/v1/paymentWidgets.js?checkoutId=${checkoutId}`;
+      script.async = true;
+      document.body.appendChild(script);
+
+      return () => {
+        document.body.removeChild(script);
+      };
+    }
+  }, [checkoutId]);
 
   function indexIndex({ model }: { model: GridItemModel<any> }) {
     return <span>{model.index + 1}</span>;
@@ -190,7 +240,49 @@ export default function OrdenDespachoView() {
         <GridColumn path="idVehiculo" header="ID Vehículo" />
         <GridColumn path="idPrecioGalon" header="ID Precio Galón" />
         <GridColumn path="idEstacion" header="ID Estación" />
+        <GridColumn
+          header="Acción"
+          renderer={({ item }) => (
+            <Button
+              theme="primary"
+              onClick={() => {
+                setOrdenPago(item);
+                setMensajePago(null);
+                setCheckoutId(null);
+                localStorage.setItem('ordenPagoId', item.id);
+              }}
+              disabled={!!checkoutId}
+            >
+              Pagar
+            </Button>
+          )}
+        />
       </Grid>
+      {ordenPago && !checkoutId && (
+        <div style={{ marginTop: '1rem' }}>
+          <h4>Pago para orden: {ordenPago.codigo} (${ordenPago.precioTotal})</h4>
+          <Button
+            theme="primary"
+            onClick={async () => {
+              const resp = await PagoService.checkout(ordenPago.precioTotal, 'USD');
+              if (resp && resp.id) {
+                setCheckoutId(String(resp.id));
+              } else {
+                setMensajePago('No se pudo iniciar el pago');
+              }
+            }}
+          >
+            Iniciar Pago
+          </Button>
+        </div>
+      )}
+      {checkoutId && (
+        <form
+          className="paymentWidgets"
+          data-brands="VISA MASTER AMEX"
+          style={{ marginTop: '1rem' }}
+        ></form>
+      )}
     </main>
   );
 }

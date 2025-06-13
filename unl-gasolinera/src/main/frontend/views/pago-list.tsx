@@ -31,11 +31,10 @@ function PagoEntryForm(props: PagoEntryFormProps) {
   const createPago = async () => {
     try {
       if (nroTransaccion.value.trim().length > 0 && orden_despacho.value.trim().length > 0) {
-        await PagoService.create(
-          parseInt(nroTransaccion.value),
-          estadoP.value === 'true', // boolean as second argument
-          parseInt(orden_despacho.value)
-        );
+        await PagoService.crearPago({
+          idOrdenDespacho: parseInt(orden_despacho.value),
+          estado: estadoP.value === 'true'
+        });
         if (props.onPagoCreated) {
           props.onPagoCreated();
         }
