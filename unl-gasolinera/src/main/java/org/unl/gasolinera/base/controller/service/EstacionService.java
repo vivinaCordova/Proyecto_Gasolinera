@@ -8,7 +8,6 @@ import java.util.List;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoEstacion;
-import org.unl.gasolinera.base.models.Estacion;
 import org.unl.gasolinera.base.models.EstadoUsoEnum;
 
 import com.github.javaparser.quality.NotNull;
@@ -55,24 +54,6 @@ public class EstacionService {
             throw new  Exception("No se pudo guardar los datos de Estacion");
 
         }
-    }
-
-    
-    public List<HashMap> listEstacion(){
-        List<HashMap> lista = new ArrayList<>();
-        if(!db.listAll().isEmpty()) {
-            Estacion [] arreglo = db.listAll().toArray();
-           
-            for(int i = 0; i < arreglo.length; i++) {
-                
-                HashMap<String, String> aux = new HashMap<>();
-                aux.put("id", arreglo[i].getId().toString(i));                
-                aux.put("estado", arreglo[i].getEstadoE().toString());
-                aux.put("codigo", arreglo[i].getCodigo());
-                lista.add(aux);
-            }
-        }
-        return lista;
     }
 
     public List<String> listEstadoE() {
