@@ -9,8 +9,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoPersona;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoVehiculo;
+import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.Persona;
-import org.unl.gasolinera.base.models.Vehiculo;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
@@ -22,54 +22,72 @@ import jakarta.validation.constraints.NotEmpty;
 @AnonymousAllowed
 
 public class VehiculoService {
-    private DaoVehiculo dv;
+
+    private DaoVehiculo db;
+
     public VehiculoService() {
-        dv = new DaoVehiculo();
+        db = new DaoVehiculo();
     }
 
-    public void createVehiculo(@NotEmpty String placa, @NotEmpty String modelo, @NotEmpty String marca) throws Exception{
-        dv.getObj().setPlaca(placa);
-        dv.getObj().setModelo(modelo);
-        dv.getObj().setMarca(marca);
-        if(!dv.save())
-            throw new  Exception("No se pudo guardar los datos de Vehiculo");
+    public void create(@NotEmpty String placa, @NotEmpty String modelo, @NotEmpty String marca, Integer idPropietario) throws Exception {
+        if (placa.trim().length() > 0 && modelo.trim().length() > 0 && marca.trim().length() > 0 && idPropietario > 0) {
+
+        }
+        db.getObj().setPlaca(placa);
+        db.getObj().setModelo(modelo);
+        db.getObj().setMarca(marca);
+        db.getObj().setIdPropietario(idPropietario);
+
+        if (!db.save()) {
+            throw new Exception("No se pudo guardar los datos del vehículo");
+        }
+
     }
 
+    public void update(Integer id, @NotEmpty String placa, @NotEmpty String modelo, @NotEmpty String marca, Integer idPropietario) throws Exception {
+        if (id != null && id > 0 && placa.trim().length() > 0 && modelo.trim().length() > 0 && marca.trim().length() > 0 && idPropietario != null) {
+            
+        }
 
-    public List<HashMap> listPersonaCombo(){
+        db.setObj(db.listAll().get(id));
+        db.getObj().setPlaca(placa);
+        db.getObj().setModelo(modelo);
+        db.getObj().setMarca(marca);
+        db.getObj().setIdPropietario(idPropietario);
+
+        if (!db.update(id)) {
+            throw new Exception("No se pudo actualizar el vehículo");
+        }
+    }
+
+    public List<HashMap> listaPersonaCombo() {
         List<HashMap> lista = new ArrayList<>();
-        DaoPersona   dp= new DaoPersona();
-        if(!dp.listAll().isEmpty()) {
-            Persona [] arreglo = dp.listAll().toArray();
-            for(int i = 0; i < arreglo.length; i++) {
+        DaoPersona dao = new DaoPersona();
+        if (!dao.listAll().isEmpty()) {
+            for (Persona p : dao.listAll().toArray()) {
                 HashMap<String, String> aux = new HashMap<>();
-                aux.put("value", arreglo[i].getId().toString(i));
-                aux.put("label", arreglo[i].getNombres());
+                aux.put("value", p.getId().toString());
+                aux.put("label", p.getNombres());
                 lista.add(aux);
             }
         }
         return lista;
     }
 
-    public List<HashMap> listVehiculo(){
-        List<HashMap> lista = new ArrayList<>();
-        if(!dv.listAll().isEmpty()) {
-            Vehiculo [] arreglo = dv.listAll().toArray();
-            for(int i = 0; i < arreglo.length; i++) {
-                HashMap<String, String> aux = new HashMap<>();
-                aux.put("id", arreglo[i].getId().toString(i));             
-                aux.put("placa", arreglo[i].getPlaca());
-                aux.put("modelo", arreglo[i].getModelo());
-                aux.put("marca", arreglo[i].getMarca());
-                aux.put("propietario", new DaoPersona().listAll().get(arreglo[i].getIdPropietario()-1).getNombres());
-                aux.put("idPropietario", new DaoPersona().listAll().get(arreglo[i].getIdPropietario()-1).getId().toString());
-                lista.add(aux);
-            }
-        }
-        return lista;
+    public List<HashMap> listAll() throws Exception {
+        return Arrays.asList(db.all().toArray());
     }
 
-        public List<Vehiculo> listAll() {  
-       return (List<Vehiculo>)Arrays.asList(dv.listAll().toArray());
+    public List<HashMap> order(String attribute, Integer type) throws Exception {
+        return Arrays.asList(db.orderByVehiculo(type, attribute).toArray());
+    }
+
+    public List<HashMap> search(String attribute, String text, Integer type) throws Exception {
+        LinkedList<HashMap<String, Object>> lista = db.search(attribute, text, type);
+        if (!lista.isEmpty()) {
+            return Arrays.asList(lista.toArray());
+        } else {
+            return new ArrayList<>();
+        }
     }
 }

@@ -1,1 +1,42 @@
-[]
+[
+    {
+        "id": 1,
+        "fecha": "Jun 12, 2025, 2:32:48 PM",
+        "fechaFin": "Jul 12, 2025, 2:32:48 PM",
+        "estado": true,
+        "precio": 1.8,
+        "tipoCombustible": "DIESEL"
+    },
+    {
+        "id": 2,
+        "fecha": "Jun 12, 2025, 2:32:48 PM",
+        "fechaFin": "Jul 7, 2025, 2:32:48 PM",
+        "estado": true,
+        "precio": 2.5,
+        "tipoCombustible": "ECOPAIS"
+    },
+    {
+        "id": 3,
+        "fecha": "Jun 12, 2025, 2:32:48 PM",
+        "fechaFin": "Jul 12, 2025, 2:32:48 PM",
+        "estado": true,
+        "precio": 3.52,
+        "tipoCombustible": "SUPER"
+    },
+    {
+        "id": 4,
+        "fecha": "Jun 3, 2025, 7:00:00 PM",
+        "fechaFin": "Jun 19, 2025, 7:00:00 PM",
+        "estado": true,
+        "precio": 20.0,
+        "tipoCombustible": "EXTRA"
+    },
+    {
+        "id": 5,
+        "fecha": "Jun 11, 2025, 7:00:00 PM",
+        "fechaFin": "Jul 2, 2025, 7:00:00 PM",
+        "estado": false,
+        "precio": 2.25,
+        "tipoCombustible": "EXTRA"
+    }
+]

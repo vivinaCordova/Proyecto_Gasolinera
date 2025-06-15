@@ -9,81 +9,83 @@ public class OrdenDespacho {
     private Date fecha;
     private float precioTotal;
     private EstadoOrdenDespachadoEnum estado;
-    private Integer idPrecioGalon;
+    private Integer idPrecioEstablecido;
     private Integer idVehiculo;
     private Integer idEstacion;
 
-    public Integer getId() {
-        return this.id;
-    }
+	public Integer getId() {
+		return this.id;
+	}
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public Float getNroGalones() {
-        return this.nroGalones;
-    }
+	public Float getNroGalones() {
+		return this.nroGalones;
+	}
 
-    public void setNroGalones(Float nroGalones) {
-        this.nroGalones = nroGalones;
-    }
+	public void setNroGalones(Float nroGalones) {
+		this.nroGalones = nroGalones;
+	}
 
-    public String getCodigo() {
-        return this.codigo;
-    }
+	public String getCodigo() {
+		return this.codigo;
+	}
 
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
-    }
+	public void setCodigo(String codigo) {
+		this.codigo = codigo;
+	}
 
-    public Date getFecha() {
-        return this.fecha;
-    }
+	public Date getFecha() {
+		return this.fecha;
+	}
 
-    public void setFecha(Date fecha) {
-        this.fecha = fecha;
-    }
+	public void setFecha(Date fecha) {
+		this.fecha = fecha;
+	}
 
-    public float getPrecioTotal() {
-        return this.precioTotal;
-    }
+	public float getPrecioTotal() {
+		return this.precioTotal;
+	}
 
-    public void setPrecioTotal(float precioTotal) {
-        this.precioTotal = precioTotal;
-    }
+	public void setPrecioTotal(float precioTotal) {
+		this.precioTotal = precioTotal;
+	}
 
-    public EstadoOrdenDespachadoEnum getEstado() {
-        return this.estado;
-    }
+	public EstadoOrdenDespachadoEnum getEstado() {
+		return this.estado;
+	}
 
-    public void setEstado(EstadoOrdenDespachadoEnum estado) {
-        this.estado = estado;
-    }
+	public void setEstado(EstadoOrdenDespachadoEnum estado) {
+		this.estado = estado;
+	}
 
-    public Integer getIdPrecioGalon() {
-        return this.idPrecioGalon;
-    }
+	public Integer getIdPrecioEstablecido() {
+		return this.idPrecioEstablecido;
+	}
 
-    public void setIdPrecioGalon(Integer idPrecioGalon) {
-        this.idPrecioGalon = idPrecioGalon;
-    }
+	public void setIdPrecioEstablecido(Integer idPrecioEstablecido) {
+		this.idPrecioEstablecido = idPrecioEstablecido;
+	}
 
-    public Integer getIdVehiculo() {
-        return this.idVehiculo;
-    }
+	public Integer getIdVehiculo() {
+		return this.idVehiculo;
+	}
 
-    public void setIdVehiculo(Integer idVehiculo) {
-        this.idVehiculo = idVehiculo;
-    }
+	public void setIdVehiculo(Integer idVehiculo) {
+		this.idVehiculo = idVehiculo;
+	}
 
-    public Integer getIdEstacion() {
-        return this.idEstacion;
-    }
+	public Integer getIdEstacion() {
+		return this.idEstacion;
+	}
 
-    public void setIdEstacion(Integer idEstacion) {
-        this.idEstacion = idEstacion;
-    }
+	public void setIdEstacion(Integer idEstacion) {
+		this.idEstacion = idEstacion;
+	}
+
+
 
 
 

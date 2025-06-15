@@ -1,8 +1,23 @@
 [
     {
         "id": 1,
-        "placa": "IJ58LO",
-        "modelo": "K3",
-        "marca": "KIA"
+        "placa": "001",
+        "modelo": "4x4",
+        "marca": "toyota",
+        "idPropietario": 2
+    },
+    {
+        "id": 2,
+        "placa": "002",
+        "modelo": "4x4",
+        "marca": "toyota",
+        "idPropietario": 1
+    },
+    {
+        "id": 3,
+        "placa": "003",
+        "modelo": "2puertas",
+        "marca": "Hyundai",
+        "idPropietario": 1
     }
 ]
