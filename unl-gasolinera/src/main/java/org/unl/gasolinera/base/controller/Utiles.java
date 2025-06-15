@@ -1,6 +1,5 @@
 package org.unl.gasolinera.base.controller;
 
-<<<<<<< HEAD
 import java.text.DecimalFormat;
 
 public class Utiles {
@@ -25,4 +24,5 @@ public class Utiles {
         }
         return band;
     }
+}
 
