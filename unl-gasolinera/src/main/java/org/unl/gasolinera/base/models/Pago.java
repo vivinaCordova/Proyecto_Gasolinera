@@ -1,10 +1,19 @@
 package org.unl.gasolinera.base.models;
 
 public class Pago {
+
     private Integer id;
     private Integer nroTransaccion;
-    private EstadoPagoEnum estadoP;
     private Integer idOrdenDespacho;
+    private Boolean estadoP;
+
+    public Boolean getEstadoP() {
+        return this.estadoP;
+    }
+
+    public void setEstadoP(Boolean estadoP) {
+        this.estadoP = estadoP;
+    }
 
     public Integer getId() {
         return this.id;
@@ -22,14 +31,6 @@ public class Pago {
         this.nroTransaccion = nroTransaccion;
     }
 
-    public EstadoPagoEnum getEstadoP() {
-        return this.estadoP;
-    }
-
-    public void setEstadoP(EstadoPagoEnum estadoP) {
-        this.estadoP = estadoP;
-    }
-
     public Integer getIdOrdenDespacho() {
         return this.idOrdenDespacho;
     }
@@ -38,4 +39,3 @@ public class Pago {
         this.idOrdenDespacho = idOrdenDespacho;
     }
 }
-

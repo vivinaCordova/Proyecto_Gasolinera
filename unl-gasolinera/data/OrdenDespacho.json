@@ -1,0 +1,35 @@
+[
+    {
+        "id": 1,
+        "nroGalones": 9.2,
+        "codigo": "testealo",
+        "fecha": "Jun 12, 2025, 3:27:53 PM",
+        "precioTotal": 92.0,
+        "estado": "COMPLETADO",
+        "idPrecioGalon": 1,
+        "idVehiculo": 1,
+        "idEstacion": 1
+    },
+    {
+        "id": 2,
+        "nroGalones": 9.2,
+        "codigo": "a001",
+        "fecha": "Jun 12, 2025, 3:27:53 PM",
+        "precioTotal": 92.0,
+        "estado": "COMPLETADO",
+        "idPrecioGalon": 1,
+        "idVehiculo": 1,
+        "idEstacion": 1
+    },
+    {
+        "id": 3,
+        "nroGalones": 50,
+        "codigo": "test3",
+        "fecha": "Jun 12, 2025, 3:27:53 PM",
+        "precioTotal": 99.0,
+        "estado": "COMPLETADO",
+        "idPrecioGalon": 1,
+        "idVehiculo": 1,
+        "idEstacion": 1
+    }
+]
