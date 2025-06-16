@@ -1,7 +1,7 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, NumberField, TextField, VerticalLayout } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
-import { EstacionService, TaskService } from 'Frontend/generated/endpoints';
+import { CuentaService, EstacionService, TaskService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
@@ -9,6 +9,8 @@ import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
 import { useDataProvider } from '@vaadin/hilla-react-crud';
 
 import { useCallback, useEffect, useState } from 'react';
+import { role } from 'Frontend/security/auth';
+import { logout } from '@vaadin/hilla-frontend';
 
 export const config: ViewConfig = {
   title: 'Estacion',
@@ -37,6 +39,14 @@ type EstacionEntryFormPropsUpdate = {
 
 //GUARDAR Estacion
 function EstacionEntryForm(props: EstacionEntryFormProps) {
+    useEffect(() => {
+      role().then(async (data) => {
+        if (data?.rol != 'ROLE_admin') {
+          await CuentaService.logout();
+          await logout();
+        }
+      });
+    }, []);
   const codigo = useSignal('');
   const estado = useSignal('');
   const createEstacion = async () => {

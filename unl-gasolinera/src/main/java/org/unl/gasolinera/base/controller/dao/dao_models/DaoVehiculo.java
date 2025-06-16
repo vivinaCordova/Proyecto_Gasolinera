@@ -109,7 +109,7 @@ public class DaoVehiculo extends AdapterDao<Vehiculo> {
         aux.put("placa", arreglo.getPlaca());
         aux.put("modelo", arreglo.getModelo());
         aux.put("marca", arreglo.getMarca());
-        aux.put("propietario", dp.listAll().get(arreglo.getIdPropietario()).getNombres());
+        aux.put("propietario", dp.listAll().get(arreglo.getIdPropietario()).getUsuario());
 
         return aux;
     }

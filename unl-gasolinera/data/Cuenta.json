@@ -1,5 +1,8 @@
 [
-    { "id": 1, "correo": "arelys@mail.com", "clave": "Are", "estado": true, "id_persona": 1 },
-    { "id": 2, "correo": "shami@mail.com", "clave": "Shami123", "estado": true, "id_persona": 2 },
-    { "id": 3, "correo": "carolina@mail.com", "clave": "17Enero", "estado": true, "id_persona": 3 }
+  { "id": 1, "correo": "arelys@mail.com", "clave": "are", "estado": true, "id_persona": 1 },
+  { "id": 2, "correo": "shami@mail.com", "clave": "123", "estado": true, "id_persona": 2 },
+  { "id": 3, "correo": "carolina@mail.com", "clave": "123", "estado": true, "id_persona": 3 },
+  { "id": 4, "correo": "a@a", "clave": "123", "estado": true, "id_persona": 1 },
+  { "id": 5, "correo": "dou@gmail.com", "clave": "aaa", "estado": true, "id_persona": 4 },
+  { "id": 6, "correo": "dougdree@gmail.com", "clave": "aaa1", "estado": false, "id_persona": 4 }
 ]

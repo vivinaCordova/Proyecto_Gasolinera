@@ -1,26 +1,6 @@
 [
-  {
-    "id": 1,
-    "usuario": "viviana123",
-    "nombres": "Viviana",
-    "apellidos": "Cordova",
-    "cedula": "1107303293",
-    "edad": 30
-  },
-  {
-    "id": 2,
-    "usuario": "douglas_p",
-    "nombres": "Douglas",
-    "apellidos": "Pardo",
-    "cedula": "6",
-    "edad": 25
-  },
-  {
-    "id": 3,
-    "usuario": "arelys_ajila",
-    "nombres": "Arelys",
-    "apellidos": "Ajila",
-    "cedula": "1",
-    "edad": 28
-  }
+  { "id": 1, "usuario": "arelys", "cedula": "0707303293", "id_rol": 2 },
+  { "id": 2, "usuario": "shamira", "cedula": "0705036192", "id_rol": 2 },
+  { "id": 3, "usuario": "carolina", "cedula": "0708056974", "id_rol": 1 },
+  { "id": 4, "usuario": "douglas", "cedula": "1140458770", "id_rol": 1 }
 ]
