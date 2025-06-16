@@ -29,7 +29,7 @@ import Persona from 'Frontend/generated/org/unl/gasolinera/base/models/Persona';
 export const config: ViewConfig = {
   title: 'Persona',
   menu: {
-    icon: 'vaadin:clipboard-check',
+    icon: 'vaadin:user',
     order: 1,
     title: 'Persona',
   },

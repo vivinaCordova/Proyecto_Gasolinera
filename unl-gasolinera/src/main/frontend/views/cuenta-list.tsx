@@ -28,7 +28,7 @@ import { listaPersonaCombo } from 'Frontend/generated/CuentaService';
 export const config: ViewConfig = {
   title: 'Cuentas',
   menu: {
-    icon: 'vaadin:clipboard-check',
+    icon: 'vaadin:archive',
     order: 2,
     title: 'Cuentas',
   },
