@@ -23,7 +23,6 @@ public class OrdenCompra {
         this.idTanque = idTanque;
     }
 
-
     public Integer getIdProveedor() {
         return this.idProveedor;
     }

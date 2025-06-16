@@ -5,7 +5,9 @@ import java.util.HashMap;
 import org.unl.gasolinera.base.controller.Utiles;
 import org.unl.gasolinera.base.controller.dao.AdapterDao;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
+import org.unl.gasolinera.base.models.EstadoOrdenCompraEnum;
 import org.unl.gasolinera.base.models.OrdenCompra;
+import org.unl.gasolinera.base.models.Tanque;
 
 public class DaoOrdenCompra extends AdapterDao<OrdenCompra>{
     private OrdenCompra obj;

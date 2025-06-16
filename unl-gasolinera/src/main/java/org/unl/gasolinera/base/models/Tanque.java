@@ -6,6 +6,8 @@ public class Tanque {
     private float capacidadTotal;
     private float capacidadMinima;
     private TipoCombustibleEnum tipo;
+
+
     public Integer getId() {
         return this.id;
     }

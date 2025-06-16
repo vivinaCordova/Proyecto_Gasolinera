@@ -79,9 +79,10 @@ public class DaoTanque extends AdapterDao <Tanque>{
     private HashMap<String, Object> toDict(Tanque arreglo, Integer i) throws Exception {
         HashMap<String, Object> aux = new HashMap<>();
         aux.put("id", arreglo.getId());
+        aux.put("codigo", arreglo.getCodigo().toString());
         aux.put("capacidad", arreglo.getCapacidad());
         aux.put("capacidadTotal", arreglo.getCapacidadTotal());
-        aux.put("capacidaddMinima", arreglo.getCapacidadMinima());
+        aux.put("capacidadMinima", arreglo.getCapacidadMinima());
         aux.put("tipo", arreglo.getTipo().toString());
         return aux;
     }

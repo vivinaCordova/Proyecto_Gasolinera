@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoTanque;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.TipoCombustibleEnum;
@@ -19,6 +20,7 @@ import org.unl.gasolinera.base.models.Tanque;
 @AnonymousAllowed
 public class TanqueService {
     private DaoTanque db;
+
     public TanqueService() {
         db = new DaoTanque();
     }
@@ -40,8 +42,9 @@ public class TanqueService {
             return new ArrayList<>();   
     
     }
-    public void createTanque(float capacidad, float capacidadTotal, float capacidadMinima, @NotEmpty String tipo) throws Exception {
-        if (tipo.trim().length() > 0 && capacidad > 0 && capacidadTotal > 0  && capacidadMinima > 0 && tipo.toString().length() > 0  ) {
+    public void createTanque(float capacidad, float capacidadTotal, float capacidadMinima, @NotEmpty String tipo, @NotEmpty String codigo) throws Exception {
+        if (tipo.trim().length() > 0 && capacidad > 0 && capacidadTotal > 0  && capacidadMinima > 0 && tipo.toString().length() > 0 && codigo.toString().length() > 0  ) {
+            db.getObj().setCodigo(codigo);;
             db.getObj().setCapacidad(capacidad);
             db.getObj().setCapacidadMinima(capacidadMinima);
             db.getObj().setCapacidadTotal(capacidadTotal);
@@ -58,6 +61,4 @@ public class TanqueService {
         }
         return lista;
     }
-
-    
 }

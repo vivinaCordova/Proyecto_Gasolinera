@@ -42,10 +42,11 @@ public class OrdenCompraService {
         if(!lista.isEmpty())
            return Arrays.asList(lista.toArray());
         else 
-            return new ArrayList<>(); 
+            return new ArrayList<>();   
     
     }
-    public void createOrdenCompra(float cantidad, Integer id_proveedor,Integer id_tanque, @NotEmpty String tipo) throws Exception {
+
+    public void createOrdenCompra(float cantidad, Integer id_proveedor, Integer id_tanque, @NotEmpty String tipo) throws Exception {
         if(cantidad > 0 && id_proveedor> 0 && tipo.trim().length() >0) {
             db.getObj().setCantidad(cantidad);
             db.getObj().setIdProveedor(id_proveedor);

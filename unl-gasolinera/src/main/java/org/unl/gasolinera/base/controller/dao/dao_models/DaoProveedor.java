@@ -25,7 +25,6 @@ public class DaoProveedor extends AdapterDao<Proveedor> {
     public void setObj(Proveedor obj) {
         this.obj = obj;
     }
-
     public Boolean save() {
         try {
             obj.setId(listAll().getLength() + 1);
@@ -221,4 +220,5 @@ public class DaoProveedor extends AdapterDao<Proveedor> {
             quickSort(arr, partitionIndex + 1, end, type, attribute);
         }
     }
+    
 }
