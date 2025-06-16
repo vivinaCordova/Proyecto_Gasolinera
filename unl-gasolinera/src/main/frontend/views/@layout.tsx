@@ -12,6 +12,9 @@ import {
 } from '@vaadin/react-components';
 import { Suspense } from 'react';
 import { createMenuItems } from '@vaadin/hilla-file-router/runtime.js';
+import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
+import { useAuth } from 'Frontend/security/auth';
+import { CuentaService } from 'Frontend/generated/endpoints';
 
 function Header() {
   // TODO Replace with real application logo and name
@@ -22,6 +25,7 @@ function Header() {
     </div>
   );
 }
+
 
 function MainMenu() {
   const navigate = useNavigate();
@@ -41,6 +45,7 @@ function MainMenu() {
 
 function UserMenu() {
   // TODO Replace with real user information and actions
+  const { logout }=useAuth();
   const items = [
     {
       component: (
@@ -51,7 +56,11 @@ function UserMenu() {
       children: [
         { text: 'View Profile', action: () => console.log('View Profile') },
         { text: 'Manage Settings', action: () => console.log('Manage Settings') },
-        { text: 'Logout', action: () => console.log('Logout') },
+        { text: 'Cerrar sesion', action: () => (async () => CuentaService.logout().then(async function() {
+           await logout();
+        }
+          
+        ))()},
       ],
     },
   ];
@@ -64,6 +73,11 @@ function UserMenu() {
   return (
     <MenuBar theme="tertiary-inline" items={items} onItemSelected={onItemSelected} className="m-m" slot="drawer" />
   );
+}
+
+//MIO
+export const config: ViewConfig = {
+  loginRequired: true
 }
 
 export default function MainLayout() {
