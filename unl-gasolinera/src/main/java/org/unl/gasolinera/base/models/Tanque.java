@@ -6,9 +6,7 @@ public class Tanque {
     private float capacidadTotal;
     private float capacidadMinima;
     private TipoCombustibleEnum tipo;
-    private EstadoOrdenCompraEnum estado;
-    private Integer idOrden;
-    private Integer idOrdenCompra;
+
 
     public Integer getId() {
         return this.id;
@@ -48,31 +46,15 @@ public class Tanque {
 
     public void setTipo(TipoCombustibleEnum tipo) {
         this.tipo = tipo;
+    }  
+    private String codigo;
+
+    public String getCodigo() {
+        return this.codigo;
     }
 
-    public EstadoOrdenCompraEnum getEstado() {
-        return this.estado;
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
     }
-
-    public void setEstado(EstadoOrdenCompraEnum estado) {
-        this.estado = estado;
-    }
-
-    public Integer getIdOrden() {
-        return this.idOrden;
-    }
-
-    public void setIdOrden(Integer idOrden) {
-        this.idOrden = idOrden;
-    }
-
-    public Integer getIdOrdenCompra() {
-        return this.idOrdenCompra;
-    }
-
-    public void setIdOrdenCompra(Integer idOrdenCompra) {
-        this.idOrdenCompra = idOrdenCompra;
-    }
-    
-    
+  
 }
