@@ -25,6 +25,8 @@ import { useDataProvider } from '@vaadin/hilla-react-crud';
 import { useEffect, useState } from 'react';
 import { listaPersonaCombo } from 'Frontend/generated/CuentaService';
 import Persona from 'Frontend/generated/org/unl/gasolinera/base/models/Persona';
+import { role } from 'Frontend/security/auth';
+import { logout } from '@vaadin/hilla-frontend';
 
 export const config: ViewConfig = {
   title: 'Persona',
@@ -45,6 +47,14 @@ type PersonaEntryFormPropsUpdate = () => {
 
 //GUARDAR Persona
 function PersonaEntryForm(props: PersonaEntryFormProps) {
+useEffect(() => {
+    role().then(async (data) => {
+      if (data?.rol != 'ROLE_admin') {
+        await CuentaService.logout();
+        await logout();
+      }
+    });
+  }, []);
   const usuario = useSignal('');
   const cedula = useSignal('');
   const rol = useSignal('');

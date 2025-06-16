@@ -15,6 +15,7 @@ export const config: ViewConfig = {
     order: 1,
     title: 'Task List',
   },
+  rolesAllowed: [ "ADMIN" ],
 
 };
 

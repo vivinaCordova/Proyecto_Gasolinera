@@ -182,8 +182,6 @@ public LinkedList<HashMap<String, Object>> all() throws Exception {
         }
     }
 
-
-
     public HashMap<String, Object> login(String email, String password) throws Exception {
         if (!listAll().isEmpty()) {
             HashMap<String, Object>[] arreglo = listPrivate().toArray();

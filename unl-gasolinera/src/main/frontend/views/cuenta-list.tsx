@@ -24,6 +24,8 @@ import Cuenta from 'Frontend/generated/org/unl/gasolinera/base/models/Cuenta';
 import { useDataProvider } from '@vaadin/hilla-react-crud';
 import { useEffect, useState } from 'react';
 import { listaPersonaCombo } from 'Frontend/generated/CuentaService';
+import { role } from 'Frontend/security/auth';
+import { logout } from '@vaadin/hilla-frontend';
 
 export const config: ViewConfig = {
   title: 'Cuentas',
@@ -33,6 +35,8 @@ export const config: ViewConfig = {
     title: 'Cuentas',
   },
 };
+
+
 
 type PrecioEstablecido = {
   estado: string;
@@ -44,6 +48,14 @@ type CuentaEntryFormProps = {
 
 //GUARDAR CUENTA
 function CuentaEntryForm(props: CuentaEntryFormProps) {
+  useEffect(() => {
+    role().then(async (data) => {
+      if (data?.rol != 'ROLE_admin') {
+        await CuentaService.logout();
+        await logout();
+      }
+    });
+  }, []);
   const correo = useSignal('');
   const clave = useSignal('');
   const usuario = useSignal('');
