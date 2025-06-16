@@ -1,13 +1,15 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, HorizontalLayout, Icon, Select, TextField, VerticalLayout } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
-import { ProveedorService, TaskService } from 'Frontend/generated/endpoints';
+import { CuentaService, ProveedorService, TaskService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
 import Proveedor from 'Frontend/generated/org/unl/gasolinera/taskmanagement/domain/Task';
 import { useDataProvider } from '@vaadin/hilla-react-crud';
 import { useEffect, useState } from 'react';
+import { role } from 'Frontend/security/auth';
+import { logout } from '@vaadin/hilla-frontend';
 
 export const config: ViewConfig = {
   title: 'Proveedor',
@@ -23,6 +25,14 @@ type ProveedorEntryFormProps = {
 };
 //GUARDAR Proveedor
 function ProveedorEntryForm(props: ProveedorEntryFormProps) {
+  useEffect(() => {
+      role().then(async (data) => {
+        if (data?.rol != 'ROLE_admin') {
+          await CuentaService.logout();
+          await logout();
+        }
+      });
+    }, []);
   const nombre = useSignal('');
   const correoElectronico = useSignal('');
   const tipoCombustible = useSignal('');

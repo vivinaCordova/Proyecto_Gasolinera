@@ -47,6 +47,8 @@ public class PersonaService {
             return new ArrayList<>();
     }
 
+
+    
     public void createPersona(@NotEmpty String usuario, String cedula, Integer id_rol) throws Exception {
         if (usuario.trim().length() > 0 && cedula.trim().length() > 0 && id_rol > 0) {
             da.getObj().setUsuario(usuario);
