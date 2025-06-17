@@ -5,24 +5,22 @@ import java.util.HashMap;
 import org.unl.gasolinera.base.controller.Utiles;
 import org.unl.gasolinera.base.controller.dao.AdapterDao;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
-import org.unl.gasolinera.base.models.EstadoOrdenCompraEnum;
 import org.unl.gasolinera.base.models.OrdenCompra;
 import org.unl.gasolinera.base.models.Tanque;
 
-public class DaoOrdenCompra extends AdapterDao<OrdenCompra>{
+public class DaoOrdenCompra extends AdapterDao<OrdenCompra> {
     private OrdenCompra obj;
 
-    public DaoOrdenCompra(){
+    public DaoOrdenCompra() {
         super(OrdenCompra.class);
     }
 
     public OrdenCompra getObj() {
-        if(obj==null)
-            this.obj=new OrdenCompra();
+        if (obj == null)
+            this.obj = new OrdenCompra();
         return this.obj;
     }
 
-    
     public void setObj(OrdenCompra obj) {
         this.obj = obj;
     }
@@ -30,18 +28,33 @@ public class DaoOrdenCompra extends AdapterDao<OrdenCompra>{
     public Boolean save() {
         try {
             obj.setId(listAll().getLength() + 1);
+            DaoTanque daoTanque = new DaoTanque();
+            Tanque tanque = daoTanque.listAll().get(obj.getIdTanque() - 1); // Ajusta según ID/posicion real
+
+            // 2. Calcular nuevo stock
+            float stockActual = tanque.getCapacidad();
+            float cantidadOrden = obj.getCantidad();
+
+            if (stockActual < cantidadOrden) {
+                System.out.println("Error: No hay suficiente stock en el tanque para la orden.");
+                return false;
+            }
+
+            tanque.setCapacidad(stockActual - cantidadOrden);
+
+            // 3. Actualizar tanque
+            daoTanque.update(tanque, obj.getIdTanque()-1);
             this.persist(obj);
             return true;
         } catch (Exception e) {
-            // TODO
             return false;
-            // TODO: handle exception
         }
     }
 
     public Boolean update(Integer pos) {
         try {
             obj.setId(listAll().getLength() + 1);
+
             this.update(obj, pos);
             return true;
 
@@ -226,5 +239,45 @@ public class DaoOrdenCompra extends AdapterDao<OrdenCompra>{
             quickSort(arr, begin, partitionIndex - 1, type, attribute);
             quickSort(arr, partitionIndex + 1, end, type, attribute);
         }
+    }
+
+    public Boolean aumentarStock(int idTanque, float cantidad) {
+        try {
+            DaoTanque daoTanque = new DaoTanque();
+            LinkedList<Tanque> tanques = daoTanque.listAll();
+    
+            if (idTanque <= 0 || idTanque > tanques.getLength()) {
+                System.out.println("Error: Tanque no encontrado");
+                return false;
+            }
+    
+            Tanque tanque = tanques.get(idTanque - 1);
+            float stockActual = tanque.getCapacidad();
+    
+            // Aumentar stock
+            tanque.setCapacidad(stockActual + cantidad);
+    
+            // Actualizar tanque
+            daoTanque.update(tanque, idTanque - 1);
+    
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    public static void main(String[] args) {
+        DaoOrdenCompra da = new DaoOrdenCompra();
+        int idTanque = 2;           
+        float cantidadReducir = 50; 
+
+        boolean resultado = da.aumentarStock(idTanque, cantidadReducir);
+
+        if (resultado) {
+            System.out.println("Stock reducido exitosamente en el tanque ID " + idTanque);
+        } else {
+            System.out.println("No se pudo reducir el stock en el tanque ID " + idTanque);
+        }
+    
     }
 }
