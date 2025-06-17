@@ -1,7 +1,7 @@
 [
     {
         "id": 1,
-        "cantidad": 3000.0,
+        "cantidad": 50,
         "idProveedor": 1,
         "estado": "COMPLETADO",
         "idTanque": 1

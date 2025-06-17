@@ -6,22 +6,22 @@ import org.unl.gasolinera.base.controller.Utiles;
 import org.unl.gasolinera.base.controller.dao.AdapterDao;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.Tanque;
+import org.unl.gasolinera.base.models.TipoCombustibleEnum;
 
-public class DaoTanque extends AdapterDao <Tanque>{
-    
+public class DaoTanque extends AdapterDao<Tanque> {
+
     private Tanque obj;
 
-    public DaoTanque(){
+    public DaoTanque() {
         super(Tanque.class);
     }
 
     public Tanque getObj() {
-        if(obj==null)
-            this.obj=new Tanque();
+        if (obj == null)
+            this.obj = new Tanque();
         return this.obj;
     }
 
-    
     public void setObj(Tanque obj) {
         this.obj = obj;
     }
@@ -82,7 +82,7 @@ public class DaoTanque extends AdapterDao <Tanque>{
         aux.put("codigo", arreglo.getCodigo().toString());
         aux.put("capacidad", arreglo.getCapacidad());
         aux.put("capacidadTotal", arreglo.getCapacidadTotal());
-        aux.put("capacidadMinima", arreglo.getCapacidadMinima());
+        aux.put("capacidaddMinima", arreglo.getCapacidadMinima());
         aux.put("tipo", arreglo.getTipo().toString());
         return aux;
     }
@@ -237,5 +237,45 @@ public class DaoTanque extends AdapterDao <Tanque>{
             quickSort(arr, partitionIndex + 1, end, type, attribute);
         }
     }
+    public String enviarAlerta(){
+        try{
+            DaoTanque db = new DaoTanque();
+            Tanque tanque = db.listAll().get(obj.getId()-1);
+            if(tanque.getCapacidad() <= tanque.getCapacidadMinima()){
+                String mensaje = "El tanque " + tanque.getCodigo() + " capacidad actual " + tanque.getCapacidad() + " capacidad minima requerida " + tanque.getCapacidadMinima();
+                System.out.println(mensaje);
+                return mensaje;
+            }else{
+                String mensaje = "Tanque "+ tanque.getCodigo()+" sin riesgos";
+                System.out.println(mensaje);
+                return mensaje;
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            return "Error no se pudo acceder a el tanque";
+        }
+
+    }
+    public static void main(String[] args) {
+        try {
+            DaoTanque dao = new DaoTanque();
+
+            // Obtener un tanque ya guardado (por ejemplo el primero)
+            if (!dao.listAll().isEmpty()) {
+                Tanque tanque = dao.listAll().get(1); // Primer tanque
+                dao.setObj(tanque); // Establece el tanque como actual
+
+                String mensaje = dao.enviarAlerta(); // Llama al método de alerta
+                System.out.println("Resultado: " + mensaje);
+            } else {
+                System.out.println("No hay tanques registrados.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error al ejecutar alerta de tanque.");
+        }
+    }
 
 }
+
