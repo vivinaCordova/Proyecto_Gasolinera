@@ -69,7 +69,7 @@ public class VehiculoService {
             for(int i = 0; i < arreglo.length; i++) {
                 HashMap<String, String> aux = new HashMap<>();
                 aux.put("value", arreglo[i].getId().toString(i));
-                aux.put("label", arreglo[i].getNombres());
+                aux.put("label", arreglo[i].getUsuario());
                 lista.add(aux);
             }
         }

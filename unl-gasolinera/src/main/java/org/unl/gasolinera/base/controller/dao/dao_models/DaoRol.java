@@ -5,23 +5,23 @@ import java.util.HashMap;
 import org.unl.gasolinera.base.controller.Utiles;
 import org.unl.gasolinera.base.controller.dao.AdapterDao;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
-import org.unl.gasolinera.base.models.Persona;
+import org.unl.gasolinera.base.models.Rol;
 
-public class DaoPersona extends AdapterDao<Persona> {
-    private Persona obj;
+public class DaoRol extends AdapterDao<Rol> {
+    private Rol obj;
 
-    public DaoPersona(){
-        super(Persona.class);
+    public DaoRol(){
+        super(Rol.class);
     }
 
-    public Persona getObj() {
+    public Rol getObj() {
         if(obj==null)
-            this.obj=new Persona();
+            this.obj=new Rol();
         return this.obj;
     }
 
     
-    public void setObj(Persona obj) {
+    public void setObj(Rol obj) {
         this.obj = obj;
     }
 
@@ -49,10 +49,13 @@ public class DaoPersona extends AdapterDao<Persona> {
         }
     }
 
+
+
+
      public LinkedList<HashMap<String, Object>> all() throws Exception {
         LinkedList<HashMap<String, Object>> lista = new LinkedList<>();
         if (!this.listAll().isEmpty()) {
-            Persona[] arreglo = this.listAll().toArray();
+            Rol[] arreglo = this.listAll().toArray();
             for (int i = 0; i < arreglo.length; i++) {
                 lista.add(toDict(arreglo[i]));
             }
@@ -60,17 +63,14 @@ public class DaoPersona extends AdapterDao<Persona> {
         return lista;
     }
 
-    private HashMap<String, Object> toDict(Persona arreglo) {
-        DaoRol dg = new DaoRol();
+    private HashMap<String, Object> toDict(Rol arreglo) {
         HashMap<String, Object> aux = new HashMap<>();
         aux.put("id", arreglo.getId().toString());
-        aux.put("usuario", arreglo.getUsuario());
-        aux.put("cedula", arreglo.getCedula());
-        aux.put("rol", dg.listAll().get(arreglo.getId_rol() - 1).getNombre());
+        aux.put("nombre", arreglo.getNombre());
         return aux;
     }
 
-    public LinkedList<HashMap<String, Object>> orderByPersona(Integer type, String attribute) throws Exception {
+    public LinkedList<HashMap<String, Object>> orderByRol(Integer type, String attribute) throws Exception {
         LinkedList<HashMap<String, Object>> lista = all();
         if (!lista.isEmpty()) {
             HashMap arr[] = lista.toArray();
@@ -119,26 +119,6 @@ public class DaoPersona extends AdapterDao<Persona> {
     }
 
 
-    private Integer bynaryLineal(HashMap<String, Object>[] array, String attribute, String text) {
-        Integer half = 0;
-        if (!(array.length == 0) && !text.isEmpty()) {
-            half = array.length / 2;
-            int aux = 0;
-
-            System.out.println(text.trim().toLowerCase().charAt(0) + "******" + half + " "
-                    + array[half].get(attribute).toString().trim().toLowerCase());
-            if (text.trim().toLowerCase().charAt(0) > array[half].get(attribute).toString().trim().toLowerCase()
-                    .charAt(0))
-                aux = 1;
-            else if (text.trim().toLowerCase().charAt(0) < array[half].get(attribute).toString().trim().toLowerCase()
-                    .charAt(0))
-                aux = -1;
-
-            half = half * aux;
-        }
-        return half;
-    }
-
     public void quickSort(HashMap arr[], int begin, int end, Integer type, String attribute) {
         if (begin < end) {
             int partitionIndex = partition(arr, begin, end, type, attribute);
@@ -178,7 +158,7 @@ public class DaoPersona extends AdapterDao<Persona> {
     }
 
     public static void main(String[] args) {
-        /*DaoPersona da= new DaoPersona();
+        /*DaoRol da= new DaoRol();
         da.getObj().setId(da.listAll().getLength()+1);
         da.getObj().setNombre("Viviana");
         da.getObj().setApellido("Cordova");
@@ -188,10 +168,10 @@ public class DaoPersona extends AdapterDao<Persona> {
         else
         System.out.println("Error");*/
 
-        DaoPersona dp = new DaoPersona();
+        DaoRol dp = new DaoRol();
         try {
             DaoCuenta dc = new DaoCuenta();
-            HashMap mapa = dc.login("arelys@mail.com", "Are");
+            HashMap<String, Object> mapa = dc.login("arelys@mail.com", "Are");
             if(mapa != null){
                 System.out.println(mapa.get("usuario"));
             }

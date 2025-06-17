@@ -1,13 +1,14 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, NumberField, TextField, VerticalLayout } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
-import { OrdenDespachoService, PrecioEstablecidoService, TaskService } from 'Frontend/generated/endpoints';
+import { CuentaService, OrdenDespachoService, PrecioEstablecidoService, TaskService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
-import Task from 'Frontend/generated/org/unl/gasolinera/taskmanagement/domain/Task';
 import { useDataProvider } from '@vaadin/hilla-react-crud';
 import { useEffect } from 'react';
+import { role } from 'Frontend/security/auth';
+import { logout } from '@vaadin/hilla-frontend';
 
 export const config: ViewConfig = {
   title: 'Precio Establecido',
@@ -23,6 +24,14 @@ type PrecioEstablecidoFormProps = {
 };
 
 function PrecioEstablecidoForm(props: PrecioEstablecidoFormProps) {
+  useEffect(() => {
+      role().then(async (data) => {
+        if (data?.rol != 'ROLE_admin') {
+          await CuentaService.logout();
+          await logout();
+        }
+      });
+    }, []);
   const fecha = useSignal('');
   const fechaFin = useSignal('');
   const estado = useSignal('Activo');
