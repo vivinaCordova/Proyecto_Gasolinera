@@ -169,7 +169,7 @@ function VehiculoEntryFormUpdate(props: VehiculoEntryFormPropsUpdate) {
     try {
       if (placa.value.trim().length > 0 && modelo.value.trim().length > 0 && marca.value.trim().length > 0 && propietario.value.trim().length > 0) {
         const id_propietario = parseInt(propietario.value);
-        await VehiculoService.create(placa.value, modelo.value, marca.value, id_propietario);
+        await VehiculoService.update(parseInt(id.value),placa.value, modelo.value, marca.value, id_propietario);
         if (props.onVehiculoUpdated) {
           props.onVehiculoUpdated();
         }
@@ -317,4 +317,3 @@ export default function VehiculoView() {
     </main>
   );
 }
-
