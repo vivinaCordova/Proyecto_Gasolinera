@@ -219,7 +219,8 @@ export default function TanqueView() {
         <GridSortColumn path="capacidad" header="Capacidad" onDirectionChanged={(e) => order(e, 'nombre')}/>
         <GridSortColumn path="capacidadMinima" header="Capacidad Minima" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridSortColumn path="capacidadTotal" header="Capacidad Maxima" onDirectionChanged={(e) => order(e, 'nombre')} />
-        <GridColumn path="tipo" header="Tipo">
+        <GridColumn path="tipo" header="Tipo"/>
+        <GridColumn path="agregar" header="agregar">
 
         </GridColumn>
       </Grid>
