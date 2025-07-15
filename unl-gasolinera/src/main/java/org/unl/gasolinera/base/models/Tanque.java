@@ -19,6 +19,16 @@ public class Tanque {
     public float getCapacidad() {
         return this.capacidad;
     }
+    private String codigo;
+
+    public String getCodigo() {
+        return this.codigo;
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
+
 
     public void setCapacidad(float capacidad) {
         this.capacidad = capacidad;
@@ -46,15 +56,6 @@ public class Tanque {
 
     public void setTipo(TipoCombustibleEnum tipo) {
         this.tipo = tipo;
-    }  
-    private String codigo;
-
-    public String getCodigo() {
-        return this.codigo;
     }
-
-    public void setCodigo(String codigo) {
-        this.codigo = codigo;
-    }
-  
+    
 }

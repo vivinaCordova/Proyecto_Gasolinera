@@ -1,13 +1,15 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 import { Button, Card, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, HorizontalLayout, Icon, NumberField, Select, TextField, VerticalLayout } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
-import { TanqueService, TaskService } from 'Frontend/generated/endpoints';
+import { CuentaService, TanqueService, TaskService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
 import Tanque from 'Frontend/generated/org/unl/gasolinera/taskmanagement/domain/Task';
 import { useDataProvider } from '@vaadin/hilla-react-crud';
 import { useEffect, useState } from 'react';
+import { role } from 'Frontend/security/auth';
+import { logout } from '@vaadin/hilla-frontend';
 
 export const config: ViewConfig = {
   title: 'Tanque',
@@ -23,6 +25,14 @@ type TanqueEntryFormProps = {
 };
 //GUARDAR Tanque
 function TanqueEntryForm(props: TanqueEntryFormProps) {
+    useEffect(() => {
+      role().then(async (data) => {
+        if (data?.rol != 'ROLE_admin') {
+          await CuentaService.logout();
+          await logout();
+        }
+      });
+    }, []);
   const codigo = useSignal('');
   const capacidad = useSignal('');
   const capacidadMinima = useSignal('');

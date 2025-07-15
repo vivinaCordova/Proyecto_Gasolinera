@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoPersona;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoVehiculo;
 import org.unl.gasolinera.base.models.Persona;
-import org.unl.gasolinera.base.models.Vehiculo;
 
+import com.github.javaparser.quality.NotNull;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 
@@ -27,12 +27,36 @@ public class VehiculoService {
         dv = new DaoVehiculo();
     }
 
-    public void createVehiculo(@NotEmpty String placa, @NotEmpty String modelo, @NotEmpty String marca) throws Exception{
+   public void create(@NotEmpty String placa, @NotEmpty String modelo, @NotEmpty String marca, @NotNull Integer idPropietario) throws Exception {
+        if (placa.trim().length() > 0 && modelo.trim().length() > 0 && marca.trim().length() > 0 && idPropietario > 0) {
+
+        }
+
         dv.getObj().setPlaca(placa);
         dv.getObj().setModelo(modelo);
         dv.getObj().setMarca(marca);
-        if(!dv.save())
-            throw new  Exception("No se pudo guardar los datos de Vehiculo");
+        dv.getObj().setIdPropietario(idPropietario);
+
+        if (!dv.save()) {
+            throw new Exception("No se pudo guardar los datos del Vehículo");
+        }
+    }
+
+    public void update(@NotNull Integer id,@NotEmpty String placa, @NotEmpty String modelo, @NotEmpty String marca, @NotNull Integer idPropietario) throws Exception {
+        if (placa.trim().length() > 0 && modelo.trim().length() > 0 && marca.trim().length() > 0 && idPropietario > 0) {
+
+        }
+
+        dv.setObj(dv.listAll().get(id));
+        dv.getObj().setPlaca(placa);
+        dv.getObj().setModelo(modelo);
+        dv.getObj().setMarca(marca);
+        dv.getObj().setIdPropietario(idPropietario);
+        
+        if(!dv.update(id)){
+            throw new  Exception("No se pudo guardar los datos de Estacion");
+
+        }
     }
 
 
@@ -44,32 +68,20 @@ public class VehiculoService {
             for(int i = 0; i < arreglo.length; i++) {
                 HashMap<String, String> aux = new HashMap<>();
                 aux.put("value", arreglo[i].getId().toString(i));
-                aux.put("label", arreglo[i].getNombres());
+                aux.put("label", arreglo[i].getUsuario());
                 lista.add(aux);
             }
         }
         return lista;
     }
 
-    public List<HashMap> listVehiculo(){
-        List<HashMap> lista = new ArrayList<>();
-        if(!dv.listAll().isEmpty()) {
-            Vehiculo [] arreglo = dv.listAll().toArray();
-            for(int i = 0; i < arreglo.length; i++) {
-                HashMap<String, String> aux = new HashMap<>();
-                aux.put("id", arreglo[i].getId().toString(i));             
-                aux.put("placa", arreglo[i].getPlaca());
-                aux.put("modelo", arreglo[i].getModelo());
-                aux.put("marca", arreglo[i].getMarca());
-                aux.put("propietario", new DaoPersona().listAll().get(arreglo[i].getIdPropietario()-1).getNombres());
-                aux.put("idPropietario", new DaoPersona().listAll().get(arreglo[i].getIdPropietario()-1).getId().toString());
-                lista.add(aux);
-            }
-        }
-        return lista;
+    public List<HashMap> listAll() {
+        return Arrays.asList(dv.all().toArray());
     }
 
-        public List<Vehiculo> listAll() {  
-       return (List<Vehiculo>)Arrays.asList(dv.listAll().toArray());
+    public List<HashMap> order(String attribute, Integer type) throws Exception {
+        return Arrays.asList(dv.orderbyVehiculo(type, attribute).toArray());
     }
+
+
 }

@@ -6,7 +6,6 @@ import org.unl.gasolinera.base.controller.Utiles;
 import org.unl.gasolinera.base.controller.dao.AdapterDao;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.Proveedor;
-import org.unl.gasolinera.base.models.TipoCombustibleEnum;
 
 public class DaoProveedor extends AdapterDao<Proveedor> {
     

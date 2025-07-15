@@ -1,13 +1,15 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridSortColumn, HorizontalLayout, Icon, NumberField, Select, TextField, VerticalLayout } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
-import { OrdenCompraService, TaskService } from 'Frontend/generated/endpoints';
+import { CuentaService, OrdenCompraService, TaskService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
 import OrdenCompra from 'Frontend/generated/org/unl/gasolinera/taskmanagement/domain/Task';
 import { useDataProvider } from '@vaadin/hilla-react-crud';
 import { useEffect, useState } from 'react';
+import { role } from 'Frontend/security/auth';
+import { logout } from '@vaadin/hilla-frontend';
 
 export const config: ViewConfig = {
   title: 'Orden Compra',
@@ -22,6 +24,14 @@ type OrdenCompraEntryFormProps = {
 };
 //GUARDAR OrdenCompra
 function OrdenCompraEntryForm(props: OrdenCompraEntryFormProps) {
+useEffect(() => {
+    role().then(async (data) => {
+      if (data?.rol != 'ROLE_admin') {
+        await CuentaService.logout();
+        await logout();
+      }
+    });
+  }, []);
   const cantidad = useSignal('');
   const estado = useSignal('');
   const proveedor = useSignal('');
