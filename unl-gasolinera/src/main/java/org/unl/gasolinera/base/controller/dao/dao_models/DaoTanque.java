@@ -1,6 +1,8 @@
 package org.unl.gasolinera.base.controller.dao.dao_models;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.unl.gasolinera.base.controller.Utiles;
 import org.unl.gasolinera.base.controller.dao.AdapterDao;
@@ -237,40 +239,40 @@ public class DaoTanque extends AdapterDao<Tanque> {
             quickSort(arr, partitionIndex + 1, end, type, attribute);
         }
     }
-    public String enviarAlerta(){
-        try{
-            DaoTanque db = new DaoTanque();
-            Tanque tanque = db.listAll().get(obj.getId()-1);
-            if(tanque.getCapacidad() <= tanque.getCapacidadMinima()){
-                String mensaje = "El tanque " + tanque.getCodigo() + " capacidad actual " + tanque.getCapacidad() + " capacidad minima requerida " + tanque.getCapacidadMinima();
-                System.out.println(mensaje);
-                return mensaje;
-            }else{
-                String mensaje = "Tanque "+ tanque.getCodigo()+" sin riesgos";
-                System.out.println(mensaje);
-                return mensaje;
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-            return "Error no se pudo acceder a el tanque";
-        }
 
+    public String[] enviarAlerta() {
+        List<String> mensajes = new ArrayList<>();
+        try {
+            LinkedList<HashMap<String, Object>> tanquesOrdenados = orderByTanque(Utiles.ASCENDENTE, "capacidad");
+    
+            if (!tanquesOrdenados.isEmpty()) {
+                HashMap<String, Object>[] tanquesArray = tanquesOrdenados.toArray(); // Usar el método toArray implementado
+    
+                for (HashMap<String, Object> tanqueData : tanquesArray) {
+                    Tanque tanque = listAll().get((Integer) tanqueData.get("id") - 1);
+    
+                    if (tanque.getCapacidad() <= tanque.getCapacidadMinima()) {
+                        mensajes.add("Tanque " + tanque.getCodigo() +
+                                " capacidad actual " + tanque.getCapacidad() +
+                                " está por debajo del mínimo " + tanque.getCapacidadMinima());
+                    } else {
+                        mensajes.add("Tanque " + tanque.getCodigo() + " sin riesgos");
+                    }
+                }
+            } else {
+                mensajes.add("No hay tanques registrados.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            mensajes.add("Error al enviar alertas para los tanques.");
+        }
+    
+        return mensajes.toArray(new String[0]); // Convertir la lista de mensajes a un array
     }
     public static void main(String[] args) {
         try {
             DaoTanque dao = new DaoTanque();
-
-            // Obtener un tanque ya guardado (por ejemplo el primero)
-            if (!dao.listAll().isEmpty()) {
-                Tanque tanque = dao.listAll().get(1); // Primer tanque
-                dao.setObj(tanque); // Establece el tanque como actual
-
-                String mensaje = dao.enviarAlerta(); // Llama al método de alerta
-                System.out.println("Resultado: " + mensaje);
-            } else {
-                System.out.println("No hay tanques registrados.");
-            }
-
+            dao.enviarAlerta(); // Llama al método para enviar alertas
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error al ejecutar alerta de tanque.");
@@ -278,4 +280,3 @@ public class DaoTanque extends AdapterDao<Tanque> {
     }
 
 }
-

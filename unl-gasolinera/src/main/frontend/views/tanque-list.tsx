@@ -1,5 +1,5 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, HorizontalLayout, Icon, NumberField, Select, TextField, VerticalLayout } from '@vaadin/react-components';
+import { Button, Card, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, HorizontalLayout, Icon, NumberField, Select, TextField, VerticalLayout } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
 import { CuentaService, TanqueService, TaskService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
@@ -96,6 +96,7 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
           </>
         }
       >
+
         <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
           <TextField label="Codigo"
             placeholder="Ingrese el codigo de la Tanque"
@@ -200,6 +201,28 @@ export default function TanqueView() {
       <ViewToolbar title="Lista de Canciones">
         <Group>
           <TanqueEntryForm onTanqueCreated={callData} />
+          <Button
+            theme="error"
+            onClick={async () => {
+              try {
+                const mensajes = await TanqueService.obtenerAlertasTanques();
+                if (mensajes && mensajes.length > 0) { // Usar 'length' para verificar el tamaño del array
+                  mensajes.forEach((msg: string | undefined) => { // Iterar directamente sobre el array
+                    if (msg) {
+                      Notification.show(msg, { duration: 6000, position: 'bottom-start', theme: 'contrast' });
+                    }
+                  });
+                } else {
+                  Notification.show("No hay alertas disponibles", { duration: 5000, position: 'top-center', theme: 'warning' });
+                }
+              } catch (error) {
+                console.error(error);
+                Notification.show("Error al verificar alertas", { duration: 5000, position: 'top-center', theme: 'error' });
+              }
+            }}
+          >
+            Verificar Alertas
+          </Button>
         </Group>
       </ViewToolbar>
       <HorizontalLayout theme="spacing">
@@ -226,14 +249,55 @@ export default function TanqueView() {
       <Grid items={items}>
         <GridColumn renderer={indexIndex} header="Nro" />
         <GridSortColumn path="codigo" header="Codigo" onDirectionChanged={(e) => order(e, 'nombre')} />
-        <GridSortColumn path="capacidad" header="Capacidad" onDirectionChanged={(e) => order(e, 'nombre')}/>
+        <GridSortColumn path="capacidad" header="Capacidad" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridSortColumn path="capacidadMinima" header="Capacidad Minima" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridSortColumn path="capacidadTotal" header="Capacidad Maxima" onDirectionChanged={(e) => order(e, 'nombre')} />
-        <GridColumn path="tipo" header="Tipo"/>
-        <GridColumn path="agregar" header="agregar">
-
+        <GridColumn path="tipo" header="Tipo">
         </GridColumn>
       </Grid>
     </main>
   );
 }
+/*export default function TanqueView() {
+  const [items, setItems] = useState([]);
+
+  const callData = () => {
+    TanqueService.listAll().then(function (data: [Tanque]) {
+      setItems(data);
+    });
+  };
+
+  useEffect(() => {
+    callData();
+  }, []);
+
+  return (
+    <main className="w-full h-full flex flex-col box-border gap-s p-m">
+      <ViewToolbar title="Lista de Tanques">
+        <Group>
+          <TanqueEntryForm onTanqueCreated={callData} />
+        </Group>
+      </ViewToolbar>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {items.map((tanque) => (
+          <Card key={tanque.codigo}>
+            <img
+              slot="media"
+              width="60%"
+              src={'/img/tanque.jpg'} // URL de la imagen del tanque
+              alt={`Tanque ${tanque.codigo}`}
+            />
+            <div style={{ padding: '1rem' }}>
+              <GridSortColumn path="codigo" header="Codigo" />
+              <GridSortColumn path="capacidad" header="Capacidad"  />
+              <GridSortColumn path="capacidadMinima" header="Capacidad Minima"  />
+              <GridSortColumn path="capacidadTotal" header="Capacidad Maxima"  />
+              <GridColumn path="tipo" header="Tipo" />
+            </div>
+          </Card>
+        ))}
+      </div>
+    </main>
+  );
+}*/
