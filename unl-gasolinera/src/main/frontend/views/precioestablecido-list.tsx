@@ -1,14 +1,13 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, NumberField, TextField, VerticalLayout } from '@vaadin/react-components';
+import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, NumberField, TextField, VerticalLayout } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
-import { CuentaService, OrdenDespachoService, PrecioEstablecidoService, TaskService } from 'Frontend/generated/endpoints';
+import { OrdenDespachoService, PrecioEstablecidoService, TaskService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
+import Task from 'Frontend/generated/org/unl/gasolinera/taskmanagement/domain/Task';
 import { useDataProvider } from '@vaadin/hilla-react-crud';
-import { useEffect } from 'react';
-import { role } from 'Frontend/security/auth';
-import { logout } from '@vaadin/hilla-frontend';
+import { useEffect, useState } from 'react';
 
 export const config: ViewConfig = {
   title: 'Precio Establecido',
@@ -19,53 +18,55 @@ export const config: ViewConfig = {
   },
 };
 
-type PrecioEstablecidoFormProps = {
-  onPrecioCreated?: () => void;
+type PrecioEstablecido = {
+  id: number;
+  fecha: Date;
+  fechaFin: Date;
+  estado: string;
+  precio: number;
+  tipoCombustible: string;
 };
 
-function PrecioEstablecidoForm(props: PrecioEstablecidoFormProps) {
-  useEffect(() => {
-      role().then(async (data) => {
-        if (data?.rol != 'ROLE_admin') {
-          await CuentaService.logout();
-          await logout();
-        }
-      });
-    }, []);
+type PrecioEstablecidoEntryFormProps = {
+  onPrecioEstablecidoCreated?: () => void;
+};
+
+type PrecioEstablecidoEntryFormPropsUpdate = {
+  precioEstablecido: PrecioEstablecido;
+  onPrecioEstablecidoUpdated?: () => void;
+};
+
+
+// Guardar Precio Establecido
+function PrecioEstablecidoForm(props: PrecioEstablecidoEntryFormProps) {
   const fecha = useSignal('');
   const fechaFin = useSignal('');
-  const estado = useSignal('Activo');
+  const estado = useSignal('');
   const precio = useSignal('');
   const tipoCombustible = useSignal('');
-  const listaTipo = useSignal<string[]>([]);
 
-  useEffect(() => {
-    PrecioEstablecidoService.listTipoCombustible().then(data => {
-      listaTipo.value = data;
-    });
-  }, []);
 
-  const createPrecio = async () => {
+  const createPrecioEstablecido = async () => {
     try {
       if (
-        fecha.value &&
-        fechaFin.value &&
-        precio.value &&
-        tipoCombustible.value
+        fecha.value.trim().length > 0 &&
+        fechaFin.value.trim().length > 0 &&
+        precio.value.trim().length > 0 &&
+        tipoCombustible.value.trim().length > 0
       ) {
         await PrecioEstablecidoService.create(
           new Date(fecha.value),
           new Date(fechaFin.value),
-          estado.value === 'Activo',
+          (estado.value == "ACTIVO" ? true : false),
           parseFloat(precio.value),
           tipoCombustible.value
         );
 
-        if (props.onPrecioCreated) props.onPrecioCreated();
+        if (props.onPrecioEstablecidoCreated) props.onPrecioEstablecidoCreated();
 
         fecha.value = '';
         fechaFin.value = '';
-        estado.value = 'Activo';
+        estado.value = '';
         precio.value = '';
         tipoCombustible.value = '';
 
@@ -87,6 +88,13 @@ function PrecioEstablecidoForm(props: PrecioEstablecidoFormProps) {
     }
   };
 
+  let listaTipoCombustible = useSignal<String[]>([]);
+    useEffect(() => {
+      PrecioEstablecidoService.listTipoCombustible().then(data =>        
+        listaTipoCombustible.value = data
+      );
+    }, []);
+
   const dialogOpened = useSignal(false);
 
   return (
@@ -101,23 +109,29 @@ function PrecioEstablecidoForm(props: PrecioEstablecidoFormProps) {
         footer={
           <>
             <Button onClick={() => (dialogOpened.value = false)}>Cancelar</Button>
-            <Button onClick={createPrecio} theme="primary">Registrar</Button>
+            <Button onClick={createPrecioEstablecido} theme="primary">Registrar</Button>
           </>
         }
       >
         <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
           <DatePicker
             label="Fecha de Inicio"
+            placeholder="Ingrese la fecha de inicio"
+            aria-label="Fecha de Inicio"
             value={fecha.value}
             onValueChanged={(e) => (fecha.value = e.detail.value)}
           />
           <DatePicker
             label="Fecha de Fin"
+            placeholder="Ingrese la fecha de fin"
+            aria-label="Fecha de Fin"
             value={fechaFin.value}
             onValueChanged={(e) => (fechaFin.value = e.detail.value)}
           />
           <ComboBox
             label="Estado"
+            placeholder="Ingrese el estado"
+            aria-label="Estado"
             items={['Activo', 'Inactivo']}
             value={estado.value}
             onValueChanged={(e) => (estado.value = e.detail.value)}
@@ -125,12 +139,15 @@ function PrecioEstablecidoForm(props: PrecioEstablecidoFormProps) {
           <NumberField
             label="Precio"
             placeholder="Ingrese el precio"
+            aria-label="Precio"
             value={precio.value}
             onValueChanged={(e) => (precio.value = e.detail.value)}
           />
           <ComboBox
             label="Tipo de Combustible"
-            items={listaTipo.value}
+            placeholder="Ingrese el tipo de combustible"
+            aria-label="Tipo de Combustible"
+            items={listaTipoCombustible.value}
             value={tipoCombustible.value}
             onValueChanged={(e) => (tipoCombustible.value = e.detail.value)}
           />
@@ -141,30 +158,106 @@ function PrecioEstablecidoForm(props: PrecioEstablecidoFormProps) {
   );
 }
 
-export default function PrecioEstablecidoView() {
-  const dataProvider = useDataProvider<any>({
-    list: () => PrecioEstablecidoService.listPrecioEstablecido(),
-  });
+// ACTUALIZAR PrecioEstablecido
+function PrecioEstablecidoEntryFormUpdate(props: PrecioEstablecidoEntryFormPropsUpdate) {
+  const dialogOpened = useSignal(false);
+  const id = useSignal(props.precioEstablecido.id.toString());
+  const fecha = useSignal(props.precioEstablecido.fecha);
+  const fechaFin = useSignal(props.precioEstablecido.fechaFin);
+  const estado = useSignal(props.precioEstablecido.estado);
+  const precio = useSignal(props.precioEstablecido.precio.toString());
+  const tipoCombustible = useSignal(props.precioEstablecido.tipoCombustible);
 
-  function indexIndex({ model }: { model: GridItemModel<any> }) {
-    return <span>{model.index + 1}</span>;
-  }
+  useEffect(() => {
+    PrecioEstablecidoService.listTipoCombustible().then(data => listaTipo.value = data);
+  }, []);
+
+  const openDialog = () => {
+    id.value = props.precioEstablecido.id.toString();
+    fecha.value = props.precioEstablecido.fecha;
+    fechaFin.value = props.precioEstablecido.fechaFin;
+    estado.value = props.precioEstablecido.estado;
+    precio.value = props.precioEstablecido.precio.toString();
+    tipoCombustible.value = props.precioEstablecido.tipoCombustible;
+    dialogOpened.value = true;
+  };
+
+  const updatePrecioEstablecido = async () => {
+    try {
+      if (fecha.value && fechaFin.value && estado.value && precio.value && tipoCombustible.value) {
+        await PrecioEstablecidoService.update(
+          parseInt(id.value),
+          new Date(fecha.value),
+          new Date(fechaFin.value),
+          estado.value === 'Activo',
+          parseFloat(precio.value),
+          tipoCombustible.value
+        );
+        props.onPrecioEstablecidoUpdated?.();
+        dialogOpened.value = false;
+        Notification.show('Precio Establecido actualizado', { duration: 5000, position: 'bottom-end', theme: 'success' });
+      } else {
+        Notification.show('Faltan datos para actualizar', { duration: 5000, position: 'top-center', theme: 'error' });
+      }
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  return (
+    <>
+      <Dialog modeless headerTitle="Editar Precio Establecido" opened={dialogOpened.value} onOpenedChanged={({ detail }) => dialogOpened.value = detail.value}
+        footer={<><Button onClick={() => dialogOpened.value = false}>Cancelar</Button><Button onClick={updatePrecioEstablecido} theme="primary">Registrar</Button></>}>
+        <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
+          <DatePicker label="Fecha de Inicio" value={fecha.value} onValueChanged={(e) => fecha.value = e.detail.value} />
+          <DatePicker label="Fecha de Fin" value={fechaFin.value} onValueChanged={(e) => fechaFin.value = e.detail.value} />
+          <ComboBox label="Estado" items={['Activo', 'Inactivo']} value={estado.value} onValueChanged={(e) => estado.value = e.detail.value} />
+          <NumberField label="Precio" value={precio.value} onValueChanged={(e) => precio.value = e.detail.value} />
+          <ComboBox label="Tipo de Combustible" items={tipoCombustible.value} value={tipoCombustible.value} onValueChanged={(e) => tipoCombustible.value = e.detail.value} />
+        </VerticalLayout>
+      </Dialog>
+      <Button onClick={openDialog}>Editar</Button>
+    </>
+  );
+}
+
+export default function PrecioEstablecidoView() {
+  const [items, setItems] = useState([]);
+  const callData = () => PrecioEstablecidoService.listAll().then(setItems);
+
+  useEffect(() => {
+    callData();
+  }, []);
+
+  const order = (event, columnId) => {
+    const direction = event.detail.value;
+    if (!direction) callData();
+    else PrecioEstablecidoService.order(columnId, direction === 'asc' ? 1 : 2).then(setItems);
+  };
+
+  const indexLink = ({ model }: { model: GridItemModel<PrecioEstablecido> }) => (
+    <PrecioEstablecidoEntryFormUpdate precioEstablecido={model.item} onPrecioEstablecidoUpdated={callData} />
+  );
+
+  const indexIndex = ({ model }: { model: GridItemModel<PrecioEstablecido> }) => (
+    <span>{model.index + 1}</span>
+  );
 
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
-      <ViewToolbar title="Lista de Precios Establecidos">
+      <ViewToolbar title="Lista de Precio Establecidos">
         <Group>
-          <PrecioEstablecidoForm onPrecioCreated={dataProvider.refresh} />
+          <PrecioEstablecidoForm onPrecioEstablecidoCreated={callData} />
         </Group>
       </ViewToolbar>
-
-      <Grid dataProvider={dataProvider.dataProvider}>
+      <Grid items={items}>
         <GridColumn renderer={indexIndex} header="Nro" />
-        <GridColumn path="fecha" header="Fecha Inicio" />
-        <GridColumn path="fechaFin" header="Fecha Fin" />
-        <GridColumn path="estado" header="Estado" />
-        <GridColumn path="precio" header="Precio" />
-        <GridColumn path="tipoCombustible" header="Tipo de Combustible" />
+        <GridSortColumn path="fecha" onDirectionChanged={(e) => order(e, 'fecha')} header="Fecha Inicio" />
+        <GridSortColumn path="fechaFin" onDirectionChanged={(e) => order(e, 'fechaFin')} header="Fecha Fin" />
+        <GridSortColumn path="estado" onDirectionChanged={(e) => order(e, 'estado')} header="Estado" />
+        <GridSortColumn path="precio" onDirectionChanged={(e) => order(e, 'precio')} header="Precio" />
+        <GridSortColumn path="tipoCombustible" onDirectionChanged={(e) => order(e, 'tipoCombustible')} header="Tipo de Combustible" />
+        <GridColumn header="Acciones" renderer={indexLink} />
       </Grid>
     </main>
   );
