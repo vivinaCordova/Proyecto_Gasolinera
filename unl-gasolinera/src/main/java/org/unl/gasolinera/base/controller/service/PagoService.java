@@ -131,6 +131,11 @@ public class PagoService {
 
     public HashMap<String, Object> consultarEstadoPago(String idCheckout) throws IOException {
         PagoControl pagoControl = new PagoControl();
+        HashMap<String, Object> estado = pagoControl.requestPay(idCheckout);
+        //TODO
+        //coparar data SI ES OK GUARDAS
+        //
+
         return pagoControl.requestPay(idCheckout);
     }
 
