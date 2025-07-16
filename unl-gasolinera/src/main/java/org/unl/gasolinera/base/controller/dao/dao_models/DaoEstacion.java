@@ -127,4 +127,18 @@ public class DaoEstacion extends AdapterDao<Estacion> {
     }
 
 
+    public Estacion getById(Integer id) {
+        if (!this.listAll().isEmpty()) {
+            Estacion[] arreglo = this.listAll().toArray();
+            for (Estacion e : arreglo) {
+                if (e.getId().equals(id)) {
+                    return e;
+                }
+            }
+        }
+        return null;
+    }
+    
+
+
 }

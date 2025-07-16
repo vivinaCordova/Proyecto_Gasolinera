@@ -26,16 +26,15 @@ public class DaoPrecioEstablecido extends AdapterDao<PrecioEstablecido> {
         this.obj = obj;
     }
 
-    public Boolean save(){
-        try{
-            this.persist(obj); 
+    public Boolean save() {
+        try {
+            obj.setId(listAll().getLength() + 1);
+            this.persist(obj);
             return true;
-
-        }catch(Exception e){
-            e.printStackTrace(); 
-            System.out.println(e);
-            //LOG DE ERROR
+        } catch (Exception e) {
+            //TODO
             return false;
+            // TODO: handle exception
         }
     }
 
@@ -102,7 +101,7 @@ public class DaoPrecioEstablecido extends AdapterDao<PrecioEstablecido> {
 
     private HashMap<String, String> toDict(PrecioEstablecido precioEstablecido, Integer i) {
         HashMap<String, String> aux = new HashMap<>();
-        aux.put("id", precioEstablecido.getId().toString(i));
+        aux.put("id", precioEstablecido.getId().toString());
         aux.put("fecha", precioEstablecido.getFecha().toString());
         aux.put("fechaFin", precioEstablecido.getFechaFin().toString());
         aux.put("estado", String.valueOf(precioEstablecido.isEstado()));
@@ -127,6 +126,20 @@ public class DaoPrecioEstablecido extends AdapterDao<PrecioEstablecido> {
         }
         return lista;
     }
+
+
+    public PrecioEstablecido getById(Integer id) {
+        if (!this.listAll().isEmpty()) {
+            PrecioEstablecido[] arreglo = this.listAll().toArray();
+            for (PrecioEstablecido p : arreglo) {
+                if (p.getId().equals(id)) {
+                    return p;
+                }
+            }
+        }
+        return null;
+    }
+    
 
    
 }
