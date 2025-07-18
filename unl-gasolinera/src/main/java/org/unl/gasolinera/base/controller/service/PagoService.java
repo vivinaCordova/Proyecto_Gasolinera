@@ -26,6 +26,8 @@ import com.vaadin.hilla.BrowserCallable;
 public class PagoService {
 
     private DaoPago db;
+    // Mapa temporal para asociar checkoutId con idOrdenDespacho
+    private static Map<String, Integer> checkoutToOrdenMap = new HashMap<>();
 
     public PagoService() {
         db = new DaoPago();
@@ -102,41 +104,85 @@ public class PagoService {
         }
     }
 
-    /*public String realizarCobro(Integer idPago) throws Exception {
-        Pago pago = db.listAll().get(idPago - 1);
-        pago.setEstadoP(true);
-        db.setObj(pago);
-        if (!db.update(idPago - 1)) {
-            throw new Exception("No se pudo actualizar el estado del pago");
-        }
-        return "Cobro realizado con éxito. Transacción #" + pago.getNroTransaccion();
-    }
-
-    public void generarFactura(Integer idPago) {
-        Pago pago = db.listAll().get(idPago - 1);
-        System.out.println("Factura:");
-        System.out.println("ID Pago: " + pago.getId());
-        System.out.println("Transacción: " + pago.getNroTransaccion());
-        System.out.println("Estado: " + pago.getEstadoP());
-    }*/
-    public Map<String, Object> checkout(@RequestParam float total, @RequestParam String currency) {
+    public Map<String, Object> checkout(@RequestParam float total, @RequestParam String currency, @RequestParam Integer idOrdenDespacho) {
         try {
             HashMap<String, Object> response = new PagoControl().request(total, currency);
             System.out.println("Respuesta checkout backend: " + response);
+            
+            // Si el checkout fue exitoso, guardar la asociación checkoutId -> idOrdenDespacho
+            if (response.get("id") != null && idOrdenDespacho != null) {
+                String checkoutId = response.get("id").toString();
+                checkoutToOrdenMap.put(checkoutId, idOrdenDespacho);
+                System.out.println("💾 Asociación guardada: checkoutId=" + checkoutId + " -> idOrdenDespacho=" + idOrdenDespacho);
+            }
+            
             return response;
         } catch (Exception e) {
             return Map.of("estado", "false", "error", e.getMessage());
         }
     }
 
-    public HashMap<String, Object> consultarEstadoPago(String idCheckout) throws IOException {
+    public HashMap<String, Object> consultarEstadoPago(String idCheckout) throws IOException, Exception {
+        System.out.println("=== INICIO consultarEstadoPago ===");
+        System.out.println("Parámetros recibidos: idCheckout=" + idCheckout);
+        
         PagoControl pagoControl = new PagoControl();
         HashMap<String, Object> estado = pagoControl.requestPay(idCheckout);
-        //TODO
-        //coparar data SI ES OK GUARDAS
-        //
-
-        return pagoControl.requestPay(idCheckout);
+        
+        // Validar si el pago se realizó con éxito
+        if (estado != null && estado.get("estado") != null) {
+            String estadoPago = estado.get("estado").toString();
+            System.out.println("Estado completo del pago: " + estado);
+            System.out.println("Estado del pago extraído: '" + estadoPago + "'");
+            System.out.println("Tipo del estado: " + estadoPago.getClass().getSimpleName());
+            
+            // Si el pago fue exitoso, crear un nuevo registro de pago
+            if ("approved".equalsIgnoreCase(estadoPago) || "success".equalsIgnoreCase(estadoPago) || "true".equalsIgnoreCase(estadoPago)) {
+                System.out.println("PAGO EXITOSO DETECTADO - Iniciando proceso de creación...");
+                
+                try {
+                    // Obtener datos necesarios del estado del pago
+                    Integer nroTransaccion;
+                    Integer idOrdenDespacho;
+                    
+                    // Extraer número de transacción si está disponible
+                    if (estado.get("transaction_id") != null) {
+                        nroTransaccion = Integer.valueOf(estado.get("transaction_id").toString());
+                    } else if (estado.get("id") != null) {
+                        nroTransaccion = Integer.valueOf(estado.get("id").toString());
+                    } else {
+                        // Generar número de transacción automáticamente
+                        nroTransaccion = db.listAll().getLength() + 1;
+                    }
+                    System.out.println("Número de transacción generado automáticamente: " + nroTransaccion);
+                    
+                    // OBTENER idOrdenDespacho desde el mapa usando el checkoutId
+                    idOrdenDespacho = checkoutToOrdenMap.get(idCheckout);
+                    System.out.println("ID Orden Despacho obtenido del mapa: " + idOrdenDespacho);
+                    
+                    if (idOrdenDespacho != null) {
+                        // Crear el nuevo pago con estado exitoso
+                        create(nroTransaccion, true, idOrdenDespacho);
+                        System.out.println("Pago exitoso registrado - Transacción: " + nroTransaccion + ", Orden: " + idOrdenDespacho);
+                        
+                        checkoutToOrdenMap.remove(idCheckout);
+                        System.out.println("Asociación eliminada del mapa para checkoutId: " + idCheckout);
+                    } else {
+                        System.out.println("ERROR: No se encontró idOrdenDespacho para checkoutId: " + idCheckout);
+                        System.out.println("Contenido actual del mapa: " + checkoutToOrdenMap);
+                        throw new Exception("No se encontró la orden de despacho asociada al checkout: " + idCheckout);
+                    }
+                    
+                } catch (Exception e) {
+                    System.err.println("ERROR al crear el registro de pago: " + e.getMessage());
+                    e.printStackTrace();
+                    estado.put("warning", "Pago exitoso pero no se pudo registrar: " + e.getMessage());
+                    throw e;
+                }
+            }
+        }
+        
+        return estado;
     }
 
 

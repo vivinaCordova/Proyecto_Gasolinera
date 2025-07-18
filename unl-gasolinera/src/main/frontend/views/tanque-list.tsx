@@ -14,7 +14,7 @@ import { logout } from '@vaadin/hilla-frontend';
 export const config: ViewConfig = {
   title: 'Tanque',
   menu: {
-    icon: 'vaadin:clipboard-check',
+    icon: 'vaadin:cube',
     order: 1,
     title: 'Tanque',
   },
@@ -198,7 +198,7 @@ export default function TanqueView() {
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
 
-      <ViewToolbar title="Lista de Canciones">
+      <ViewToolbar title="Lista de Tanques">
         <Group>
           <TanqueEntryForm onTanqueCreated={callData} />
           <Button

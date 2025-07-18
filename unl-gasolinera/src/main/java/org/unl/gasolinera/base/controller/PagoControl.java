@@ -35,7 +35,7 @@ public class PagoControl {
                 + "&currency=" + currency
                 + "&paymentType=CD"
                 + "&integrity=true"
-                + "&shopperResultUrl=http://localhost:8080/pago-form";
+                + "&shopperResultUrl=http://localhost:8080/pago-list";
 
         DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
         wr.writeBytes(data);

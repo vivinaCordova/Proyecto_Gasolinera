@@ -20,8 +20,8 @@ export const config: ViewConfig = {
 
 type PrecioEstablecido = {
   id: number;
-  fecha: Date;
-  fechaFin: Date;
+  fecha: Date | string;
+  fechaFin: Date | string;
   estado: string;
   precio: number;
   tipoCombustible: string;
@@ -55,8 +55,8 @@ function PrecioEstablecidoForm(props: PrecioEstablecidoEntryFormProps) {
         tipoCombustible.value.trim().length > 0
       ) {
         await PrecioEstablecidoService.create(
-          new Date(fecha.value),
-          new Date(fechaFin.value),
+          fecha.value,
+          fechaFin.value,
           (estado.value == "ACTIVO" ? true : false),
           parseFloat(precio.value),
           tipoCombustible.value
@@ -88,11 +88,13 @@ function PrecioEstablecidoForm(props: PrecioEstablecidoEntryFormProps) {
     }
   };
 
-  let listaTipoCombustible = useSignal<String[]>([]);
+  let listaTipoCombustible = useSignal<string[]>([]);
     useEffect(() => {
-      PrecioEstablecidoService.listTipoCombustible().then(data =>        
-        listaTipoCombustible.value = data
-      );
+      PrecioEstablecidoService.listTipoCombustible().then(data => {
+        if (data) {
+          listaTipoCombustible.value = data.filter((item): item is string => item !== undefined);
+        }
+      });
     }, []);
 
   const dialogOpened = useSignal(false);
@@ -162,20 +164,37 @@ function PrecioEstablecidoForm(props: PrecioEstablecidoEntryFormProps) {
 function PrecioEstablecidoEntryFormUpdate(props: PrecioEstablecidoEntryFormPropsUpdate) {
   const dialogOpened = useSignal(false);
   const id = useSignal(props.precioEstablecido.id.toString());
-  const fecha = useSignal(props.precioEstablecido.fecha);
-  const fechaFin = useSignal(props.precioEstablecido.fechaFin);
+  
+  // Helper function to convert date to string
+  const dateToString = (date: any): string => {
+    if (date instanceof Date) {
+      return date.toISOString().split('T')[0];
+    }
+    if (typeof date === 'string') {
+      return date.split('T')[0]; // In case it's already an ISO string
+    }
+    return date ? date.toString() : '';
+  };
+  
+  const fecha = useSignal(dateToString(props.precioEstablecido.fecha));
+  const fechaFin = useSignal(dateToString(props.precioEstablecido.fechaFin));
   const estado = useSignal(props.precioEstablecido.estado);
   const precio = useSignal(props.precioEstablecido.precio.toString());
   const tipoCombustible = useSignal(props.precioEstablecido.tipoCombustible);
 
+  let listaTipoCombustible = useSignal<string[]>([]);
   useEffect(() => {
-    PrecioEstablecidoService.listTipoCombustible().then(data => listaTipo.value = data);
+    PrecioEstablecidoService.listTipoCombustible().then(data => {
+      if (data) {
+        listaTipoCombustible.value = data.filter((item): item is string => item !== undefined);
+      }
+    });
   }, []);
 
   const openDialog = () => {
     id.value = props.precioEstablecido.id.toString();
-    fecha.value = props.precioEstablecido.fecha;
-    fechaFin.value = props.precioEstablecido.fechaFin;
+    fecha.value = dateToString(props.precioEstablecido.fecha);
+    fechaFin.value = dateToString(props.precioEstablecido.fechaFin);
     estado.value = props.precioEstablecido.estado;
     precio.value = props.precioEstablecido.precio.toString();
     tipoCombustible.value = props.precioEstablecido.tipoCombustible;
@@ -187,8 +206,8 @@ function PrecioEstablecidoEntryFormUpdate(props: PrecioEstablecidoEntryFormProps
       if (fecha.value && fechaFin.value && estado.value && precio.value && tipoCombustible.value) {
         await PrecioEstablecidoService.update(
           parseInt(id.value),
-          new Date(fecha.value),
-          new Date(fechaFin.value),
+          fecha.value,
+          fechaFin.value,
           estado.value === 'Activo',
           parseFloat(precio.value),
           tipoCombustible.value
@@ -213,7 +232,7 @@ function PrecioEstablecidoEntryFormUpdate(props: PrecioEstablecidoEntryFormProps
           <DatePicker label="Fecha de Fin" value={fechaFin.value} onValueChanged={(e) => fechaFin.value = e.detail.value} />
           <ComboBox label="Estado" items={['Activo', 'Inactivo']} value={estado.value} onValueChanged={(e) => estado.value = e.detail.value} />
           <NumberField label="Precio" value={precio.value} onValueChanged={(e) => precio.value = e.detail.value} />
-          <ComboBox label="Tipo de Combustible" items={tipoCombustible.value} value={tipoCombustible.value} onValueChanged={(e) => tipoCombustible.value = e.detail.value} />
+          <ComboBox label="Tipo de Combustible" items={listaTipoCombustible.value} value={tipoCombustible.value} onValueChanged={(e) => tipoCombustible.value = e.detail.value} />
         </VerticalLayout>
       </Dialog>
       <Button onClick={openDialog}>Editar</Button>
@@ -222,17 +241,25 @@ function PrecioEstablecidoEntryFormUpdate(props: PrecioEstablecidoEntryFormProps
 }
 
 export default function PrecioEstablecidoView() {
-  const [items, setItems] = useState([]);
-  const callData = () => PrecioEstablecidoService.listAll().then(setItems);
+  const [items, setItems] = useState<PrecioEstablecido[]>([]);
+  const callData = () => PrecioEstablecidoService.listAll().then(data => {
+    if (data) {
+      setItems(data as PrecioEstablecido[]);
+    }
+  });
 
   useEffect(() => {
     callData();
   }, []);
 
-  const order = (event, columnId) => {
+  const order = (event: any, columnId: string) => {
     const direction = event.detail.value;
     if (!direction) callData();
-    else PrecioEstablecidoService.order(columnId, direction === 'asc' ? 1 : 2).then(setItems);
+    else PrecioEstablecidoService.order(columnId, direction === 'asc' ? 1 : 2).then(data => {
+      if (data) {
+        setItems(data as PrecioEstablecido[]);
+      }
+    });
   };
 
   const indexLink = ({ model }: { model: GridItemModel<PrecioEstablecido> }) => (

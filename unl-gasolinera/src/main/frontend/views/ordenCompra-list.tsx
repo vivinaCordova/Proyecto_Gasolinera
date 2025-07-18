@@ -14,9 +14,9 @@ import { logout } from '@vaadin/hilla-frontend';
 export const config: ViewConfig = {
   title: 'Orden Compra',
   menu: {
-    icon: 'vaadin:clipboard-check',
+    icon: 'vaadin:cart',
     order: 1,
-    title: 'Orden Compra',
+    title: 'Orden de Compra',
   },
 };
 type OrdenCompraEntryFormProps = {
@@ -207,7 +207,7 @@ export default function OrdenCompraView() {
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
 
-      <ViewToolbar title="Lista de Proveedores">
+      <ViewToolbar title="Lista de Ordenes de Compra">
         <Group>
           <OrdenCompraEntryForm onOrdenCompraCreated={callData} />
           <Button
