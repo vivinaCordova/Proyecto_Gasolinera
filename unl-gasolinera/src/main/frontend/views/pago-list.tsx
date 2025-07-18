@@ -135,6 +135,46 @@ function PagoEntryForm(props: PagoEntryFormProps) {
 
 export default function PagoView() {
   const [items, setItems] = useState([]);
+  const [mensajePago, setMensajePago] = useState<string | null>(null);
+
+  // Manejar redirección de OPPWA después del pago
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    if (id) {
+      console.log('Procesando resultado de pago desde OPPWA, checkoutId:', id);
+      PagoService.consultarEstadoPago(id).then(resultado => {
+        console.log('Resultado de consultarEstadoPago:', resultado);
+        if (resultado && resultado.estado === "true") {
+          
+          Notification.show('Pago realizado con éxito', {
+            duration: 5000,
+            position: 'bottom-end',
+            theme: 'success',
+          });
+        } else if (resultado && resultado.estado === "false") {
+          setMensajePago("Pago rechazado");
+          Notification.show('Pago rechazado', {
+            duration: 5000,
+            position: 'bottom-end',
+            theme: 'error',
+          });
+        }
+        // Limpiar la URL y recargar los datos
+        window.history.replaceState({}, '', window.location.pathname);
+        callData(); // Recargar la lista de pagos
+      }).catch(error => {
+        console.error('Error en consultarEstadoPago:', error);
+        setMensajePago("Error al procesar el pago");
+        Notification.show('Error al procesar el pago', {
+          duration: 5000,
+          position: 'bottom-end',
+          theme: 'error',
+        });
+      });
+    }
+  }, []);
+
   useEffect(() => {
     PagoService.listAll().then(function (data) {
       console.log(data);
@@ -223,6 +263,19 @@ export default function PagoView() {
           <PagoEntryForm onPagoCreated={callData} />
         </Group>
       </ViewToolbar>
+      
+      {mensajePago && (
+        <div style={{ 
+          padding: '1rem', 
+          marginBottom: '1rem',
+          backgroundColor: mensajePago.includes('éxito') ? '#d4edda' : '#f8d7da',
+          color: mensajePago.includes('éxito') ? '#155724' : '#721c24',
+          border: `1px solid ${mensajePago.includes('éxito') ? '#c3e6cb' : '#f5c6cb'}`,
+          borderRadius: '0.25rem'
+        }}>
+          {mensajePago}
+        </div>
+      )}
       <HorizontalLayout theme="spacing">
         <Select items={itemSelect}
           value={criterio.value}

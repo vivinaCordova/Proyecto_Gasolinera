@@ -138,7 +138,7 @@ public class DaoOrdenDespacho extends AdapterDao<OrdenDespacho> {
         aux.put("fecha", arreglo.getFecha().toString());
         aux.put("precioTotal", Float.toString(arreglo.getPrecioTotal()));
         aux.put("estado", arreglo.getEstado().toString());
-        
+        aux.put("nombreGasolina", dp.getObj().getTipoCombustible().toString());
 
         if (dp.getObj() != null) {
             aux.put("precio_establecido", Float.toString(dp.getObj().getPrecio()));
