@@ -15,7 +15,6 @@ import com.github.javaparser.quality.NotNull;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 
 @BrowserCallable
@@ -28,7 +27,7 @@ public class VehiculoService {
         dv = new DaoVehiculo();
     }
 
-   public void create(@NotEmpty String placa, @NotEmpty String modelo, @NotEmpty String marca, @NotNull @Min(1) Integer idPropietario) throws Exception {
+   public void create(@NotEmpty String placa, @NotEmpty String modelo, @NotEmpty String marca, @NotNull Integer idPropietario) throws Exception {
         if (placa.trim().length() > 0 && modelo.trim().length() > 0 && marca.trim().length() > 0 && idPropietario > 0) {
 
         }
@@ -43,7 +42,7 @@ public class VehiculoService {
         }
     }
 
-    public void update(@NotNull Integer id,@NotEmpty String placa, @NotEmpty String modelo, @NotEmpty String marca, @NotNull @Min(1) Integer idPropietario) throws Exception {
+    public void update(@NotNull Integer id,@NotEmpty String placa, @NotEmpty String modelo, @NotEmpty String marca, @NotNull Integer idPropietario) throws Exception {
         if (placa.trim().length() > 0 && modelo.trim().length() > 0 && marca.trim().length() > 0 && idPropietario > 0) {
 
         }
@@ -69,7 +68,7 @@ public class VehiculoService {
             for(int i = 0; i < arreglo.length; i++) {
                 HashMap<String, String> aux = new HashMap<>();
                 aux.put("value", arreglo[i].getId().toString(i));
-                aux.put("label", arreglo[i].getNombres());
+                aux.put("label", arreglo[i].getUsuario());
                 lista.add(aux);
             }
         }
@@ -80,7 +79,9 @@ public class VehiculoService {
         return Arrays.asList(dv.all().toArray());
     }
 
-    public List<HashMap> order(String attribute, Integer type) {
+    public List<HashMap> order(String attribute, Integer type) throws Exception {
         return Arrays.asList(dv.orderbyVehiculo(type, attribute).toArray());
     }
+
+
 }
