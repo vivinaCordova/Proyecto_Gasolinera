@@ -1,15 +1,12 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, NumberField, TextField, VerticalLayout } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
-import { OrdenDespachoService } from 'Frontend/generated/endpoints';
+import { OrdenDespachoService, PagoService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
 import { useDataProvider } from '@vaadin/hilla-react-crud';
 import { useEffect, useState } from 'react';
-import { PagoService } from 'Frontend/generated/endpoints';
-
-// export async function crearPago(idOrdenDespacho: number, estado: boolean): Promise<void>
 
 export const config: ViewConfig = {
   title: 'Orden de Despacho',
@@ -31,7 +28,8 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
   const precioTotal = useSignal('');
   const estado = useSignal('');
   const idVehiculo = useSignal('');
-  const idPrecioGalon = useSignal('');
+  const idPrecioEstablecido = useSignal('');
+  const idEstacion = useSignal('');
 
   const listaEstados = useSignal<string[]>([]);
   useEffect(() => {
@@ -39,6 +37,44 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
       listaEstados.value = data;
     });
   }, []);
+
+  const listaPrecios = useSignal<any[]>([]);
+  useEffect(() => {
+    OrdenDespachoService.listPrecioGalonCombo().then((data) => {
+      listaPrecios.value = data;
+    });
+  }, []);
+
+  const listaVehiculos = useSignal<any[]>([]);
+  useEffect(() => {
+    OrdenDespachoService.listVehiculoCombo().then((data) => {
+      listaVehiculos.value = data;
+    });
+  }, []);
+
+  const listaEstaciones = useSignal<any[]>([]);
+  useEffect(() => {
+    OrdenDespachoService.listEstacionCombo().then((data) => {
+      listaEstaciones.value = data;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (nroGalones.value && idPrecioEstablecido.value) {
+      const precioSeleccionado = listaPrecios.value.find(
+        (p) => p.value === idPrecioEstablecido.value
+      );
+      if (precioSeleccionado) {
+        const precio = parseFloat(precioSeleccionado.precio);
+        const galones = parseFloat(nroGalones.value);
+        if (!isNaN(precio) && !isNaN(galones)) {
+          precioTotal.value = (precio * galones).toFixed(2);
+        }
+      }
+    } else {
+      precioTotal.value = '';
+    }
+  }, [nroGalones.value, idPrecioEstablecido.value, listaPrecios.value]);
 
   const createOrden = async () => {
     try {
@@ -49,16 +85,17 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
         precioTotal.value &&
         estado.value &&
         idVehiculo.value &&
-        idPrecioGalon.value
+        idPrecioEstablecido.value &&
+        idEstacion.value
       ) {
         await OrdenDespachoService.create(
           codigo.value,
           parseFloat(nroGalones.value),
           new Date(fecha.value),
-          parseFloat(precioTotal.value),
           estado.value,
-          parseInt(idPrecioGalon.value),
-          parseInt(idVehiculo.value)
+          parseInt(idPrecioEstablecido.value),
+          parseInt(idVehiculo.value),
+          parseInt(idEstacion.value)
         );
 
         if (props.onOrdenCreated) {
@@ -71,7 +108,8 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
         precioTotal.value = '';
         estado.value = '';
         idVehiculo.value = '';
-        idPrecioGalon.value = '';
+        idPrecioEstablecido.value = '';
+        idEstacion.value = '';
 
         dialogOpened.value = false;
         Notification.show('Orden de despacho creada', {
@@ -118,12 +156,6 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
             value={codigo.value}
             onValueChanged={(e) => (codigo.value = e.detail.value)}
           />
-          <NumberField
-            label="Nro Galones"
-            placeholder="Ingrese el número de galones"
-            value={nroGalones.value}
-            onValueChanged={(e) => (nroGalones.value = e.detail.value)}
-          />
           <DatePicker
             label="Fecha"
             placeholder="Seleccione la fecha"
@@ -131,10 +163,26 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
             onValueChanged={(e) => (fecha.value = e.detail.value)}
           />
           <NumberField
-            label="Precio Total"
-            placeholder="Ingrese el precio total"
+            label="Nro Galones"
+            placeholder="Ingrese el número de galones"
+            value={nroGalones.value}
+            onValueChanged={(e) => (nroGalones.value = e.detail.value)}
+          />
+          <ComboBox
+            label="Tipo de Gasolina"
+            items={listaPrecios.value}
+            placeholder="Seleccione el tipo"
+            itemLabelPath="label"
+            itemValuePath="value"
+            value={idPrecioEstablecido.value}
+            onValueChanged={(e) => {
+              idPrecioEstablecido.value = e.detail.value;
+            }}
+          />
+          <TextField
+            label="Precio Total (automático)"
             value={precioTotal.value}
-            onValueChanged={(e) => (precioTotal.value = e.detail.value)}
+            readonly
           />
           <ComboBox
             label="Estado"
@@ -143,17 +191,23 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
             value={estado.value}
             onValueChanged={(e) => (estado.value = e.detail.value)}
           />
-          <TextField
-            label="ID Vehículo"
-            placeholder="Ingrese el ID del vehículo"
+          <ComboBox
+            label="Matrícula del Vehículo"
+            items={listaVehiculos.value}
+            placeholder="Seleccione una matrícula"
+            itemLabelPath="label"
+            itemValuePath="value"
             value={idVehiculo.value}
             onValueChanged={(e) => (idVehiculo.value = e.detail.value)}
           />
-          <TextField
-            label="ID Precio Galón"
-            placeholder="Ingrese el ID del precio por galón"
-            value={idPrecioGalon.value}
-            onValueChanged={(e) => (idPrecioGalon.value = e.detail.value)}
+          <ComboBox
+            label="Estación"
+            items={listaEstaciones.value}
+            placeholder="Seleccione una estación"
+            itemLabelPath="label"
+            itemValuePath="value"
+            value={idEstacion.value}
+            onValueChanged={(e) => (idEstacion.value = e.detail.value)}
           />
         </VerticalLayout>
       </Dialog>
@@ -163,10 +217,9 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
   );
 }
 
-//LISTA DE ORDENES
 export default function OrdenDespachoView() {
   const dataProvider = useDataProvider<any>({
-    list: () => OrdenDespachoService.listOrdenDespacho(),
+    list: () => OrdenDespachoService.listOrdenDespacho()
   });
 
   const [ordenPago, setOrdenPago] = useState<any | null>(null);
@@ -181,19 +234,10 @@ export default function OrdenDespachoView() {
       PagoService.consultarEstadoPago(id).then(async resultado => {
         if (resultado && resultado.estado === "true") {
           setMensajePago("Pago realizado con éxito");
-          // Llama correctamente a crearPago con parámetros individuales
-          console.log('Llamando crearPago', Number(ordenPagoId), true);
-          await PagoService.crearPago(
-            Number(ordenPagoId),
-            true
-          );
+          await PagoService.crearPago(Number(ordenPagoId), true);
         } else if (resultado && resultado.estado === "false") {
           setMensajePago("Pago rechazado");
-          console.log('Llamando crearPago', Number(ordenPagoId), false);
-          await PagoService.crearPago(
-            Number(ordenPagoId),
-            false
-          );
+          await PagoService.crearPago(Number(ordenPagoId), false);
         }
         setOrdenPago(null);
         setCheckoutId(null);
@@ -202,7 +246,6 @@ export default function OrdenDespachoView() {
         dataProvider.refresh();
       });
     }
-    // eslint-disable-next-line
   }, [window.location.search]);
 
   useEffect(() => {
@@ -237,9 +280,9 @@ export default function OrdenDespachoView() {
         <GridColumn path="fecha" header="Fecha" />
         <GridColumn path="precioTotal" header="Precio Total" />
         <GridColumn path="estado" header="Estado" />
-        <GridColumn path="idVehiculo" header="ID Vehículo" />
-        <GridColumn path="idPrecioGalon" header="ID Precio Galón" />
-        <GridColumn path="idEstacion" header="ID Estación" />
+        <GridColumn path="placa" header="Placa del Vehiculo" />
+        <GridColumn path="idPrecioEstablecido" header="Precio Establecido" />
+        <GridColumn path="idEstacion" header="Estacion" />
         <GridColumn
           header="Acción"
           renderer={({ item }) => (

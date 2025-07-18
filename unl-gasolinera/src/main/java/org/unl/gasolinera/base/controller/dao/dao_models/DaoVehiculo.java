@@ -124,6 +124,4 @@ public class DaoVehiculo extends AdapterDao<Vehiculo> {
         return lista;
     }
     
-
-
 }
