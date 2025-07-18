@@ -1,9 +1,9 @@
 [
     {
         "id": 1,
-        "cantidad": 50,
-        "idProveedor": 1,
+        "cantidad": 50.0,
+        "idProveedor": 3,
         "estado": "COMPLETADO",
-        "idTanque": 1
+        "idTanque": 2
     }
 ]

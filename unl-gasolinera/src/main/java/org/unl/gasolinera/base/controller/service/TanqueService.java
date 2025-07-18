@@ -54,7 +54,14 @@ public class TanqueService {
         }
         return mensajes;
     }
-    
+    public Boolean aumentarStockAutomaticamente() {
+        try {
+            return db.aumentarStock(); // Llama al método del DAO que realiza la asociación automática
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false; // Retorna false en caso de excepción
+        }
+    }
     public void createTanque(float capacidad, float capacidadTotal, float capacidadMinima, @NotEmpty String tipo, @NotEmpty String codigo) throws Exception {
         if (tipo.trim().length() > 0 && capacidad > 0 && capacidadTotal > 0  && capacidadMinima > 0 && tipo.toString().length() > 0 && codigo.toString().length() > 0  ) {
             db.getObj().setCodigo(codigo);;

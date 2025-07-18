@@ -25,14 +25,14 @@ type TanqueEntryFormProps = {
 };
 //GUARDAR Tanque
 function TanqueEntryForm(props: TanqueEntryFormProps) {
-    useEffect(() => {
-      role().then(async (data) => {
-        if (data?.rol != 'ROLE_admin') {
-          await CuentaService.logout();
-          await logout();
-        }
-      });
-    }, []);
+  useEffect(() => {
+    role().then(async (data) => {
+      if (data?.rol != 'ROLE_admin') {
+        await CuentaService.logout();
+        await logout();
+      }
+    });
+  }, []);
   const codigo = useSignal('');
   const capacidad = useSignal('');
   const capacidadMinima = useSignal('');
@@ -206,9 +206,16 @@ export default function TanqueView() {
             onClick={async () => {
               try {
                 const mensajes = await TanqueService.obtenerAlertasTanques();
-                if (mensajes && mensajes.length > 0) { // Usar 'length' para verificar el tamaño del array
-                  mensajes.forEach((msg: string | undefined) => { // Iterar directamente sobre el array
-                    if (msg) {
+                if (mensajes && mensajes.length > 0) {
+                  mensajes.forEach(async (msg: string | undefined) => {
+                    if (msg && msg.includes("por debajo del mínimo")) {
+                      const resultado = await TanqueService.aumentarStockAutomaticamente(); // Asumiendo que el ID del proveedor es 1
+                      if (resultado) {
+                        Notification.show("Stock aumentado automáticamente y orden de compra generada exitosamente", { duration: 5000, position: 'bottom-end', theme: 'success' });
+                      } else {
+                        Notification.show("No se pudo aumentar el stock ni generar la orden de compra. Verifique los datos.", { duration: 5000, position: 'top-center', theme: 'error' });
+                      }
+                    } else if (msg) {
                       Notification.show(msg, { duration: 6000, position: 'bottom-start', theme: 'contrast' });
                     }
                   });
