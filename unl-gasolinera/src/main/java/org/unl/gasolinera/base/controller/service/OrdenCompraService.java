@@ -93,12 +93,4 @@ public class OrdenCompraService {
         }
         return lista;
     }
-    public Boolean aumentarStockTanques(float cantidad) {
-        try {
-            return db.aumentarStock(cantidad);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 }

@@ -241,7 +241,7 @@ public class DaoOrdenCompra extends AdapterDao<OrdenCompra> {
         }
     }
 
-    public Boolean aumentarStock(float cantidad) {
+    /*public Boolean aumentarStock(float cantidad) {
         try {
             DaoTanque daoTanque = new DaoTanque();
             LinkedList<Tanque> tanques = daoTanque.listAll();
@@ -278,5 +278,5 @@ public class DaoOrdenCompra extends AdapterDao<OrdenCompra> {
             System.out.println("Error al verificar y actualizar los tanques.");
             return false; // Retorna false en caso de excepción
         }
-    }
+    }*/
 }
