@@ -1,1 +1,123 @@
-[{"id":1,"nroGalones":5.0,"codigo":"001","fecha":"Jul 14, 2025, 7:00:00 PM","precioTotal":12.5,"estado":"COMPLETADO","idPrecioEstablecido":1,"idVehiculo":2,"idEstacion":2},{"id":2,"nroGalones":5.0,"codigo":"002","fecha":"Jul 14, 2025, 7:00:00 PM","precioTotal":92.0,"estado":"COMPLETADO","idPrecioEstablecido":1,"idVehiculo":2,"idEstacion":2},{"id":3,"nroGalones":7.0,"codigo":"003","fecha":"Jul 4, 2025, 7:00:00 PM","precioTotal":82.0,"estado":"COMPLETADO","idPrecioEstablecido":1,"idVehiculo":1,"idEstacion":2},{"id":4,"nroGalones":100.0,"codigo":"004","fecha":"Jul 1, 2025, 7:00:00 PM","precioTotal":250.0,"estado":"EN_PROCESO","idPrecioEstablecido":1,"idVehiculo":1,"idEstacion":2},{"id":5,"nroGalones":87.0,"codigo":"005","fecha":"Jul 10, 2025, 7:00:00 PM","precioTotal":217.5,"estado":"EN_PROCESO","idPrecioEstablecido":1,"idVehiculo":1,"idEstacion":2},{"id":6,"nroGalones":67.0,"codigo":"006","fecha":"Jul 1, 2025, 7:00:00 PM","precioTotal":167.5,"estado":"COMPLETADO","idPrecioEstablecido":1,"idVehiculo":1,"idEstacion":2},{"id":7,"nroGalones":71.0,"codigo":"007","fecha":"Jul 8, 2025, 7:00:00 PM","precioTotal":177.5,"estado":"EN_PROCESO","idPrecioEstablecido":1,"idVehiculo":1,"idEstacion":2},{"id":8,"nroGalones":67.0,"codigo":"008","fecha":"Jul 1, 2025, 7:00:00 PM","precioTotal":167.5,"estado":"EN_PROCESO","idPrecioEstablecido":1,"idVehiculo":1,"idEstacion":2},{"id":9,"nroGalones":6.0,"codigo":"009","fecha":"Jul 15, 2025, 7:00:00 PM","precioTotal":15.0,"estado":"EN_PROCESO","idPrecioEstablecido":1,"idVehiculo":1,"idEstacion":2}]
+[
+    {
+        "id": 1,
+        "nroGalones": 5.0,
+        "codigo": "001",
+        "fecha": "Jul 14, 2025, 7:00:00 PM",
+        "precioTotal": 12.5,
+        "estado": "COMPLETADO",
+        "idPrecioEstablecido": 1,
+        "idVehiculo": 2,
+        "idEstacion": 1
+    },
+    {
+        "id": 2,
+        "nroGalones": 5.0,
+        "codigo": "002",
+        "fecha": "Jul 14, 2025, 7:00:00 PM",
+        "precioTotal": 92.0,
+        "estado": "COMPLETADO",
+        "idPrecioEstablecido": 1,
+        "idVehiculo": 2,
+        "idEstacion": 2
+    },
+    {
+        "id": 3,
+        "nroGalones": 7.0,
+        "codigo": "003",
+        "fecha": "Jul 4, 2025, 7:00:00 PM",
+        "precioTotal": 82.0,
+        "estado": "COMPLETADO",
+        "idPrecioEstablecido": 1,
+        "idVehiculo": 1,
+        "idEstacion": 1
+    },
+    {
+        "id": 4,
+        "nroGalones": 100.0,
+        "codigo": "004",
+        "fecha": "Jul 1, 2025, 7:00:00 PM",
+        "precioTotal": 250.0,
+        "estado": "EN_PROCESO",
+        "idPrecioEstablecido": 1,
+        "idVehiculo": 1,
+        "idEstacion": 2
+    },
+    {
+        "id": 5,
+        "nroGalones": 87.0,
+        "codigo": "005",
+        "fecha": "Jul 10, 2025, 7:00:00 PM",
+        "precioTotal": 217.5,
+        "estado": "EN_PROCESO",
+        "idPrecioEstablecido": 1,
+        "idVehiculo": 1,
+        "idEstacion": 1
+    },
+    {
+        "id": 6,
+        "nroGalones": 67.0,
+        "codigo": "006",
+        "fecha": "Jul 1, 2025, 7:00:00 PM",
+        "precioTotal": 167.5,
+        "estado": "COMPLETADO",
+        "idPrecioEstablecido": 1,
+        "idVehiculo": 1,
+        "idEstacion": 2
+    },
+    {
+        "id": 7,
+        "nroGalones": 71.0,
+        "codigo": "007",
+        "fecha": "Jul 8, 2025, 7:00:00 PM",
+        "precioTotal": 177.5,
+        "estado": "EN_PROCESO",
+        "idPrecioEstablecido": 1,
+        "idVehiculo": 1,
+        "idEstacion": 1
+    },
+    {
+        "id": 8,
+        "nroGalones": 67.0,
+        "codigo": "008",
+        "fecha": "Jul 1, 2025, 7:00:00 PM",
+        "precioTotal": 167.5,
+        "estado": "EN_PROCESO",
+        "idPrecioEstablecido": 1,
+        "idVehiculo": 1,
+        "idEstacion": 2
+    },
+    {
+        "id": 9,
+        "nroGalones": 6.0,
+        "codigo": "009",
+        "fecha": "Jul 15, 2025, 7:00:00 PM",
+        "precioTotal": 15.0,
+        "estado": "EN_PROCESO",
+        "idPrecioEstablecido": 1,
+        "idVehiculo": 1,
+        "idEstacion": 1
+    },
+    {
+        "id": 10,
+        "nroGalones": 89.0,
+        "codigo": "010",
+        "fecha": "Jul 2, 2025, 7:00:00 PM",
+        "precioTotal": 222.5,
+        "estado": "EN_PROCESO",
+        "idPrecioEstablecido": 1,
+        "idVehiculo": 2,
+        "idEstacion": 2
+    },
+    {
+        "id": 11,
+        "nroGalones": 25.0,
+        "codigo": "011",
+        "fecha": "Jul 2, 2025, 7:00:00 PM",
+        "precioTotal": 62.5,
+        "estado": "COMPLETADO",
+        "idPrecioEstablecido": 1,
+        "idVehiculo": 2,
+        "idEstacion": 1
+    }
+]

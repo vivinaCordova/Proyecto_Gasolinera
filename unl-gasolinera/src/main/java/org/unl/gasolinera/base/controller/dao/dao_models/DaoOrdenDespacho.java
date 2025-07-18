@@ -105,21 +105,74 @@ public class DaoOrdenDespacho extends AdapterDao<OrdenDespacho> {
     }
 
     private HashMap<String, String> toDict(OrdenDespacho arreglo) throws Exception{
-        HashMap<String, Object> map = new HashMap<>();
         HashMap<String, String> aux = new HashMap<>();
         DaoVehiculo dv = new DaoVehiculo();
-        dv.setObj(dv.get(arreglo.getIdVehiculo()));
+        DaoPrecioEstablecido dp = new DaoPrecioEstablecido();
+        DaoEstacion de = new DaoEstacion();
+        
+        if (arreglo.getIdVehiculo() != null) {
+            try {
+                dv.setObj(getObjectById(dv, arreglo.getIdVehiculo()));
+            } catch (Exception e) {
+                dv.setObj(dv.get(arreglo.getIdVehiculo()));
+            }
+        }
+        if (arreglo.getIdPrecioEstablecido() != null) {
+            try {
+                dp.setObj(getObjectById(dp, arreglo.getIdPrecioEstablecido()));
+            } catch (Exception e) {
+                dp.setObj(dp.get(arreglo.getIdPrecioEstablecido()));
+            }
+        }
+        if (arreglo.getIdEstacion() != null) {
+            try {
+                de.setObj(getObjectById(de, arreglo.getIdEstacion()));
+            } catch (Exception e) {
+                de.setObj(de.get(arreglo.getIdEstacion()));
+            }
+        }
+        
         aux.put("id", arreglo.getId().toString());
         aux.put("codigo", arreglo.getCodigo());
         aux.put("nroGalones", arreglo.getNroGalones().toString());
         aux.put("fecha", arreglo.getFecha().toString());
         aux.put("precioTotal", Float.toString(arreglo.getPrecioTotal()));
         aux.put("estado", arreglo.getEstado().toString());
-        aux.put("idPrecioEstablecido", arreglo.getIdPrecioEstablecido().toString());
+        
+
+        if (dp.getObj() != null) {
+            aux.put("precio_establecido", Float.toString(dp.getObj().getPrecio()));
+            aux.put("tipo_combustible", dp.getObj().getTipoCombustible().toString());
+        } else {
+            aux.put("precio_establecido", "N/A");
+            aux.put("tipo_combustible", "N/A");
+        }
+        
         aux.put("idVehiculo", arreglo.getIdVehiculo().toString());
-        aux.put("placa", dv.getObj().getPlaca());
-        aux.put("idEstacion", arreglo.getIdEstacion().toString());
+        aux.put("estacion", de.getObj() != null ? de.getObj().getCodigo() : "N/A");
+        aux.put("placa", dv.getObj() != null ? dv.getObj().getPlaca() : "N/A");
+
         return aux;
+    }
+
+    private <T> T getObjectById(AdapterDao<T> dao, Integer id) throws Exception {
+        if (dao.listAll().isEmpty()) {
+            return null;
+        }
+        
+        T[] array = dao.listAll().toArray();
+        for (T obj : array) {
+            try {
+                java.lang.reflect.Method getIdMethod = obj.getClass().getMethod("getId");
+                Integer objId = (Integer) getIdMethod.invoke(obj);
+                if (objId != null && objId.equals(id)) {
+                    return obj;
+                }
+            } catch (Exception e) {
+                continue;
+            }
+        }
+        return null;
     }
 
 
@@ -128,7 +181,6 @@ public class DaoOrdenDespacho extends AdapterDao<OrdenDespacho> {
         LinkedList<HashMap<String, String>> lista = all();
         try {
             if (!lista.isEmpty()){
-                HashMap arr[] = lista.toArray();
                 // Convert HashMap array back to OrdenDespacho array for sorting
                 OrdenDespacho[] OrdenDespachos = this.listAll().toArray();
                 quickSort(OrdenDespachos, 0, OrdenDespachos.length - 1, type);
