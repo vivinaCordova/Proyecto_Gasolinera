@@ -2,7 +2,6 @@ import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 import {
   Button,
   ComboBox,
-  DatePicker,
   Dialog,
   EmailField,
   Grid,
