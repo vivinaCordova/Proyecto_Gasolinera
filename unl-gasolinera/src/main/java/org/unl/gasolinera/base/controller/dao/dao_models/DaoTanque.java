@@ -1,10 +1,15 @@
 package org.unl.gasolinera.base.controller.dao.dao_models;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.unl.gasolinera.base.controller.Utiles;
 import org.unl.gasolinera.base.controller.dao.AdapterDao;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
+import org.unl.gasolinera.base.models.EstadoOrdenCompraEnum;
+import org.unl.gasolinera.base.models.OrdenCompra;
+import org.unl.gasolinera.base.models.Proveedor;
 import org.unl.gasolinera.base.models.Tanque;
 import org.unl.gasolinera.base.models.TipoCombustibleEnum;
 
@@ -237,45 +242,107 @@ public class DaoTanque extends AdapterDao<Tanque> {
             quickSort(arr, partitionIndex + 1, end, type, attribute);
         }
     }
-    public String enviarAlerta(){
-        try{
-            DaoTanque db = new DaoTanque();
-            Tanque tanque = db.listAll().get(obj.getId()-1);
-            if(tanque.getCapacidad() <= tanque.getCapacidadMinima()){
-                String mensaje = "El tanque " + tanque.getCodigo() + " capacidad actual " + tanque.getCapacidad() + " capacidad minima requerida " + tanque.getCapacidadMinima();
-                System.out.println(mensaje);
-                return mensaje;
-            }else{
-                String mensaje = "Tanque "+ tanque.getCodigo()+" sin riesgos";
-                System.out.println(mensaje);
-                return mensaje;
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-            return "Error no se pudo acceder a el tanque";
-        }
 
-    }
-    public static void main(String[] args) {
+    public String[] enviarAlerta() {
+        List<String> mensajes = new ArrayList<>();
         try {
-            DaoTanque dao = new DaoTanque();
+            LinkedList<HashMap<String, Object>> tanquesOrdenados = orderByTanque(Utiles.ASCENDENTE, "capacidad");
 
-            // Obtener un tanque ya guardado (por ejemplo el primero)
-            if (!dao.listAll().isEmpty()) {
-                Tanque tanque = dao.listAll().get(1); // Primer tanque
-                dao.setObj(tanque); // Establece el tanque como actual
+            if (!tanquesOrdenados.isEmpty()) {
+                HashMap<String, Object>[] tanquesArray = tanquesOrdenados.toArray(); // Usar el método toArray
+                                                                                     // implementado
 
-                String mensaje = dao.enviarAlerta(); // Llama al método de alerta
-                System.out.println("Resultado: " + mensaje);
+                for (HashMap<String, Object> tanqueData : tanquesArray) {
+                    Tanque tanque = listAll().get((Integer) tanqueData.get("id") - 1);
+
+                    if (tanque.getCapacidad() <= tanque.getCapacidadMinima()) {
+                        mensajes.add("Tanque " + tanque.getCodigo() +
+                                " capacidad actual " + tanque.getCapacidad() +
+                                " está por debajo del mínimo " + tanque.getCapacidadMinima());
+                    } else {
+                        mensajes.add("Tanque " + tanque.getCodigo() + " sin riesgos");
+                    }
+                }
             } else {
-                System.out.println("No hay tanques registrados.");
+                mensajes.add("No hay tanques registrados.");
             }
-
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error al ejecutar alerta de tanque.");
+            mensajes.add("Error al enviar alertas para los tanques.");
         }
+
+        return mensajes.toArray(new String[0]); // Convertir la lista de mensajes a un array
     }
 
-}
+    public Boolean aumentarStock() {
+        try {
+            DaoTanque daoTanque = new DaoTanque();
+            DaoProveedor daoProveedor = new DaoProveedor();
+            DaoOrdenCompra daoOrdenCompra = new DaoOrdenCompra();
 
+            LinkedList<Tanque> tanques = daoTanque.listAll();
+            LinkedList<Proveedor> proveedores = daoProveedor.listAll();
+
+            if (tanques.isEmpty() || proveedores.isEmpty()) {
+                System.out.println("No hay tanques o proveedores registrados.");
+                return false; // Retorna false si no hay tanques o proveedores registrados
+            }
+
+            boolean actualizado = false; // Variable para verificar si se actualizó algún tanque
+
+            for (int i = 0; i < tanques.getLength(); i++) {
+                Tanque tanque = tanques.get(i);
+
+                if (tanque.getCapacidad() <= tanque.getCapacidadMinima()) {
+                    System.out
+                            .println("Tanque " + tanque.getCodigo() + " con capacidad actual " + tanque.getCapacidad() +
+                                    " está por debajo de la capacidad mínima " + tanque.getCapacidadMinima()
+                                    + ". Buscando proveedor y generando orden de compra...");
+
+                    // Buscar un proveedor que coincida con el tipo de combustible del tanque
+                    Proveedor proveedorAsociado = null;
+                    for (int j = 0; j < proveedores.getLength(); j++) {
+                        Proveedor proveedor = proveedores.get(j);
+                        if (proveedor.getTipoCombustible().toString().equalsIgnoreCase(tanque.getTipo().toString())) {
+                            proveedorAsociado = proveedor;
+                            break;
+                        }
+                    }
+
+                    if (proveedorAsociado == null) {
+                        System.out.println(
+                                "No se encontró un proveedor asociado al tipo de combustible: " + tanque.getTipo());
+                        continue; // Saltar al siguiente tanque si no hay proveedor asociado
+                    }
+
+                    // Registrar una nueva orden de compra
+                    OrdenCompra nuevaOrden = new OrdenCompra();
+                    nuevaOrden.setCantidad(50); // Aumentar automáticamente en 50 unidades
+                    nuevaOrden.setIdProveedor(proveedorAsociado.getId());
+                    nuevaOrden.setIdTanque(tanque.getId());
+                    nuevaOrden.setEstado(EstadoOrdenCompraEnum.COMPLETADO); // Estado inicial de la orden
+                    daoOrdenCompra.setObj(nuevaOrden);
+                    daoOrdenCompra.save();
+
+                    // Aumentar el stock del tanque
+                    tanque.setCapacidad(tanque.getCapacidad() + 50); // Aumentar automáticamente en 50 unidades
+                    daoTanque.update(tanque, i);
+
+                    System.out.println("Orden de compra generada y stock aumentado exitosamente en el tanque "
+                            + tanque.getCodigo() +
+                            ". Nueva capacidad: " + tanque.getCapacidad());
+                    actualizado = true; // Indica que se realizó una actualización
+                } else {
+                    System.out.println("Tanque " + tanque.getCodigo() + " está en condiciones seguras.");
+                }
+            }
+
+            return actualizado; // Retorna true si se actualizó al menos un tanque
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error al generar órdenes de compra y actualizar los tanques.");
+            return false; // Retorna false en caso de excepción
+        }
+
+    }
+}
