@@ -301,9 +301,9 @@ export default function OrdenDespachoView() {
                 setCheckoutId(null);
                 localStorage.setItem('ordenPagoId', item.id);
               }}
-              disabled={!!checkoutId}
+              disabled={!!checkoutId || item.estado === 'COMPLETADO'}
             >
-              Pagar
+              {item.estado === 'COMPLETADO' ? 'Pagado' : 'Pagar'}
             </Button>
           )}
         />

@@ -1,8 +1,10 @@
 package org.unl.gasolinera.base.controller.service;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,10 +13,17 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.unl.gasolinera.base.controller.PagoControl;
+import org.unl.gasolinera.base.controller.dao.dao_models.DaoEstacion;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoOrdenDespacho;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoPago;
+import org.unl.gasolinera.base.controller.dao.dao_models.DaoPrecioEstablecido;
+import org.unl.gasolinera.base.controller.dao.dao_models.DaoVehiculo;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
+import org.unl.gasolinera.base.models.Estacion;
 import org.unl.gasolinera.base.models.OrdenDespacho;
+import org.unl.gasolinera.base.models.Pago;
+import org.unl.gasolinera.base.models.PrecioEstablecido;
+import org.unl.gasolinera.base.models.Vehiculo;
 
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
@@ -165,6 +174,16 @@ public class PagoService {
                         create(nroTransaccion, true, idOrdenDespacho);
                         System.out.println("Pago exitoso registrado - Transacción: " + nroTransaccion + ", Orden: " + idOrdenDespacho);
                         
+                        // ACTUALIZAR EL ESTADO DE LA ORDEN DE DESPACHO A COMPLETADO
+                        try {
+                            OrdenDespachoService ordenService = new OrdenDespachoService();
+                            ordenService.actualizarEstado(idOrdenDespacho, "COMPLETADO");
+                            System.out.println("Estado de OrdenDespacho actualizado a COMPLETADO para orden ID: " + idOrdenDespacho);
+                        } catch (Exception ordenException) {
+                            System.err.println("Error al actualizar estado de OrdenDespacho: " + ordenException.getMessage());
+                            // No lanzamos excepción aquí para no interrumpir el proceso de pago exitoso
+                        }
+                        
                         checkoutToOrdenMap.remove(idCheckout);
                         System.out.println("Asociación eliminada del mapa para checkoutId: " + idCheckout);
                     } else {
@@ -185,6 +204,91 @@ public class PagoService {
         return estado;
     }
 
+    public HashMap<String, Object> generarRecibo(Integer idPago) throws Exception {
+        if (idPago == null || idPago <= 0) {
+            throw new Exception("ID de pago inválido");
+        }
+        HashMap<String, Object> recibo = new HashMap<>();
+        // Obtener el pago
+        Pago pago = null;
+        LinkedList<Pago> listaPagos = db.listAll();
+        for (int i = 0; i < listaPagos.getLength(); i++) {
+            if (listaPagos.get(i).getId().equals(idPago)) {
+                pago = listaPagos.get(i);
+                break;
+            }
+        }
+
+        if (pago == null) {
+            throw new Exception("No se encontró el pago con ID: " + idPago);
+        }
+        // Datos básicos del pago
+        recibo.put("nroTransaccion", pago.getNroTransaccion());
+        recibo.put("estadoPago", pago.getEstadoP() ? "EXITOSO" : "FALLIDO");
+        recibo.put("fechaRecibo", new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()));
+
+        // Obtener datos de la orden de despacho
+        DaoOrdenDespacho daoOrden = new DaoOrdenDespacho();
+        OrdenDespacho orden = null;
+        LinkedList<OrdenDespacho> listaOrdenes = daoOrden.listAll();
+        
+        for (int i = 0; i < listaOrdenes.getLength(); i++) {
+            if (listaOrdenes.get(i).getId().equals(pago.getIdOrdenDespacho())) {
+                orden = listaOrdenes.get(i);
+                break;
+            }
+        }
+
+        if (orden != null) {
+            recibo.put("codigo", orden.getCodigo());
+            recibo.put("fecha", orden.getFecha() != null ? 
+                new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(orden.getFecha()) : "No registrada");
+            recibo.put("nroGalones", orden.getNroGalones());
+            recibo.put("precioTotal", orden.getPrecioTotal());
+            recibo.put("estado", orden.getEstado() != null ? orden.getEstado().toString() : "Sin estado");
+
+            // Obtener placa del vehículo
+            if (orden.getIdVehiculo() != null) {
+                DaoVehiculo daoVehiculo = new DaoVehiculo();
+                LinkedList<Vehiculo> listaVehiculos = daoVehiculo.listAll();
+                for (int i = 0; i < listaVehiculos.getLength(); i++) {
+                    if (listaVehiculos.get(i).getId().equals(orden.getIdVehiculo())) {
+                        recibo.put("placa", listaVehiculos.get(i).getPlaca());
+                        break;
+                    }
+                }
+            }
+
+            // Obtener código de estación
+            if (orden.getIdEstacion() != null) {
+                DaoEstacion daoEstacion = new DaoEstacion();
+                LinkedList<Estacion> listaEstaciones = daoEstacion.listAll();
+                for (int i = 0; i < listaEstaciones.getLength(); i++) {
+                    if (listaEstaciones.get(i).getId().equals(orden.getIdEstacion())) {
+                        recibo.put("estacion", listaEstaciones.get(i).getCodigo());
+                        break;
+                    }
+                }
+            }
+
+            // Obtener tipo de gasolina y precio
+            if (orden.getIdPrecioEstablecido() != null) {
+                DaoPrecioEstablecido daoPrecio = new DaoPrecioEstablecido();
+                LinkedList<PrecioEstablecido> listaPrecios = daoPrecio.listAll();
+                for (int i = 0; i < listaPrecios.getLength(); i++) {
+                    if (listaPrecios.get(i).getId().equals(orden.getIdPrecioEstablecido())) {
+                        PrecioEstablecido precio = listaPrecios.get(i);
+                        recibo.put("nombreGasolina", precio.getTipoCombustible() != null ? 
+                            precio.getTipoCombustible().toString() : "Sin tipo");
+                        recibo.put("precio_establecido", precio.getPrecio());
+                        break;
+                    }
+                }
+            }
+        }
+
+        return recibo;
+    }
 
     /*public static void main(String[] args) {
         PagoService service = new PagoService();
