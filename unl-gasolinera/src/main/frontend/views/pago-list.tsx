@@ -1,13 +1,10 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, HorizontalLayout, Icon, NumberField, Select, TextField, VerticalLayout } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
-import { TaskService } from 'Frontend/generated/endpoints';
 import { PagoService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
 import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
-import Task from 'Frontend/generated/org/unl/gasolinera/taskmanagement/domain/Task';
-import { useDataProvider } from '@vaadin/hilla-react-crud';
 import { useEffect } from 'react';
 import { useState } from 'react';
 
@@ -30,6 +27,346 @@ type Pago = {
 type PagoEntryFormProps = {
   onPagoCreated?: () => void;
 };
+
+type ReciboDialogProps = {
+  pago: Pago | null;
+  opened: boolean;
+  onClose: () => void;
+};
+
+function ReciboDialog({ pago, opened, onClose }: ReciboDialogProps) {
+  const [recibo, setRecibo] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (opened && pago) {
+      setLoading(true);
+      PagoService.generarRecibo(pago.id)
+        .then(data => {
+          setRecibo(data);
+          setLoading(false);
+        })
+        .catch(error => {
+          console.error('Error al generar recibo:', error);
+          Notification.show('Error al generar el recibo', {
+            duration: 5000,
+            theme: 'error',
+            position: 'top-center'
+          });
+          setLoading(false);
+          onClose();
+        });
+    }
+  }, [opened, pago]);
+
+  const imprimirRecibo = () => {
+    if (!recibo) return;
+
+    // Crear el contenido HTML para imprimir
+    const contenidoImpresion = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Recibo de Pago - ${recibo.nroTransaccion}</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 10px auto;
+            padding: 15px;
+            line-height: 1.4;
+            font-size: 14px;
+          }
+          .header {
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+          }
+          .header h1 {
+            margin: 0 0 5px 0;
+            font-size: 1.5em;
+          }
+          .header p {
+            margin: 0;
+            font-size: 0.9em;
+          }
+          .section {
+            margin-bottom: 15px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            page-break-inside: avoid;
+          }
+          .section h3 {
+            margin: 0 0 8px 0;
+            color: #333;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 3px;
+            font-size: 1.1em;
+          }
+          .field {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            padding: 2px 0;
+          }
+          .label {
+            font-weight: bold;
+            color: #555;
+            font-size: 0.9em;
+          }
+          .value {
+            text-align: right;
+            font-size: 0.9em;
+          }
+          .total {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #2c5aa0;
+          }
+          .footer {
+            text-align: center;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+            font-size: 0.8em;
+            color: #666;
+            page-break-inside: avoid;
+          }
+          .footer p {
+            margin: 3px 0;
+          }
+          @media print {
+            body { 
+              margin: 0; 
+              padding: 10px;
+              font-size: 12px;
+            }
+            .no-print { display: none; }
+            .header {
+              margin-bottom: 10px;
+              padding-bottom: 10px;
+            }
+            .section {
+              margin-bottom: 10px;
+              padding: 8px;
+            }
+            .footer {
+              margin-top: 10px;
+              padding-top: 8px;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>RECIBO DE PAGO</h1>
+          <p>Sistema de Gestión de Gasolinera</p>
+        </div>
+
+        <div class="section">
+          <h3>Información del Pago</h3>
+          <div class="field">
+            <span class="label">Número de Transacción:</span>
+            <span class="value">${recibo.nroTransaccion || 'N/A'}</span>
+          </div>
+          <div class="field">
+            <span class="label">Estado del Pago:</span>
+            <span class="value">${recibo.estadoPago || 'N/A'}</span>
+          </div>
+          <div class="field">
+            <span class="label">Fecha del Recibo:</span>
+            <span class="value">${recibo.fechaRecibo || 'N/A'}</span>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Detalles de la Orden</h3>
+          <div class="field">
+            <span class="label">Código:</span>
+            <span class="value">${recibo.codigo || 'N/A'}</span>
+          </div>
+          <div class="field">
+            <span class="label">Fecha de la Orden:</span>
+            <span class="value">${recibo.fecha || 'N/A'}</span>
+          </div>
+          <div class="field">
+            <span class="label">Placa del Vehículo:</span>
+            <span class="value">${recibo.placa || 'N/A'}</span>
+          </div>
+          <div class="field">
+            <span class="label">Estación:</span>
+            <span class="value">${recibo.estacion || 'N/A'}</span>
+          </div>
+          <div class="field">
+            <span class="label">Tipo de Gasolina:</span>
+            <span class="value">${recibo.nombreGasolina || 'N/A'}</span>
+          </div>
+          <div class="field">
+            <span class="label">Precio por Galón:</span>
+            <span class="value">$${recibo.precio_establecido || 'N/A'}</span>
+          </div>
+          <div class="field">
+            <span class="label">Galones:</span>
+            <span class="value">${recibo.nroGalones || 'N/A'}</span>
+          </div>
+          <div class="field total">
+            <span class="label">PRECIO TOTAL:</span>
+            <span class="value">$${recibo.precioTotal || 'N/A'}</span>
+          </div>
+          <div class="field">
+            <span class="label">Estado de la Orden:</span>
+            <span class="value">${recibo.estado || 'N/A'}</span>
+          </div>
+        </div>
+
+        <div class="footer">
+          <p>Recibo generado automáticamente</p>
+          <p>Fecha de impresión: ${new Date().toLocaleString('es-ES')}</p>
+        </div>
+      </body>
+      </html>
+    `;
+
+    // Crear una ventana nueva para la impresión
+    const ventanaImpresion = window.open('', '_blank');
+    if (ventanaImpresion) {
+      ventanaImpresion.document.write(contenidoImpresion);
+      ventanaImpresion.document.close();
+
+      // Esperar a que se cargue el contenido y luego imprimir
+      ventanaImpresion.onload = () => {
+        ventanaImpresion.print();
+        ventanaImpresion.onafterprint = () => {
+          ventanaImpresion.close();
+        };
+      };
+    }
+  };
+
+  return (
+    <Dialog
+      headerTitle="Recibo de Pago"
+      opened={opened}
+      onOpenedChanged={({ detail }) => {
+        if (!detail.value) onClose();
+      }}
+      footer={
+        <>
+          <Button onClick={onClose}>
+            Cerrar
+          </Button>
+          <Button
+            onClick={imprimirRecibo}
+            theme="primary"
+            disabled={loading || !recibo}
+          >
+            Imprimir
+          </Button>
+        </>
+      }
+    >
+      <VerticalLayout style={{ alignItems: 'stretch', width: '25rem', maxWidth: '100%', gap: '1rem' }}>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            Generando recibo...
+          </div>
+        ) : recibo ? (
+          <>
+            <div style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1.2rem', marginBottom: '1rem' }}>
+              RECIBO DE PAGO
+            </div>
+
+            <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '1rem', backgroundColor: '#f9f9f9' }}>
+              <h4 style={{ margin: '0 0 0.5rem 0', color: '#333' }}>Información del Pago</h4>
+              <TextField
+                label="Número de Transacción"
+                value={recibo.nroTransaccion?.toString() || 'N/A'}
+                readonly
+                style={{ width: '100%' }}
+              />
+              <TextField
+                label="Estado del Pago"
+                value={recibo.estadoPago || 'N/A'}
+                readonly
+                style={{ width: '100%' }}
+              />
+              <TextField
+                label="Fecha del Recibo"
+                value={recibo.fechaRecibo || 'N/A'}
+                readonly
+                style={{ width: '100%' }}
+              />
+            </div>
+
+            <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '1rem', backgroundColor: '#f0f8ff' }}>
+              <h4 style={{ margin: '0 0 0.5rem 0', color: '#333' }}>Detalles de la Orden</h4>
+              <TextField
+                label="Código"
+                value={recibo.codigo || 'N/A'}
+                readonly
+                style={{ width: '100%' }}
+              />
+              <TextField
+                label="Fecha de la Orden"
+                value={recibo.fecha || 'N/A'}
+                readonly
+                style={{ width: '100%' }}
+              />
+              <TextField
+                label="Placa del Vehículo"
+                value={recibo.placa || 'N/A'}
+                readonly
+                style={{ width: '100%' }}
+              />
+              <TextField
+                label="Estación"
+                value={recibo.estacion || 'N/A'}
+                readonly
+                style={{ width: '100%' }}
+              />
+              <TextField
+                label="Tipo de Gasolina"
+                value={recibo.nombreGasolina || 'N/A'}
+                readonly
+                style={{ width: '100%' }}
+              />
+              <TextField
+                label="Precio por Galón"
+                value={recibo.precio_establecido ? `$${recibo.precio_establecido}` : 'N/A'}
+                readonly
+                style={{ width: '100%' }}
+              />
+              <TextField
+                label="Galones"
+                value={recibo.nroGalones?.toString() || 'N/A'}
+                readonly
+                style={{ width: '100%' }}
+              />
+              <TextField
+                label="Precio Total"
+                value={recibo.precioTotal ? `$${recibo.precioTotal}` : 'N/A'}
+                readonly
+                style={{ width: '100%', fontWeight: 'bold' }}
+              />
+              <TextField
+                label="Estado de la Orden"
+                value={recibo.estado || 'N/A'}
+                readonly
+                style={{ width: '100%' }}
+              />
+            </div>
+          </>
+        ) : (
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            No se pudo cargar el recibo
+          </div>
+        )}
+      </VerticalLayout>
+    </Dialog>
+  );
+}
 
 function PagoEntryForm(props: PagoEntryFormProps) {
   const nroTransaccion = useSignal('');
@@ -136,6 +473,8 @@ function PagoEntryForm(props: PagoEntryFormProps) {
 export default function PagoView() {
   const [items, setItems] = useState([]);
   const [mensajePago, setMensajePago] = useState<string | null>(null);
+  const [selectedPago, setSelectedPago] = useState<Pago | null>(null);
+  const [reciboDialogOpened, setReciboDialogOpened] = useState(false);
 
   // Manejar redirección de OPPWA después del pago
   useEffect(() => {
@@ -146,7 +485,7 @@ export default function PagoView() {
       PagoService.consultarEstadoPago(id).then(resultado => {
         console.log('Resultado de consultarEstadoPago:', resultado);
         if (resultado && resultado.estado === "true") {
-          
+
           Notification.show('Pago realizado con éxito', {
             duration: 5000,
             position: 'bottom-end',
@@ -263,10 +602,10 @@ export default function PagoView() {
           <PagoEntryForm onPagoCreated={callData} />
         </Group>
       </ViewToolbar>
-      
+
       {mensajePago && (
-        <div style={{ 
-          padding: '1rem', 
+        <div style={{
+          padding: '1rem',
           marginBottom: '1rem',
           backgroundColor: mensajePago.includes('éxito') ? '#d4edda' : '#f8d7da',
           color: mensajePago.includes('éxito') ? '#155724' : '#721c24',
@@ -307,9 +646,30 @@ export default function PagoView() {
         <GridSortColumn onDirectionChanged={(e) => order(e, "orden_despacho")} path="orden_despacho" header="Orden Despacho" />
         <GridSortColumn onDirectionChanged={(e) => order(e, "estadoP")} path="estadoP" header="Estado" />
 
-
-
+        <GridColumn
+          header="Recibo"
+          renderer={({ item }) => (
+            <Button
+              theme="success"
+              onClick={() => {
+                setSelectedPago(item);
+                setReciboDialogOpened(true);
+              }}
+            >
+              Recibo
+            </Button>
+          )}
+        />
       </Grid>
+
+      <ReciboDialog
+        pago={selectedPago}
+        opened={reciboDialogOpened}
+        onClose={() => {
+          setReciboDialogOpened(false);
+          setSelectedPago(null);
+        }}
+      />
     </main>
   );
 }
