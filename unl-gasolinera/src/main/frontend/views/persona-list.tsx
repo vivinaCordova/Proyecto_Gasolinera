@@ -61,6 +61,16 @@ useEffect(() => {
   const createPersona = async () => {
     try {
       if (usuario.value.trim().length > 0 && cedula.value.trim().length > 0) {
+        const yaExiste = await PersonaService.isCreated(cedula.value);
+        console.log(yaExiste);
+        if (yaExiste) {
+          Notification.show('Esta persona ya existe', {
+            duration: 5000,
+            position: 'top-center',
+            theme: 'error',
+          });
+          return;
+        }
         const id_rol = parseInt(rol.value) + 1;
         await PersonaService.createPersona(usuario.value, cedula.value, id_rol);
         if (props.onPersonaCreated) {
@@ -209,7 +219,7 @@ export default function PersonaView() {
 
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
-      <ViewToolbar title="Lista de Personaes">
+      <ViewToolbar title="Lista de Personas">
         <Group>
           <PersonaEntryForm onPersonaCreated={callData} />
         </Group>

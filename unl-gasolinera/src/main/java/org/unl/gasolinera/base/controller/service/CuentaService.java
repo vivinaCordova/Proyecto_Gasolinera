@@ -37,28 +37,39 @@ public class CuentaService {
         // auth= context.getAuthentication();
     }
 
-    public List<HashMap> order(String attribute, Integer type)throws Exception{
+    public List<HashMap> order(String attribute, Integer type) throws Exception {
         return Arrays.asList(da.orderByCuenta(type, attribute).toArray());
     }
 
     public List<HashMap> search(String attribute, String text, Integer type) throws Exception {
         LinkedList<HashMap<String, Object>> lista = da.search(attribute, text, type);
-        if(!lista.isEmpty())
+        if (!lista.isEmpty())
             return Arrays.asList(lista.toArray());
         else
             return new ArrayList<>();
     }
 
-    public void createCuenta(@NotEmpty @NotBlank String correo, @NotEmpty @NotBlank String clave, boolean estado,
-        Integer id_persona) throws Exception {
-        if (correo.trim().length() > 0 && clave.trim().length() > 0 && id_persona > 0) {
-            da.getObj().setCorreo(correo);
-            da.getObj().setClave(clave);
-            da.getObj().setId_persona(id_persona);
-            da.getObj().setEstado(estado);
+    public boolean isCreated(String correo) throws Exception {
+        List<HashMap> cuentas = listAll();
+        for (HashMap cuenta : cuentas) {
+            String correoExistente = (String) cuenta.get("correo");
+            if (correoExistente != null && correoExistente.equalsIgnoreCase(correo)) {
+                return true;
+            }
         }
-        if (!da.save())
-            throw new Exception("No se pudo guardar los datos de Cuenta");
+        return false;
+    }
+
+    public void createCuenta(@NotEmpty @NotBlank String correo, @NotEmpty @NotBlank String clave, boolean estado,
+            Integer id_persona) throws Exception {
+                    da.getObj().setCorreo(correo);
+                    da.getObj().setClave(clave);
+                    da.getObj().setId_persona(id_persona);
+                    da.getObj().setEstado(estado);
+            
+                    if (!da.save()) {
+                        throw new Exception("No se pudo guardar los datos de Cuenta");
+                    }
     }
 
     public HashMap<String, String> createRoles() {
@@ -90,6 +101,7 @@ public class CuentaService {
         if (context.getAuthentication() != null) {
             Object obj[] = context.getAuthentication().getAuthorities().toArray();
             mapa.put("rol", obj[0].toString());
+            mapa.put("usuario", context.getAuthentication().getName());
         }
         return mapa;
     }
@@ -142,7 +154,7 @@ public class CuentaService {
         return Arrays.asList(da.listAll().toArray());
     }
 
-    public List<HashMap> listAll()throws Exception {
+    public List<HashMap> listAll() throws Exception {
         return Arrays.asList(da.all().toArray());
     }
 
@@ -161,10 +173,10 @@ public class CuentaService {
         return lista;
     }
 
-    public List<Cuenta> listAlla() {  
-        // System.out.println("**********Entro aqui");  
-         //System.out.println("lengthy "+Arrays.asList(da.listAll().toArray()).size());    
-         return (List<Cuenta>)Arrays.asList(da.listAll().toArray());
-     }
+    public List<Cuenta> listAlla() {
+        // System.out.println("**********Entro aqui");
+        // System.out.println("lengthy "+Arrays.asList(da.listAll().toArray()).size());
+        return (List<Cuenta>) Arrays.asList(da.listAll().toArray());
+    }
 
 }

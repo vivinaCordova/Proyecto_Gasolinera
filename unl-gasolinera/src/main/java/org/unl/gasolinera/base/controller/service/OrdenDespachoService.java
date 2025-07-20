@@ -13,6 +13,7 @@ import org.unl.gasolinera.base.controller.dao.dao_models.DaoOrdenDespacho;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoPrecioEstablecido;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoVehiculo;
 import org.unl.gasolinera.base.models.EstadoOrdenDespachadoEnum;
+import org.unl.gasolinera.base.models.OrdenDespacho;
 import org.unl.gasolinera.base.models.PrecioEstablecido;
 
 import com.github.javaparser.quality.NotNull;
@@ -156,5 +157,58 @@ public class OrdenDespachoService {
 
     public List<HashMap> order(String attribute, Integer type) {
         return Arrays.asList(db.orderbyOrdenDespacho(type, attribute).toArray());
+    }
+
+    /**
+     * Actualiza únicamente el estado de una OrdenDespacho
+     * Método útil para cambios de estado cuando se procesan pagos
+     * @param id ID de la orden de despacho
+     * @param nuevoEstado Nuevo estado ("EN_PROCESO", "COMPLETADO")
+     * @throws Exception Si hay error en la actualización
+     */
+    public void actualizarEstado(@NotNull Integer id, @NotEmpty String nuevoEstado) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("ID de orden de despacho inválido");
+        }
+        
+        if (nuevoEstado == null || nuevoEstado.trim().isEmpty()) {
+            throw new Exception("El nuevo estado no puede estar vacío");
+        }
+
+        // Validar que el estado sea válido
+        try {
+            EstadoOrdenDespachadoEnum.valueOf(nuevoEstado.trim());
+        } catch (IllegalArgumentException e) {
+            throw new Exception("Estado inválido: " + nuevoEstado + ". Estados válidos: EN_PROCESO, COMPLETADO");
+        }
+
+        // Buscar la orden por ID usando posición en el arreglo
+        var listaOrdenes = db.listAll();
+        OrdenDespacho ordenEncontrada = null;
+        Integer posicion = null;
+
+        for (int i = 0; i < listaOrdenes.getLength(); i++) {
+            if (listaOrdenes.get(i).getId().equals(id)) {
+                ordenEncontrada = listaOrdenes.get(i);
+                posicion = i;
+                break;
+            }
+        }
+
+        if (ordenEncontrada == null) {
+            throw new Exception("No se encontró la Orden de Despacho con ID: " + id);
+        }
+
+        // Actualizar solo el estado
+        ordenEncontrada.setEstado(EstadoOrdenDespachadoEnum.valueOf(nuevoEstado.trim()));
+        
+        // Configurar el objeto actualizado en el DAO
+        db.setObj(ordenEncontrada);
+        
+        if (!db.update(posicion)) {
+            throw new Exception("No se pudo actualizar el estado de la Orden de Despacho");
+        }
+
+        System.out.println("Estado de OrdenDespacho ID " + id + " actualizado a: " + nuevoEstado);
     }
 }

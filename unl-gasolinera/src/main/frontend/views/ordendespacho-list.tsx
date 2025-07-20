@@ -230,20 +230,25 @@ export default function OrdenDespachoView() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     const ordenPagoId = ordenPago?.id || localStorage.getItem('ordenPagoId');
-    if (id && ordenPagoId) {
+    if (id) {
+      console.log('Llamando a consultarEstadoPago solo con checkoutId:', id);
       PagoService.consultarEstadoPago(id).then(async resultado => {
+        console.log('Resultado de consultarEstadoPago:', resultado);
         if (resultado && resultado.estado === "true") {
           setMensajePago("Pago realizado con éxito");
-          await PagoService.crearPago(Number(ordenPagoId), true);
+          // Ya no necesitamos llamar a crearPago aquí - el backend lo hace automáticamente
         } else if (resultado && resultado.estado === "false") {
           setMensajePago("Pago rechazado");
-          await PagoService.crearPago(Number(ordenPagoId), false);
+          // Ya no necesitamos llamar a crearPago aquí - el backend lo hace automáticamente
         }
         setOrdenPago(null);
         setCheckoutId(null);
         localStorage.removeItem('ordenPagoId');
         window.history.replaceState({}, '', window.location.pathname);
         dataProvider.refresh();
+      }).catch(error => {
+        console.error('Error en consultarEstadoPago:', error);
+        setMensajePago("Error al procesar el pago");
       });
     }
   }, [window.location.search]);
@@ -274,16 +279,18 @@ export default function OrdenDespachoView() {
       </ViewToolbar>
 
       <Grid dataProvider={dataProvider.dataProvider}>
-        <GridColumn renderer={indexIndex} header="Nro" />
-        <GridColumn path="codigo" header="Código" />
-        <GridColumn path="nroGalones" header="Galones" />
-        <GridColumn path="fecha" header="Fecha" />
-        <GridColumn path="precioTotal" header="Precio Total" />
-        <GridColumn path="estado" header="Estado" />
-        <GridColumn path="placa" header="Placa del Vehiculo" />
-        <GridColumn path="idPrecioEstablecido" header="Precio Establecido" />
-        <GridColumn path="idEstacion" header="Estacion" />
-        <GridColumn
+        <GridColumn renderer={indexIndex} header="Nro" width="70px" flexGrow={0} />
+          <GridColumn path="codigo" header="Código" width="140px" flexGrow={0} />
+          <GridColumn path="fecha" header="Fecha" width="320px" flexGrow={0} />
+          <GridColumn path="placa" header="Placa del Vehículo" width="160px" flexGrow={0} />
+          <GridColumn path="estacion" header="Estación" width="150px" flexGrow={0} />
+          <GridColumn path="nombreGasolina" header="Tipo de Gasolina" width="150px" flexGrow={0} />
+          <GridColumn path="precio_establecido" header="Precio por Galón" width="170px" flexGrow={0} />
+          <GridColumn path="nroGalones" header="Galones" width="100px" flexGrow={0} />
+          <GridColumn path="precioTotal" header="Precio Total" width="120px" flexGrow={0} />
+          <GridColumn path="estado" header="Estado" width="230px" flexGrow={0} />
+          
+          <GridColumn
           header="Acción"
           renderer={({ item }) => (
             <Button
@@ -294,9 +301,9 @@ export default function OrdenDespachoView() {
                 setCheckoutId(null);
                 localStorage.setItem('ordenPagoId', item.id);
               }}
-              disabled={!!checkoutId}
+              disabled={!!checkoutId || item.estado === 'COMPLETADO'}
             >
-              Pagar
+              {item.estado === 'COMPLETADO' ? 'Pagado' : 'Pagar'}
             </Button>
           )}
         />
@@ -307,11 +314,15 @@ export default function OrdenDespachoView() {
           <Button
             theme="primary"
             onClick={async () => {
-              const resp = await PagoService.checkout(ordenPago.precioTotal, 'USD');
+              console.log('Iniciando checkout con ordenPago.id:', ordenPago.id);
+              const resp = await PagoService.checkout(ordenPago.precioTotal, 'USD', ordenPago.id);
+              console.log('Respuesta del checkout:', resp);
               if (resp && resp.id) {
                 setCheckoutId(String(resp.id));
+                console.log('CheckoutId establecido:', resp.id);
               } else {
                 setMensajePago('No se pudo iniciar el pago');
+                console.error('Error en checkout:', resp);
               }
             }}
           >

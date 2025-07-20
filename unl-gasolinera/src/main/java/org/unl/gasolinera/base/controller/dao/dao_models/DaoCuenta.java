@@ -117,7 +117,7 @@ public LinkedList<HashMap<String, Object>> all() throws Exception {
         map.put("id", c.getId());
         map.put("correo", c.getCorreo());
         map.put("usuario", dp.listAll().get(c.getId_persona()-1).getUsuario());
-        map.put("estado", String.valueOf(c.getEstado()));
+        map.put("estado", c.getEstado());
         map.put("rol", dp.getObj().getId_rol());
         return map;
     }   

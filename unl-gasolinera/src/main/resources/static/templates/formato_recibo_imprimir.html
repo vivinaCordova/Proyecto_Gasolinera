@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Recibo de Pago - {{nroTransaccion}}</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .header {
+      text-align: center;
+      border-bottom: 2px solid #333;
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+    .section {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .section h3 {
+      margin-top: 0;
+      color: #333;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+    .field {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding: 5px 0;
+    }
+    .label {
+      font-weight: bold;
+      color: #555;
+    }
+    .value {
+      text-align: right;
+    }
+    .total {
+      font-weight: bold;
+      font-size: 1.2em;
+      color: #2c5aa0;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #ccc;
+      font-size: 0.9em;
+      color: #666;
+    }
+    @media print {
+      body { margin: 0; }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🧾 RECIBO DE PAGO</h1>
+    <p>Sistema de Gestión de Gasolinera</p>
+  </div>
+
+  <div class="section">
+    <h3>Información del Pago</h3>
+    <div class="field">
+      <span class="label">Número de Transacción:</span>
+      <span class="value">{{nroTransaccion}}</span>
+    </div>
+    <div class="field">
+      <span class="label">Estado del Pago:</span>
+      <span class="value">{{estadoPago}}</span>
+    </div>
+    <div class="field">
+      <span class="label">Fecha del Recibo:</span>
+      <span class="value">{{fechaRecibo}}</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Detalles de la Orden</h3>
+    <div class="field">
+      <span class="label">Código:</span>
+      <span class="value">{{codigo}}</span>
+    </div>
+    <div class="field">
+      <span class="label">Fecha de la Orden:</span>
+      <span class="value">{{fecha}}</span>
+    </div>
+    <div class="field">
+      <span class="label">Placa del Vehículo:</span>
+      <span class="value">{{placa}}</span>
+    </div>
+    <div class="field">
+      <span class="label">Estación:</span>
+      <span class="value">{{estacion}}</span>
+    </div>
+    <div class="field">
+      <span class="label">Tipo de Gasolina:</span>
+      <span class="value">{{nombreGasolina}}</span>
+    </div>
+    <div class="field">
+      <span class="label">Precio por Galón:</span>
+      <span class="value">${{precio_establecido}}</span>
+    </div>
+    <div class="field">
+      <span class="label">Galones:</span>
+      <span class="value">{{nroGalones}}</span>
+    </div>
+    <div class="field total">
+      <span class="label">PRECIO TOTAL:</span>
+      <span class="value">${{precioTotal}}</span>
+    </div>
+    <div class="field">
+      <span class="label">Estado de la Orden:</span>
+      <span class="value">{{estado}}</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Recibo generado automáticamente</p>
+    <p>Fecha de impresión: {{fechaImpresion}}</p>
+  </div>
+</body>
+</html>
