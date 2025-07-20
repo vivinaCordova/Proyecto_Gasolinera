@@ -73,7 +73,14 @@ public class EstacionService {
     }
 
 
-
+    public void delete(Integer id) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("ID de estación inválido");
+        }
+        if (!db.deleteEstacion(id)) {
+            throw new Exception("No se pudo eliminar la estación con ID: " + id);
+        }
+    }
 
 
 

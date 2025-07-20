@@ -7,7 +7,7 @@ import { useNavigate, useSearchParams } from 'react-router';
 import { useEffect, useState } from 'react';
 
 
-/*export const config: ViewConfig = {
+export const config: ViewConfig = {
     skipLayouts: true,
     menu: {
       exclude: true
@@ -53,4 +53,4 @@ export default function RegisterView() {
       </Button>
     </main>
   );
-}*/
+}

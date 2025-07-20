@@ -52,6 +52,17 @@ public class DaoPago extends AdapterDao<Pago> {
         }
     }
 
+    public Boolean deletePago(Integer id) {
+        try {
+            super.delete(id);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e);
+            return false;
+        }
+    }
+
     public LinkedList<HashMap<String, Object>> all() throws Exception {
         LinkedList<HashMap<String, Object>> lista = new LinkedList<>();
         if (!this.listAll().isEmpty()) {
@@ -238,5 +249,7 @@ public class DaoPago extends AdapterDao<Pago> {
             System.out.println("Error");
         }
     }
+
+    
 
 }

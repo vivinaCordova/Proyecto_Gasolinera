@@ -200,5 +200,15 @@ public class DaoPersona extends AdapterDao<Persona> {
         }
     }
 
+    public Boolean deletePersona(Integer id) {
+        try {
+            super.delete(id);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e);
+            return false;
+        }
+    }
 
 }

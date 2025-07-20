@@ -1,5 +1,6 @@
 package org.unl.gasolinera.base.controller.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import org.unl.gasolinera.base.controller.dao.dao_models.DaoEstacion;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoOrdenDespacho;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoPrecioEstablecido;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoVehiculo;
+import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.EstadoOrdenDespachadoEnum;
 import org.unl.gasolinera.base.models.OrdenDespacho;
 import org.unl.gasolinera.base.models.PrecioEstablecido;
@@ -35,7 +37,7 @@ public class OrdenDespachoService {
     }
 
     public void create(@NotEmpty String codigo, float nroGalones, @NonNull Date fecha, @NotEmpty String estado,
-                       Integer idPrecioEstablecido, Integer idVehiculo, Integer idEstacion) throws Exception {
+            Integer idPrecioEstablecido, Integer idVehiculo, Integer idEstacion) throws Exception {
         if (codigo.trim().length() > 0 && nroGalones > 0 && fecha != null && estado.trim().length() > 0
                 && idPrecioEstablecido != null && idVehiculo != null && idEstacion != null) {
 
@@ -63,7 +65,8 @@ public class OrdenDespachoService {
     }
 
     public void update(@NotNull Integer id, @NotEmpty String codigo, float nroGalones, @NonNull Date fecha,
-                       @NotEmpty String estado, Integer idPrecioEstablecido, Integer idVehiculo, Integer idEstacion) throws Exception {
+            @NotEmpty String estado, Integer idPrecioEstablecido, Integer idVehiculo, Integer idEstacion)
+            throws Exception {
         if (codigo.trim().length() > 0 && nroGalones > 0 && fecha != null && estado.trim().length() > 0
                 && idPrecioEstablecido != null && idVehiculo != null && idEstacion != null) {
 
@@ -75,7 +78,6 @@ public class OrdenDespachoService {
 
             Utiles utiles = new Utiles();
             float precioTotal = Float.parseFloat(utiles.tranformStringFloatTwoDecimal(precio.getPrecio() * nroGalones));
-
 
             db.getObj().setCodigo(codigo);
             db.getObj().setNroGalones(nroGalones);
@@ -92,7 +94,7 @@ public class OrdenDespachoService {
         }
     }
 
-    // ✅ Ahora el DAO ya entrega todos los datos listos, no necesitas getById
+    // Ahora el DAO ya entrega todos los datos listos, no necesitas getById
     public List<HashMap> listOrdenDespacho() {
         return Arrays.asList(db.all().toArray());
     }
@@ -103,7 +105,7 @@ public class OrdenDespachoService {
         if (!dv.listAll().isEmpty()) {
             var arreglo = dv.listAll().toArray();
             for (int i = 0; i < arreglo.length; i++) {
-                HashMap<String, String> aux = new HashMap<>();
+                HashMap<String, Object> aux = new HashMap<>();
                 aux.put("value", arreglo[i].getId().toString());
                 aux.put("label", arreglo[i].getPlaca());
                 lista.add(aux);
@@ -118,7 +120,7 @@ public class OrdenDespachoService {
         if (!dp.listAll().isEmpty()) {
             var arreglo = dp.listAll().toArray();
             for (int i = 0; i < arreglo.length; i++) {
-                HashMap<String, String> aux = new HashMap<>();
+                HashMap<String, Object> aux = new HashMap<>();
                 aux.put("value", arreglo[i].getId().toString());
                 aux.put("label", arreglo[i].getTipoCombustible().toString());
                 aux.put("precio", String.valueOf(arreglo[i].getPrecio()));
@@ -134,7 +136,7 @@ public class OrdenDespachoService {
         if (!de.listAll().isEmpty()) {
             var arreglo = de.listAll().toArray();
             for (int i = 0; i < arreglo.length; i++) {
-                HashMap<String, String> aux = new HashMap<>();
+                HashMap<String, Object> aux = new HashMap<>();
                 aux.put("value", arreglo[i].getId().toString());
                 aux.put("label", arreglo[i].getCodigo());
                 lista.add(aux);
@@ -155,14 +157,15 @@ public class OrdenDespachoService {
         return Arrays.asList(db.all().toArray());
     }
 
-    public List<HashMap> order(String attribute, Integer type) {
-        return Arrays.asList(db.orderbyOrdenDespacho(type, attribute).toArray());
+    public List<HashMap> order(String attribute, Integer type) throws Exception {
+        return Arrays.asList(db.orderByOrdenDespacho(type, attribute).toArray());
     }
 
     /**
      * Actualiza únicamente el estado de una OrdenDespacho
      * Método útil para cambios de estado cuando se procesan pagos
-     * @param id ID de la orden de despacho
+     * 
+     * @param id          ID de la orden de despacho
      * @param nuevoEstado Nuevo estado ("EN_PROCESO", "COMPLETADO")
      * @throws Exception Si hay error en la actualización
      */
@@ -170,7 +173,7 @@ public class OrdenDespachoService {
         if (id == null || id <= 0) {
             throw new Exception("ID de orden de despacho inválido");
         }
-        
+
         if (nuevoEstado == null || nuevoEstado.trim().isEmpty()) {
             throw new Exception("El nuevo estado no puede estar vacío");
         }
@@ -201,14 +204,32 @@ public class OrdenDespachoService {
 
         // Actualizar solo el estado
         ordenEncontrada.setEstado(EstadoOrdenDespachadoEnum.valueOf(nuevoEstado.trim()));
-        
+
         // Configurar el objeto actualizado en el DAO
         db.setObj(ordenEncontrada);
-        
+
         if (!db.update(posicion)) {
             throw new Exception("No se pudo actualizar el estado de la Orden de Despacho");
         }
 
         System.out.println("Estado de OrdenDespacho ID " + id + " actualizado a: " + nuevoEstado);
+    }
+
+    public List<HashMap> search(String attribute, String text, Integer type) throws Exception {
+        LinkedList<HashMap<String, Object>> lista = db.search(attribute, text, type);
+        if (!lista.isEmpty()) {
+            return Arrays.asList(lista.toArray());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public void delete(Integer id) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("ID de pago inválido");
+        }
+        if (!db.deleteOrdenDespacho(id)) {
+            throw new Exception("No se pudo eliminar el pago con ID: " + id);
+        }
     }
 }

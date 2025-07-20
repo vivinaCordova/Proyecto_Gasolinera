@@ -47,7 +47,17 @@ public class PersonaService {
             return new ArrayList<>();
     }
 
-
+    public boolean isCreated(String cedula) throws Exception {
+        List<HashMap> personas = listAll();
+        for (HashMap persona : personas) {
+            Object cedulaObj = persona.get("cedula");
+            if (cedulaObj != null && cedulaObj.toString().trim().equalsIgnoreCase(cedula.trim())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     
     public void createPersona(@NotEmpty String usuario, String cedula, Integer id_rol) throws Exception {
         if (usuario.trim().length() > 0 && cedula.trim().length() > 0 && id_rol > 0) {
@@ -74,8 +84,12 @@ public class PersonaService {
         return lista;
     }
 
-    public List<Persona> listAlla() {
-        return (List<Persona>) Arrays.asList(da.listAll().toArray());
+    public void delete(Integer id) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("ID de pago inválido");
+        }
+        if (!da.deletePersona(id)) {
+            throw new Exception("No se pudo eliminar el pago con ID: " + id);
+        }
     }
-
 }
