@@ -9,9 +9,11 @@ import org.unl.gasolinera.base.controller.dao.AdapterDao;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.EstadoOrdenCompraEnum;
 import org.unl.gasolinera.base.models.OrdenCompra;
+import org.unl.gasolinera.base.models.OrdenDespacho;
+import org.unl.gasolinera.base.models.Pago;
+import org.unl.gasolinera.base.models.PrecioEstablecido;
 import org.unl.gasolinera.base.models.Proveedor;
 import org.unl.gasolinera.base.models.Tanque;
-import org.unl.gasolinera.base.models.TipoCombustibleEnum;
 
 public class DaoTanque extends AdapterDao<Tanque> {
 
@@ -344,5 +346,97 @@ public class DaoTanque extends AdapterDao<Tanque> {
             return false; // Retorna false en caso de excepción
         }
 
+    }
+
+    private Boolean descontarStock(Integer idOrdenDespacho, Integer idPago) {
+        try {
+            // Instancias necesarias
+            DaoPago daoPago = new DaoPago();
+            DaoOrdenDespacho daoOrdenDespacho = new DaoOrdenDespacho();
+            DaoPrecioEstablecido daoPrecioEstablecido = new DaoPrecioEstablecido();
+    
+            // Validar el estado del pago utilizando DaoPago
+            Pago[] pagosArray = daoPago.listAll().toArray();
+            Pago pago = null;
+            for (Pago p : pagosArray) {
+                if (p.getId().equals(idPago)) {
+                    pago = p;
+                    break;
+                }
+            }
+    
+            if (pago == null || !pago.getEstadoP()) {
+                System.out.println("El pago no fue exitoso o no existe.");
+                return false; // Retorna false si el pago no fue exitoso
+            }
+    
+            // Buscar la orden de despacho manualmente
+            OrdenDespacho[] ordenesArray = daoOrdenDespacho.listAll().toArray();
+            OrdenDespacho ordenDespacho = null;
+            for (OrdenDespacho orden : ordenesArray) {
+                if (orden.getId().equals(idOrdenDespacho)) {
+                    ordenDespacho = orden;
+                    break;
+                }
+            }
+    
+            if (ordenDespacho == null) {
+                System.out.println("La orden de despacho no existe.");
+                return false; // Retorna false si la orden de despacho no existe
+            }
+    
+            // Obtener el número de galones de la orden de despacho
+            Integer numeroGalones = Math.round(ordenDespacho.getNroGalones()); // Convertir Float a Integer
+            System.out.println("Número de galones en la orden de despacho: " + numeroGalones);
+    
+            // Buscar el precio establecido manualmente
+            PrecioEstablecido[] preciosArray = daoPrecioEstablecido.listAll().toArray();
+            PrecioEstablecido precioEstablecido = null;
+            for (PrecioEstablecido precio : preciosArray) {
+                /*if (precio.getId().equals(ordenDespacho.getIdPrecioGalon())) {
+                    precioEstablecido = precio;
+                    break;
+                }*/
+            }
+    
+            if (precioEstablecido == null) {
+                System.out.println("No se encontró el precio establecido para la orden.");
+                return false; // Retorna false si no se encuentra el precio establecido
+            }
+    
+            // Obtener el tipo de combustible asociado al precio establecido
+            String tipoCombustible = precioEstablecido.getTipoCombustible().toString();
+            System.out.println("Tipo de combustible asociado: " + tipoCombustible);
+    
+            // Retorna true si todo se verificó correctamente
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error al verificar el pago y obtener detalles.");
+            return false; // Retorna false en caso de excepción
+        }
+    }
+
+    public void procesarDescuentoAutomatico(Integer idOrdenDespacho, Integer idPago) {
+        try {
+            // Validar que los IDs sean válidos
+            if (idOrdenDespacho == null || idPago == null) {
+                System.out.println("Los IDs proporcionados son inválidos.");
+                return; // Termina la ejecución si los IDs son inválidos
+            }
+            // Llamar al método privado descontarStock
+            Boolean resultado = descontarStock(idOrdenDespacho, idPago);
+            if (resultado != null && resultado) {
+                System.out.println("Descuento realizado automáticamente para la orden de despacho: " + idOrdenDespacho);
+            } else {
+                System.out.println("No se pudo realizar el descuento automáticamente. Verifique los datos.");
+            }
+        } catch (NullPointerException e) {
+            System.out.println("Error: Se encontró un valor nulo durante el procesamiento.");
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Error al procesar el descuento automático: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }
