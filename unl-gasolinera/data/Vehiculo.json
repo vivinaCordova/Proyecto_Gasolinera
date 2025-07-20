@@ -1,1 +1,16 @@
-[{ "id": 1, "placa": "IJ58LO", "modelo": "K3", "marca": "KIA" }]
+[
+    {
+        "id": 1,
+        "placa": "ABD",
+        "modelo": "4x4",
+        "marca": "Toyota",
+        "idPropietario": 1
+    },
+    {
+        "id": 2,
+        "placa": "ADE",
+        "modelo": "2X2",
+        "marca": "Kia",
+        "idPropietario": 3
+    }
+]

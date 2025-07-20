@@ -1,0 +1,1 @@
+[{"id":1,"capacidad":24000.0,"capacidadTotal":30000.0,"capacidadMinima":10000.0,"tipo":"ECOPAIS","codigo":"TA1"},{"id":2,"capacidad":1250.0,"capacidadTotal":1000.0,"capacidadMinima":2400.0,"tipo":"EXTRA","codigo":"TA2"},{"id":3,"capacidad":1600.0,"capacidadTotal":2400.0,"capacidadMinima":1000.0,"tipo":"SUPER","codigo":"TA3"}]

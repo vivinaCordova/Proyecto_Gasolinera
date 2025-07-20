@@ -1,18 +1,21 @@
 package org.unl.gasolinera.base.controller.dao.dao_models;
 
+import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.unl.gasolinera.base.controller.Utiles;
 import org.unl.gasolinera.base.controller.dao.AdapterDao;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.Cuenta;
+import org.unl.gasolinera.base.models.Persona;
 
 public class DaoCuenta extends AdapterDao<Cuenta> {
     private Cuenta obj;
 
     public DaoCuenta() {
         super(Cuenta.class);
-        // TODO Auto-generated constructor stub
     }
 
     public Cuenta getObj() {
@@ -31,9 +34,7 @@ public class DaoCuenta extends AdapterDao<Cuenta> {
             this.persist(obj);
             return true;
         } catch (Exception e) {
-            // TODO
             return false;
-            // TODO: handle exception
         }
     }
 
@@ -42,33 +43,93 @@ public class DaoCuenta extends AdapterDao<Cuenta> {
             this.update(obj, pos);
             return true;
         } catch (Exception e) {
-            // TODO
             return false;
-            // TODO: handle exception
         }
     }
+
+////////////////miooooooooooooooooooo
+public LinkedList<HashMap<String, Object>> search(String attribute, String text, Integer type) throws Exception {
+    LinkedList<HashMap<String, Object>> lista = all();
+    LinkedList<HashMap<String, Object>> resp = new LinkedList<>();
+    
+    if (!lista.isEmpty()) {
+        HashMap<String, Object>[] arr = lista.toArray();
+        System.out.println(attribute+" "+text+" ** *** * * ** * * * *");
+        switch (type) {
+            case 1:
+            System.out.println(attribute+" "+text+" UNO");
+                for (HashMap m : arr) {
+                    if (m.get(attribute).toString().toLowerCase().startsWith(text.toLowerCase())) {
+                        resp.add(m);
+                    }
+                }
+                break;
+            case 2:
+            System.out.println(attribute+" "+text+" DOS");
+                for (HashMap m : arr) {
+                    if (m.get(attribute).toString().toLowerCase().endsWith(text.toLowerCase())) {
+                        resp.add(m);
+                    }
+                }
+                break;
+            default:
+            System.out.println(attribute+" "+text+" TRES");
+                for (HashMap m : arr) {
+                    System.out.println("***** "+m.get(attribute)+"   "+attribute);
+                    if (m.get(attribute).toString().toLowerCase().contains(text.toLowerCase())) {
+                        resp.add(m);
+                    }
+                }
+                break;
+        }
+    }
+    return resp;
+}
+
+
+public LinkedList<HashMap<String, Object>> orderByCuenta(Integer type, String attribute) throws Exception {
+    LinkedList<HashMap<String, Object>> lista = all();
+    if (!lista.isEmpty()) {
+        HashMap arr[] = lista.toArray();
+        quickSort(arr, 0, arr.length - 1, type, attribute);
+        lista.toList(arr);
+    }
+    return lista;
+}
+
+public LinkedList<HashMap<String, Object>> all() throws Exception {
+    LinkedList<HashMap<String, Object>> lista = new LinkedList<>();
+    if (!this.listAll().isEmpty()) {
+        Cuenta[] arreglo = this.listAll().toArray();
+        for (int i = 0; i < arreglo.length; i++) {
+            lista.add(toDict(arreglo[i]));
+        }
+    }
+    return lista;
+}
+
+//////
 
     public HashMap<String, Object> toDict(Cuenta c) throws Exception {
         HashMap<String, Object> map = new HashMap<>();
         DaoPersona dp = new DaoPersona();
         dp.setObj(dp.get(c.getId_persona()));
-        map.put("correo", c.getCorreo());
         map.put("id", c.getId());
+        map.put("correo", c.getCorreo());
+        map.put("usuario", dp.listAll().get(c.getId_persona()-1).getUsuario());
         map.put("estado", c.getEstado());
-        map.put("usuario", dp.getObj().getUsuario());
+        map.put("rol", dp.getObj().getId_rol());
         return map;
-    }
+    }   
 
     private HashMap<String, Object> toDictPassword(Cuenta c) throws Exception {
         HashMap<String, Object> map = new HashMap<>();
         DaoPersona dp = new DaoPersona();
-
         dp.setObj(dp.get(c.getId_persona()));
         map.put("correo", c.getCorreo());
         map.put("id", c.getId());
         map.put("clave", c.getClave());
         map.put("estado", c.getEstado());
-        map.put("usuario", dp.getObj().getUsuario());
         return map;
     }
 
@@ -88,8 +149,7 @@ public class DaoCuenta extends AdapterDao<Cuenta> {
         int i = (begin - 1);
         if (type == Utiles.ASCENDENTE) {
             for (int j = begin; j < end; j++) {
-                if (arr[j].get(attribute).toString().compareTo(pivot.get(attribute).toString()) < 0) {
-                    // if (arr[j] <= pivot) {
+                if (arr[j].get(attribute).toString().toLowerCase().compareTo(pivot.get(attribute).toString().toLowerCase()) < 0) {
                     i++;
                     HashMap<String, Object> swapTemp = arr[i];
                     arr[i] = arr[j];
@@ -98,8 +158,7 @@ public class DaoCuenta extends AdapterDao<Cuenta> {
             }
         } else {
             for (int j = begin; j < end; j++) {
-                if (arr[j].get(attribute).toString().compareTo(pivot.get(attribute).toString()) > 0) {
-                    // if (arr[j] <= pivot) {
+                if (arr[j].get(attribute).toString().toLowerCase().compareTo(pivot.get(attribute).toString().toLowerCase()) > 0) {
                     i++;
                     HashMap<String, Object> swapTemp = arr[i];
                     arr[i] = arr[j];
@@ -123,16 +182,19 @@ public class DaoCuenta extends AdapterDao<Cuenta> {
         }
     }
 
-
-
     public HashMap<String, Object> login(String email, String password) throws Exception {
         if (!listAll().isEmpty()) {
             HashMap<String, Object>[] arreglo = listPrivate().toArray();
             quickSort(arreglo, 0, arreglo.length - 1, 1, "correo");
+            for(HashMap mapa: arreglo){
+                System.out.println(mapa.get("correo"));
+            }    
             HashMap<String, Object> search = BinarySearchRecursive(arreglo, 0, arreglo.length - 1, "correo", email);
             if(search != null) {
                 if (((Boolean)search.get("estado"))){
+                    
                     if(search.get("clave").toString().equals(password)) {
+                        System.out.println("xxxx "+search.get("clave")+"   "+search.get("id")+"  "+get((Integer)search.get("id")));    
                         return toDict(get((Integer)search.get("id")));
                     } else throw new Exception("Su clave o usuario son incorrectos");
                 } else throw new Exception("Cuenta desactivada");
@@ -144,20 +206,31 @@ public class DaoCuenta extends AdapterDao<Cuenta> {
 
     public HashMap<String, Object> BinarySearchRecursive(HashMap<String, Object> arr[], int a, int b, String attribute,
             String value) throws Exception {
-        // Base Case to Exit the Recursive Function
         if (b < 1) {
             return null;
         }
         int n = a + (b = 1) / 2;
-        // If number is found at mean index of start and end
+        System.out.println("n "+(n-1)+" a "+a+"  b "+b+" arrgelo "+arr.length+" atributo "+attribute+" valor "+value+" atributo valor "+arr[n].get(attribute));
+        /*FileWriter fl = new FileWriter("data/arelys");
+        fl.write("n "+(n-1)+" a "+a+"  b "+b);
+        fl.close();*/
         if (arr[n].get(attribute).toString().equals(value))
             return arr[n];
-        // If number to search for is greater than the arr value at index 'n'
-        else if (arr[n].get(attribute).toString().compareTo(value) > 0)
+        else if (arr[n].get(attribute).toString().compareTo(value) > 0){            
             return BinarySearchRecursive(arr, a, n - 1, attribute, value);
-        // If number to search for is greater than the arr value at index 'n'
-        else
+        }else
             return BinarySearchRecursive(arr, n + 1, b, attribute, value);
+    }
+
+    
+
+    public static void main(String[] args) {
+        DaoCuenta dc = new DaoCuenta();
+        try {
+            dc.login("hjh", "hj");
+        } catch (Exception e) {
+            System.out.println("Error "+e);
+        }
     }
 
 }
