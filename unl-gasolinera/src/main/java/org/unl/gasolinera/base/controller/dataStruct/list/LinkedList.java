@@ -221,7 +221,7 @@ public class LinkedList<E> {
         } else {
             Node<E> preview = getNode(pos -1);
             Node<E> actualy = getNode(pos);
-            E element = preview.getData();
+            E element = actualy.getData();
             Node<E> next = actualy.getNext();
             actualy = null;
             preview.setNext(next);
