@@ -16,12 +16,14 @@ import org.unl.gasolinera.base.controller.PagoControl;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoEstacion;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoOrdenDespacho;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoPago;
+import org.unl.gasolinera.base.controller.dao.dao_models.DaoPersona;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoPrecioEstablecido;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoVehiculo;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.Estacion;
 import org.unl.gasolinera.base.models.OrdenDespacho;
 import org.unl.gasolinera.base.models.Pago;
+import org.unl.gasolinera.base.models.Persona;
 import org.unl.gasolinera.base.models.PrecioEstablecido;
 import org.unl.gasolinera.base.models.Vehiculo;
 
@@ -97,21 +99,6 @@ public class PagoService {
         }
     }
 
-    public void crearPago(Integer idOrdenDespacho, Boolean estado) throws Exception {
-        System.out.println("Llamada a crearPago: idOrdenDespacho=" + idOrdenDespacho + ", estado=" + estado);
-        if (idOrdenDespacho == null || estado == null) {
-            throw new Exception("Datos incompletos para crear el pago");
-        }
-        int nroTransaccion = db.listAll().getLength() + 1;
-        org.unl.gasolinera.base.models.Pago nuevoPago = new org.unl.gasolinera.base.models.Pago();
-        nuevoPago.setNroTransaccion(nroTransaccion);
-        nuevoPago.setEstadoP(estado);
-        nuevoPago.setIdOrdenDespacho(idOrdenDespacho);
-        db.setObj(nuevoPago);
-        if (!db.save()) {
-            throw new Exception("No se pudo guardar el pago");
-        }
-    }
 
     public Map<String, Object> checkout(@RequestParam float total, @RequestParam String currency, @RequestParam Integer idOrdenDespacho) {
         try {
@@ -247,13 +234,38 @@ public class PagoService {
             recibo.put("precioTotal", orden.getPrecioTotal());
             recibo.put("estado", orden.getEstado() != null ? orden.getEstado().toString() : "Sin estado");
 
-            // Obtener placa del vehículo
+            // Obtener placa del vehículo y propietario
             if (orden.getIdVehiculo() != null) {
                 DaoVehiculo daoVehiculo = new DaoVehiculo();
                 LinkedList<Vehiculo> listaVehiculos = daoVehiculo.listAll();
+                
                 for (int i = 0; i < listaVehiculos.getLength(); i++) {
-                    if (listaVehiculos.get(i).getId().equals(orden.getIdVehiculo())) {
-                        recibo.put("placa", listaVehiculos.get(i).getPlaca());
+                    Vehiculo vehiculo = listaVehiculos.get(i);
+                    
+                    if (vehiculo.getId().equals(orden.getIdVehiculo())) {
+                        recibo.put("placa", vehiculo.getPlaca());
+                        
+                        // Obtener propietario del vehículo
+                        Integer idPropietario = vehiculo.getIdPropietario();
+                        
+                        if (idPropietario != null) {
+                            DaoPersona daoPersona = new DaoPersona();
+                            LinkedList<Persona> listaPersonas = daoPersona.listAll();
+                            
+                            for (int j = 0; j < listaPersonas.getLength(); j++) {
+                                Persona persona = listaPersonas.get(j);
+                                
+                                if (persona.getId().equals(idPropietario)) {
+                                    String nombrePropietario = persona.getUsuario() != null ? persona.getUsuario() : "Sin usuario";
+                                    recibo.put("propietarioVehiculo", nombrePropietario);
+                                    recibo.put("cedulaPropietario", persona.getCedula());
+                                    break;
+                                }
+                            }
+                        } else {
+                            recibo.put("propietarioVehiculo", "Sin propietario");
+                            recibo.put("cedulaPropietario", "N/A");
+                        }
                         break;
                     }
                 }
@@ -289,6 +301,8 @@ public class PagoService {
 
         return recibo;
     }
+
+    
 
     /*public static void main(String[] args) {
         PagoService service = new PagoService();
