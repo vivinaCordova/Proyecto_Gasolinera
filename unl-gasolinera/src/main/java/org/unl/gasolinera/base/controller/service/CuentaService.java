@@ -173,10 +173,13 @@ public class CuentaService {
         return lista;
     }
 
-    public List<Cuenta> listAlla() {
-        // System.out.println("**********Entro aqui");
-        // System.out.println("lengthy "+Arrays.asList(da.listAll().toArray()).size());
-        return (List<Cuenta>) Arrays.asList(da.listAll().toArray());
+    public void delete(Integer id) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("ID de pago inválido");
+        }
+        if (!da.deleteCuenta(id)) {
+            throw new Exception("No se pudo eliminar el pago con ID: " + id);
+        }
     }
 
 }

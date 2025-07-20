@@ -47,7 +47,7 @@ type PersonaEntryFormPropsUpdate = () => {
 
 //GUARDAR Persona
 function PersonaEntryForm(props: PersonaEntryFormProps) {
-useEffect(() => {
+  useEffect(() => {
     role().then(async (data) => {
       if (data?.rol != 'ROLE_admin') {
         await CuentaService.logout();
@@ -93,7 +93,7 @@ useEffect(() => {
   useEffect(() => {
     PersonaService.listRolCombo().then((data) => (listaRol.value = data));
 
-    
+
   }, []);
 
   const dialogOpened = useSignal(false);
@@ -154,10 +154,10 @@ useEffect(() => {
   );
 }
 
-function indexIndex({model}:{model:GridItemModel<Persona>}) {
+function indexIndex({ model }: { model: GridItemModel<Persona> }) {
   return (
     <span>
-      {model.index + 1} 
+      {model.index + 1}
     </span>
   );
 }
@@ -173,6 +173,31 @@ export default function PersonaView() {
   useEffect(() => {
     callData();
   }, []);
+
+  const deletePersona = async (persona: Persona) => {
+    // Mostrar confirmación antes de eliminar
+    const confirmed = window.confirm(`¿Está seguro de que desea eliminar a la persona ${persona.usuario}?`);
+
+    if (confirmed) {
+      try {
+        await PersonaService.delete(persona.id);
+        Notification.show('Persona eliminada exitosamente', {
+          duration: 5000,
+          position: 'bottom-end',
+          theme: 'success'
+        });
+        // Recargar la lista después de eliminar
+        callData();
+      } catch (error) {
+        console.error('Error al eliminar la Persona:', error);
+        Notification.show('Error al eliminar la Persona', {
+          duration: 5000,
+          position: 'top-center',
+          theme: 'error'
+        });
+      }
+    }
+  }
 
   const order = (event, columnId) => {
     console.log(event);
@@ -247,7 +272,18 @@ export default function PersonaView() {
         <GridSortColumn path="usuario" header="Usuario" onDirectionChanged={(e) => order(e, 'usuario')} />
         <GridSortColumn path="cedula" header="Cedula" onDirectionChanged={(e) => order(e, 'cedula')} />
         <GridSortColumn path="rol" header="Rol" onDirectionChanged={(e) => order(e, 'rol')} />
+        <GridColumn
+          header="Eliminar"
+          renderer={({ item }) => (
+            <Button
+              theme="error"
+              onClick={() => deletePersona(item)}
+            >
+              Eliminar
+            </Button>
+          )}
+        />
       </Grid>
-    </main>
+    </main >
   );
 }
