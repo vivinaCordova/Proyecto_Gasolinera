@@ -556,6 +556,31 @@ export default function PagoView() {
     });
   }
 
+  const deletePago = async (pago: Pago) => {
+    // Mostrar confirmación antes de eliminar
+    const confirmed = window.confirm(`¿Está seguro de que desea eliminar el pago con transacción ${pago.nroTransaccion}?`);
+    
+    if (confirmed) {
+      try {
+        await PagoService.delete(pago.id);
+        Notification.show('Pago eliminado exitosamente', {
+          duration: 5000,
+          position: 'bottom-end',
+          theme: 'success'
+        });
+        // Recargar la lista después de eliminar
+        callData();
+      } catch (error) {
+        console.error('Error al eliminar pago:', error);
+        Notification.show('Error al eliminar el pago', {
+          duration: 5000,
+          position: 'top-center',
+          theme: 'error'
+        });
+      }
+    }
+  }
+
   /*function indexLink({ model }: { model: GridItemModel<Pago> }) {
     return (
       <span>
@@ -620,6 +645,7 @@ export default function PagoView() {
         </Group>
       </ViewToolbar>
 
+
       {mensajePago && (
         <div style={{
           padding: '1rem',
@@ -674,6 +700,17 @@ export default function PagoView() {
               }}
             >
               Recibo
+            </Button>
+          )}
+        />
+        <GridColumn
+          header="Eliminar"
+          renderer={({ item }) => (
+            <Button
+              theme="error"
+              onClick={() => deletePago(item)}
+            >
+              Eliminar
             </Button>
           )}
         />

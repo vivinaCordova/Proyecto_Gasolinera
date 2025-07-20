@@ -1,5 +1,5 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, NumberField, TextField, VerticalLayout } from '@vaadin/react-components';
+import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, HorizontalLayout, Icon, NumberField, Select, TextField, VerticalLayout } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
 import { OrdenDespachoService, PagoService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
@@ -16,6 +16,19 @@ export const config: ViewConfig = {
     title: 'Orden de Despacho',
   },
 };
+
+type OrdenDespacho = {
+  id: number;
+  codigo: string;
+  fecha: string;
+  placa: string;
+  estacion: string;
+  nombreGasolina: string;
+  precio_establecido: number;
+  nroGalones: number;
+  precioTotal: number;
+  estado: string;
+}
 
 type OrdenDespachoEntryFormProps = {
   onOrdenCreated?: () => void;
@@ -88,10 +101,14 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
         idPrecioEstablecido.value &&
         idEstacion.value
       ) {
+        const fechaActual = new Date();
+        const [year, month, day] = fecha.value.split('-').map(Number);
+        const fechaConHoraActual = new Date(year, month - 1, day, fechaActual.getHours(), fechaActual.getMinutes(), fechaActual.getSeconds());
+
         await OrdenDespachoService.create(
           codigo.value,
           parseFloat(nroGalones.value),
-          new Date(fecha.value),
+          fechaConHoraActual,
           estado.value,
           parseInt(idPrecioEstablecido.value),
           parseInt(idVehiculo.value),
@@ -221,10 +238,16 @@ export default function OrdenDespachoView() {
   const dataProvider = useDataProvider<any>({
     list: () => OrdenDespachoService.listOrdenDespacho()
   });
-
+  const [items, setItems] = useState([]);
   const [ordenPago, setOrdenPago] = useState<any | null>(null);
   const [checkoutId, setCheckoutId] = useState<string | null>(null);
   const [mensajePago, setMensajePago] = useState<string | null>(null);
+
+  useEffect(() => {
+    OrdenDespachoService.listAll().then(function (data) {
+      setItems(data);
+    });
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -236,22 +259,112 @@ export default function OrdenDespachoView() {
         console.log('Resultado de consultarEstadoPago:', resultado);
         if (resultado && resultado.estado === "true") {
           setMensajePago("Pago realizado con éxito");
-          // Ya no necesitamos llamar a crearPago aquí - el backend lo hace automáticamente
+
         } else if (resultado && resultado.estado === "false") {
           setMensajePago("Pago rechazado");
-          // Ya no necesitamos llamar a crearPago aquí - el backend lo hace automáticamente
+
         }
         setOrdenPago(null);
         setCheckoutId(null);
         localStorage.removeItem('ordenPagoId');
         window.history.replaceState({}, '', window.location.pathname);
-        dataProvider.refresh();
+        callData(); // Usar callData en lugar de dataProvider.refresh()
       }).catch(error => {
         console.error('Error en consultarEstadoPago:', error);
         setMensajePago("Error al procesar el pago");
       });
     }
   }, [window.location.search]);
+
+  const order = (event: any, columnId: any) => {
+    const direction = event.detail.value;
+    if (!direction) {
+      // Sin orden, mostrar lista original
+      OrdenDespachoService.listAll().then((data: any) => setItems(data));
+    } else {
+      var dir = (direction == 'asc') ? 1 : 2;
+      OrdenDespachoService.order(columnId, dir).then((data: any) => setItems(data));
+    }
+  }
+  const callData = () => {
+    OrdenDespachoService.listAll().then(function (data: any) {
+      setItems(data);
+    });
+  }
+
+  const deleteOrdenDespacho = async (orden_despacho: OrdenDespacho) => {
+    // Mostrar confirmación antes de eliminar
+    const confirmed = window.confirm(`¿Está seguro de que desea eliminar el despacho con código ${orden_despacho.codigo}?`);
+
+    if (confirmed) {
+      try {
+        await OrdenDespachoService.delete(orden_despacho.id);
+        Notification.show('Despacho eliminado exitosamente', {
+          duration: 5000,
+          position: 'bottom-end',
+          theme: 'success'
+        });
+        // Recargar la lista después de eliminar
+        callData();
+      } catch (error) {
+        console.error('Error al eliminar la orden de despacho:', error);
+        Notification.show('Error al eliminar la orden de despacho', {
+          duration: 5000,
+          position: 'top-center',
+          theme: 'error'
+        });
+      }
+    }
+  }
+
+  //BUSCAR
+  const criterio = useSignal('');
+  const texto = useSignal('');
+
+  const itemSelect = [
+    {
+      label: 'Código',
+      value: 'codigo',
+    },
+    {
+      label: 'Fecha',
+      value: 'fecha',
+    },
+    {
+      label: 'Placa',
+      value: 'placa',
+    },
+    {
+      label: 'Estacion',
+      value: 'estacion'
+    },
+    {
+      label: 'Tipo Combustible',
+      value: 'nombreGasolina'
+    },
+    {
+      label: 'Estado',
+      value: 'estado'
+    }
+  ];
+
+  const searchCri = async () => {
+    try {
+      OrdenDespachoService.search(criterio.value, texto.value, 0).then(function (data) {
+        setItems(data);
+      });
+
+      criterio.value = '';
+      texto.value = '';
+
+      Notification.show('Busqueda realizada', { duration: 5000, position: 'bottom-end', theme: 'success' });
+
+
+    } catch (error) {
+      console.log(error);
+      handleError(error);
+    }
+  };
 
   useEffect(() => {
     if (checkoutId) {
@@ -270,28 +383,53 @@ export default function OrdenDespachoView() {
     return <span>{model.index + 1}</span>;
   }
 
+
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
       <ViewToolbar title="Lista de Órdenes de Despacho">
         <Group>
-          <OrdenDespachoEntryForm onOrdenCreated={dataProvider.refresh} />
+          <OrdenDespachoEntryForm onOrdenCreated={callData} />
         </Group>
       </ViewToolbar>
+      <HorizontalLayout theme="spacing">
+        <Select items={itemSelect}
+          value={criterio.value}
+          onValueChanged={(evt) => (criterio.value = evt.detail.value)}
+          placeholder={'Seleccione un criterio'}>
 
-      <Grid dataProvider={dataProvider.dataProvider}>
+        </Select>
+
+        <TextField
+          placeholder="Search"
+          style={{ width: '50%' }}
+          value={texto.value}
+          onValueChanged={(evt) => (texto.value = evt.detail.value)}
+
+        >
+          <Icon slot="prefix" icon="vaadin:search" />
+        </TextField>
+        <Button onClick={searchCri} theme="primary">
+          BUSCAR
+        </Button>
+        <Button onClick={callData} theme="secondary">
+          REFRESCAR
+        </Button>
+
+      </HorizontalLayout>
+      <Grid items={items}>
         <GridColumn renderer={indexIndex} header="Nro" width="70px" flexGrow={0} />
-          <GridColumn path="codigo" header="Código" width="140px" flexGrow={0} />
-          <GridColumn path="fecha" header="Fecha" width="320px" flexGrow={0} />
-          <GridColumn path="placa" header="Placa del Vehículo" width="160px" flexGrow={0} />
-          <GridColumn path="estacion" header="Estación" width="150px" flexGrow={0} />
-          <GridColumn path="nombreGasolina" header="Tipo de Gasolina" width="150px" flexGrow={0} />
-          <GridColumn path="precio_establecido" header="Precio por Galón" width="170px" flexGrow={0} />
-          <GridColumn path="nroGalones" header="Galones" width="100px" flexGrow={0} />
-          <GridColumn path="precioTotal" header="Precio Total" width="120px" flexGrow={0} />
-          <GridColumn path="estado" header="Estado" width="230px" flexGrow={0} />
-          
-          <GridColumn
-          header="Acción"
+        <GridSortColumn onDirectionChanged={(e) => order(e, "codigo")} path="codigo" header="Código" width="140px" flexGrow={0} />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "fecha")} path="fecha" header="Fecha" width="320px" flexGrow={0} />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "placa")} path="placa" header="Placa del Vehículo" width="200px" flexGrow={0} />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "estacion")} path="estacion" header="Estación" width="150px" flexGrow={0} />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "nombreGasolina")} path="nombreGasolina" header="Tipo de Gasolina" width="150px" flexGrow={0} />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "precio_establecido")} path="precio_establecido" header="Precio por Galón" width="170px" flexGrow={0} />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "nroGalones")} path="nroGalones" header="Galones" width="150px" flexGrow={0} />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "precioTotal")} path="precioTotal" header="Precio Total" width="120px" flexGrow={0} />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "estado")} path="estado" header="Estado" width="230px" flexGrow={0} />
+
+        <GridColumn
+          header="Pagar"
           renderer={({ item }) => (
             <Button
               theme="primary"
@@ -307,7 +445,20 @@ export default function OrdenDespachoView() {
             </Button>
           )}
         />
+
+        <GridColumn
+          header="Eliminar"
+          renderer={({ item }) => (
+            <Button
+              theme="error"
+              onClick={() => deleteOrdenDespacho(item)}
+            >
+              Eliminar
+            </Button>
+          )}
+        />
       </Grid>
+
       {ordenPago && !checkoutId && (
         <div style={{ marginTop: '1rem' }}>
           <h4>Pago para orden: {ordenPago.codigo} (${ordenPago.precioTotal})</h4>
@@ -338,5 +489,7 @@ export default function OrdenDespachoView() {
         ></form>
       )}
     </main>
+
   );
 }
+
