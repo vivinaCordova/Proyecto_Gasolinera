@@ -88,10 +88,14 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
         idPrecioEstablecido.value &&
         idEstacion.value
       ) {
+        const fechaActual = new Date();
+        const [year, month, day] = fecha.value.split('-').map(Number);
+        const fechaConHoraActual = new Date(year, month - 1, day, fechaActual.getHours(), fechaActual.getMinutes(), fechaActual.getSeconds());
+        
         await OrdenDespachoService.create(
           codigo.value,
           parseFloat(nroGalones.value),
-          new Date(fecha.value),
+          fechaConHoraActual,
           estado.value,
           parseInt(idPrecioEstablecido.value),
           parseInt(idVehiculo.value),

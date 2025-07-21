@@ -92,7 +92,7 @@ public class OrdenDespachoService {
         }
     }
 
-    // ✅ Ahora el DAO ya entrega todos los datos listos, no necesitas getById
+   
     public List<HashMap> listOrdenDespacho() {
         return Arrays.asList(db.all().toArray());
     }
@@ -159,13 +159,7 @@ public class OrdenDespachoService {
         return Arrays.asList(db.orderbyOrdenDespacho(type, attribute).toArray());
     }
 
-    /**
-     * Actualiza únicamente el estado de una OrdenDespacho
-     * Método útil para cambios de estado cuando se procesan pagos
-     * @param id ID de la orden de despacho
-     * @param nuevoEstado Nuevo estado ("EN_PROCESO", "COMPLETADO")
-     * @throws Exception Si hay error en la actualización
-     */
+    
     public void actualizarEstado(@NotNull Integer id, @NotEmpty String nuevoEstado) throws Exception {
         if (id == null || id <= 0) {
             throw new Exception("ID de orden de despacho inválido");
