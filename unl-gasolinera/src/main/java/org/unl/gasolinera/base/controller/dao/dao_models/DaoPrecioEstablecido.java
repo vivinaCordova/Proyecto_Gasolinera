@@ -7,21 +7,19 @@ import org.unl.gasolinera.base.controller.dao.AdapterDao;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.PrecioEstablecido;
 
-
 public class DaoPrecioEstablecido extends AdapterDao<PrecioEstablecido> {
     private PrecioEstablecido obj;
 
-    public DaoPrecioEstablecido(){
+    public DaoPrecioEstablecido() {
         super(PrecioEstablecido.class);
     }
 
     public PrecioEstablecido getObj() {
-        if(obj==null)
-            this.obj=new PrecioEstablecido();
+        if (obj == null)
+            this.obj = new PrecioEstablecido();
         return this.obj;
     }
 
-    
     public void setObj(PrecioEstablecido obj) {
         this.obj = obj;
     }
@@ -32,21 +30,21 @@ public class DaoPrecioEstablecido extends AdapterDao<PrecioEstablecido> {
             this.persist(obj);
             return true;
         } catch (Exception e) {
-            //TODO
+            // TODO
             return false;
             // TODO: handle exception
         }
     }
 
-    public Boolean update(Integer pos){
-        try{
+    public Boolean update(Integer pos) {
+        try {
             this.update(obj, pos);
             return true;
 
-        }catch(Exception e){
-            e.printStackTrace(); 
+        } catch (Exception e) {
+            e.printStackTrace();
             System.out.println(e);
-            //LOG DE ERROR
+            // LOG DE ERROR
             return false;
         }
     }
@@ -110,36 +108,31 @@ public class DaoPrecioEstablecido extends AdapterDao<PrecioEstablecido> {
         return aux;
     }
 
-
     public LinkedList<HashMap<String, String>> orderByPrecioEstablecido(Integer type, String attribute) {
         LinkedList<HashMap<String, String>> lista = all();
-        if (!lista.isEmpty()){
-          HashMap arr[] = lista.toArray();
-          // Convert HashMap array back to PrecioEstablecido array for sorting
-          PrecioEstablecido[] PrecioEstablecidoes = this.listAll().toArray();
-          quickSort(PrecioEstablecidoes, 0, PrecioEstablecidoes.length - 1, type);
-          // Update lista with sorted PrecioEstablecidoes
-          lista = new LinkedList<>();
-          for (PrecioEstablecido PrecioEstablecido : PrecioEstablecidoes) {
-            lista.add(toDict(PrecioEstablecido, type));
-           }
+        if (!lista.isEmpty()) {
+            // Convert HashMap array back to PrecioEstablecido array for sorting
+            PrecioEstablecido[] PrecioEstablecidoes = this.listAll().toArray();
+            quickSort(PrecioEstablecidoes, 0, PrecioEstablecidoes.length - 1, type);
+            // Update lista with sorted PrecioEstablecidoes
+            lista = new LinkedList<>();
+            for (int i = 0; i < PrecioEstablecidoes.length; i++) {
+                lista.add(toDict(PrecioEstablecidoes[i], i));
+            }
         }
         return lista;
     }
 
-
     public PrecioEstablecido getById(Integer id) {
         if (!this.listAll().isEmpty()) {
             PrecioEstablecido[] arreglo = this.listAll().toArray();
-            for (PrecioEstablecido p : arreglo) {
-                if (p.getId().equals(id)) {
-                    return p;
+            for (PrecioEstablecido e : arreglo) {
+                if (e.getId().equals(id)) {
+                    return e;
                 }
             }
         }
         return null;
     }
-    
 
-   
 }

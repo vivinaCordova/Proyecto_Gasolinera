@@ -2,8 +2,8 @@ import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
 import {
   Button,
   ComboBox,
-  DatePicker,
   Dialog,
+  EmailField,
   Grid,
   GridColumn,
   GridItemModel,
@@ -36,12 +36,6 @@ export const config: ViewConfig = {
   },
 };
 
-
-
-type PrecioEstablecido = {
-  estado: string;
-};
-
 type CuentaEntryFormProps = {
   onCuentaCreated?: () => void;
 };
@@ -62,9 +56,39 @@ function CuentaEntryForm(props: CuentaEntryFormProps) {
   const estado = useSignal('');
   const createCuenta = async () => {
     try {
-      if (correo.value.trim().length > 0 && clave.value.trim().length > 0) {
+      if (correo.value.trim().length > 0 && clave.value.trim().length > 0, estado.value !== '') {
+        const yaExiste = await CuentaService.isCreated(correo.value);
+        if (yaExiste) {
+          Notification.show('El correo electrónico ya está registrado.', {
+            duration: 5000,
+            position: 'top-center',
+            theme: 'error',
+          });
+          return;
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(correo.value)) {
+          Notification.show('El correo no tiene un formato válido.', {
+            duration: 5000,
+            position: 'top-center',
+            theme: 'error',
+          });
+          return;
+        }
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+        if (!passwordRegex.test(clave.value)) {
+          Notification.show(
+            'La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas y un número.',
+            {
+              duration: 6000,
+              position: 'top-center',
+              theme: 'error',
+            }
+          );
+          return;
+        }
         const id_usuario = parseInt(usuario.value) + 1;
-        await CuentaService.createCuenta(correo.value, clave.value,  estado.value, id_usuario);
+        await CuentaService.createCuenta(correo.value, clave.value, estado.value, id_usuario);
         if (props.onCuentaCreated) {
           props.onCuentaCreated();
         }
@@ -86,9 +110,7 @@ function CuentaEntryForm(props: CuentaEntryFormProps) {
 
   let listaPersona = useSignal<String[]>([]);
   useEffect(() => {
-    CuentaService.listaPersonaCombo().then(data => 
-      listaPersona.value = data
-    );
+    CuentaService.listaPersonaCombo().then((data) => (listaPersona.value = data));
   }, []);
   const dialogOpened = useSignal(false);
   return (
@@ -114,7 +136,7 @@ function CuentaEntryForm(props: CuentaEntryFormProps) {
           </>
         }>
         <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
-          <TextField
+          <EmailField
             label="Correo"
             placeholder="Ingrese un correo"
             aria-label="Correo"
@@ -159,12 +181,8 @@ function CuentaEntryForm(props: CuentaEntryFormProps) {
   );
 }
 
-function indexIndex({model}:{model:GridItemModel<Cuenta>}) {
-  return (
-    <span>
-      {model.index + 1} 
-    </span>
-  );
+function indexIndex({ model }: { model: GridItemModel<Cuenta> }) {
+  return <span>{model.index + 1}</span>;
 }
 
 function renderEstado({ model }: { model: GridItemModel<Cuenta> }) {
@@ -174,16 +192,41 @@ function renderEstado({ model }: { model: GridItemModel<Cuenta> }) {
 //LISTA DE CUENTAS
 export default function CuentaView() {
   const [items, setItems] = useState([]);
-  const callData= () => {
-    CuentaService.listAll().then(function(data){
+  const callData = () => {
+    CuentaService.listAll().then(function (data) {
       setItems(data);
     });
   };
   useEffect(() => {
     callData();
-  },[]);
+  }, []);
 
-const order = (event, columnId) => {
+  const deleteCuenta = async (cuenta: Cuenta) => {
+    // Mostrar confirmación antes de eliminar
+    const confirmed = window.confirm(`¿Está seguro de que desea eliminar la cuenta con correo ${cuenta.correo}?`);
+
+    if (confirmed) {
+      try {
+        await CuentaService.delete(cuenta.id);
+        Notification.show('Cuenta eliminada exitosamente', {
+          duration: 5000,
+          position: 'bottom-end',
+          theme: 'success'
+        });
+        // Recargar la lista después de eliminar
+        callData();
+      } catch (error) {
+        console.error('Error al eliminar la cuenta:', error);
+        Notification.show('Error al eliminar la cuenta', {
+          duration: 5000,
+          position: 'top-center',
+          theme: 'error'
+        });
+      }
+    }
+  }
+
+  const order = (event, columnId) => {
     console.log(event);
     const direction = event.detail.value;
     console.log(`Sort direction changed for column ${columnId} to ${direction}`);
@@ -203,6 +246,10 @@ const order = (event, columnId) => {
     {
       label: 'Usuario',
       value: 'usuario',
+    },
+    {
+      label: 'Estado',
+      value: 'estado',
     },
   ];
   const search = async () => {
@@ -230,20 +277,17 @@ const order = (event, columnId) => {
         </Group>
       </ViewToolbar>
       <HorizontalLayout theme="spacing">
-        <Select items={itemSelect}
+        <Select
+          items={itemSelect}
           value={criterio.value}
           onValueChanged={(evt) => (criterio.value = evt.detail.value)}
-          placeholder="Selecione un criterio">
-
-
-        </Select>
+          placeholder="Selecione un criterio"></Select>
 
         <TextField
           placeholder="Search"
           style={{ width: '50%' }}
           value={texto.value}
-          onValueChanged={(evt) => (texto.value = evt.detail.value)}
-        >
+          onValueChanged={(evt) => (texto.value = evt.detail.value)}>
           <Icon slot="prefix" icon="vaadin:search" />
         </TextField>
         <Button onClick={search} theme="primary">
@@ -252,11 +296,21 @@ const order = (event, columnId) => {
       </HorizontalLayout>
       <Grid items={items}>
         <GridColumn renderer={indexIndex} header="Nro" />
-        <GridSortColumn path="correo" header="Correos" onDirectionChanged={(e) => order(e, "correo")}/>
-            <GridSortColumn path="estado" onDirectionChanged={(e) => order(e, 'estado')} header="Estado" renderer={renderEstado} />
-        <GridSortColumn path="usuario" header="Usuario"onDirectionChanged={(e) => order(e, "usuario")}/>
+        <GridSortColumn path="correo" header="Correos" onDirectionChanged={(e) => order(e, 'correo')} />
+        <GridSortColumn path="estado" onDirectionChanged={(e) => order(e, 'estado')} header="Estado" renderer={renderEstado} />
+        <GridSortColumn path="usuario" header="Usuario" onDirectionChanged={(e) => order(e, 'usuario')} />
+        <GridColumn
+          header="Eliminar"
+          renderer={({ item }) => (
+            <Button
+              theme="error"
+              onClick={() => deleteCuenta(item)}
+            >
+              Eliminar
+            </Button>
+          )}
+        />
       </Grid>
     </main>
   );
-  
 }

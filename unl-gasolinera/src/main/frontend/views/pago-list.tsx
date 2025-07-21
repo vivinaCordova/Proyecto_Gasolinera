@@ -179,6 +179,14 @@ function ReciboDialog({ pago, opened, onClose }: ReciboDialogProps) {
             <span class="label">Fecha del Recibo:</span>
             <span class="value">${recibo.fechaRecibo || 'N/A'}</span>
           </div>
+          <div class="field">
+            <span class="label">Propietario del vehículo:</span>
+            <span class="value">${recibo.propietarioVehiculo || 'N/A'}</span>
+          </div>
+          <div class="field">
+            <span class="label">Cédula del propietario:</span>
+            <span class="value">${recibo.cedulaPropietario || 'N/A'}</span>
+          </div>
         </div>
 
         <div class="section">
@@ -298,6 +306,18 @@ function ReciboDialog({ pago, opened, onClose }: ReciboDialogProps) {
                 readonly
                 style={{ width: '100%' }}
               />
+              <TextField
+                label="Propietario del vehículo"
+                value={recibo.propietarioVehiculo || 'N/A'}
+                readonly
+                style={{ width: '100%' }}
+              />
+              <TextField
+                label="Cédula del propietario"
+                value={recibo.cedulaPropietario || 'N/A'}
+                readonly
+                style={{ width: '100%' }}
+              />
             </div>
 
             <div style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '1rem', backgroundColor: '#f0f8ff' }}>
@@ -404,7 +424,6 @@ function PagoEntryForm(props: PagoEntryFormProps) {
   let listaPagoOrdenDespacho = useSignal<String[]>([]);
   useEffect(() => {
     PagoService.listaPagoOrdenDespacho().then(data =>
-      //console.log(data)
       listaPagoOrdenDespacho.value = data
     );
   }, []);
@@ -516,7 +535,6 @@ export default function PagoView() {
 
   useEffect(() => {
     PagoService.listAll().then(function (data) {
-      console.log(data);
       setItems(data);
     });
   }, []);
@@ -534,9 +552,33 @@ export default function PagoView() {
 
   const callData = () => {
     PagoService.listAll().then(function (data) {
-      //console.log(data);
       setItems(data);
     });
+  }
+
+  const deletePago = async (pago: Pago) => {
+    // Mostrar confirmación antes de eliminar
+    const confirmed = window.confirm(`¿Está seguro de que desea eliminar el pago con transacción ${pago.nroTransaccion}?`);
+    
+    if (confirmed) {
+      try {
+        await PagoService.delete(pago.id);
+        Notification.show('Pago eliminado exitosamente', {
+          duration: 5000,
+          position: 'bottom-end',
+          theme: 'success'
+        });
+        // Recargar la lista después de eliminar
+        callData();
+      } catch (error) {
+        console.error('Error al eliminar pago:', error);
+        Notification.show('Error al eliminar el pago', {
+          duration: 5000,
+          position: 'top-center',
+          theme: 'error'
+        });
+      }
+    }
   }
 
   /*function indexLink({ model }: { model: GridItemModel<Pago> }) {
@@ -603,6 +645,7 @@ export default function PagoView() {
         </Group>
       </ViewToolbar>
 
+
       {mensajePago && (
         <div style={{
           padding: '1rem',
@@ -657,6 +700,17 @@ export default function PagoView() {
               }}
             >
               Recibo
+            </Button>
+          )}
+        />
+        <GridColumn
+          header="Eliminar"
+          renderer={({ item }) => (
+            <Button
+              theme="error"
+              onClick={() => deletePago(item)}
+            >
+              Eliminar
             </Button>
           )}
         />
