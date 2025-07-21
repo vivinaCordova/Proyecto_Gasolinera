@@ -67,6 +67,17 @@ public class PagoService {
         }
     }
 
+    public void delete(Integer id) throws Exception {
+        if (id == null || id <= 0) {
+            throw new Exception("ID de pago inválido");
+        }
+        if (!db.deletePago(id)) {
+            throw new Exception("No se pudo eliminar el pago con ID: " + id);
+        }
+    }
+
+   
+
     public List<HashMap> listaPagoOrdenDespacho() {
         List<HashMap> lista = new ArrayList<>();
         DaoOrdenDespacho da = new DaoOrdenDespacho();

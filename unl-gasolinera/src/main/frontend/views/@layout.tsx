@@ -49,13 +49,11 @@ function MainMenu({ username, setUsername }: { username: string | null; setUsern
     { to: '/estacion-list', icon: 'vaadin:map-marker', title: 'Estaciones' },
     { to: '/ordenCompra-list', icon: 'vaadin:clipboard', title: 'Orden de Compra' },
     { to: '/ordendespacho-list', icon: 'vaadin:clipboard-check', title: 'Orden de Despacho' },
-    { to: '/pago-form', icon: 'vaadin:credit-card', title: 'Formulario de Pago' },
     { to: '/pago-list', icon: 'vaadin:list', title: 'Lista de Pagos' },
     { to: '/persona-list', icon: 'vaadin:user', title: 'Personas' },
     { to: '/precioestablecido-list', icon: 'vaadin:money', title: 'Precios Establecidos' },
     { to: '/Proveedor-list', icon: 'vaadin:truck', title: 'Proveedores' },
     { to: '/tanque-list', icon: 'vaadin:bar-chart', title: 'Tanques' },
-    { to: '/task-list', icon: 'vaadin:tasks', title: 'Tareas' },
     { to: '/vehiculo-list', icon: 'vaadin:car', title: 'Vehículos' },
     {to: '/bienvenida-list', icon: 'vaadin:home', title: 'Bienvenida' },
 

@@ -7,21 +7,19 @@ import org.unl.gasolinera.base.controller.dao.AdapterDao;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.OrdenDespacho;
 
-
 public class DaoOrdenDespacho extends AdapterDao<OrdenDespacho> {
     private OrdenDespacho obj;
 
-    public DaoOrdenDespacho(){
+    public DaoOrdenDespacho() {
         super(OrdenDespacho.class);
     }
 
     public OrdenDespacho getObj() {
-        if(obj==null)
-            this.obj=new OrdenDespacho();
+        if (obj == null)
+            this.obj = new OrdenDespacho();
         return this.obj;
     }
 
-    
     public void setObj(OrdenDespacho obj) {
         this.obj = obj;
     }
@@ -32,65 +30,67 @@ public class DaoOrdenDespacho extends AdapterDao<OrdenDespacho> {
             this.persist(obj);
             return true;
         } catch (Exception e) {
-            //TODO
+            // TODO
             return false;
             // TODO: handle exception
         }
     }
 
-    public Boolean update(Integer pos){
-        try{
+    public Boolean update(Integer pos) {
+        try {
             obj.setId(listAll().getLength());
             this.update(obj, pos);
             return true;
 
-        }catch(Exception e){
-            e.printStackTrace(); 
+        } catch (Exception e) {
+            e.printStackTrace();
             System.out.println(e);
-            //LOG DE ERROR
+            // LOG DE ERROR
             return false;
         }
     }
 
-     public void quickSort(OrdenDespacho arr[], int low, int high, Integer type) {
-        if (low < high) {
-            int pi = partition(arr, low, high, type);
-            quickSort(arr, low, pi - 1, type);
-            quickSort(arr, pi + 1, high, type);
+    public void quickSort(HashMap arr[], int begin, int end, Integer type, String attribute) {
+        if (begin < end) {
+            int partitionIndex = partition(arr, begin, end, type, attribute);
+
+            quickSort(arr, begin, partitionIndex - 1, type, attribute);
+            quickSort(arr, partitionIndex + 1, end, type, attribute);
         }
     }
 
-    private int partition(OrdenDespacho[] arr, int low, int high, Integer type) {
-        OrdenDespacho pivot = arr[high];
-        int i = (low - 1);
+    private int partition(HashMap<String, Object> arr[], int begin, int end, Integer type, String attribute) {
+        HashMap<String, Object> pivot = arr[end];
+        int i = (begin - 1);
         if (type == Utiles.ASCENDENTE) {
-            for (int j = low; j < high; j++) {
-                if (arr[j].getCodigo().toLowerCase().compareTo(pivot.getCodigo().toLowerCase()) < 0) {
+            for (int j = begin; j < end; j++) {
+                if (arr[j].get(attribute).toString().compareTo(pivot.get(attribute).toString()) < 0) {
+
                     i++;
-                    OrdenDespacho temp = arr[i];
+                    HashMap<String, Object> swapTemp = arr[i];
                     arr[i] = arr[j];
-                    arr[j] = temp;
+                    arr[j] = swapTemp;
                 }
             }
         } else {
-            for (int j = low; j < high; j++) {
-                if (arr[j].getCodigo().toLowerCase().compareTo(pivot.getCodigo().toLowerCase()) > 0) {
+            for (int j = begin; j < end; j++) {
+                if (arr[j].get(attribute).toString().compareTo(pivot.get(attribute).toString()) > 0) {
                     i++;
-                    OrdenDespacho temp = arr[i];
+                    HashMap<String, Object> swapTemp = arr[i];
                     arr[i] = arr[j];
-                    arr[j] = temp;
+                    arr[j] = swapTemp;
                 }
             }
         }
-        OrdenDespacho temp = arr[i + 1];
-        arr[i + 1] = arr[high];
-        arr[high] = temp;
-        return i + 1;
+        HashMap<String, Object> swapTemp = arr[i + 1];
+        arr[i + 1] = arr[end];
+        arr[end] = swapTemp;
 
+        return i + 1;
     }
 
-    public LinkedList<HashMap<String, String>> all() {
-        LinkedList<HashMap<String, String>> lista = new LinkedList<>();
+    public LinkedList<HashMap<String, Object>> all() {
+        LinkedList<HashMap<String, Object>> lista = new LinkedList<>();
         try {
             if (!this.listAll().isEmpty()) {
                 OrdenDespacho[] arreglo = this.listAll().toArray();
@@ -104,12 +104,12 @@ public class DaoOrdenDespacho extends AdapterDao<OrdenDespacho> {
         return lista;
     }
 
-    private HashMap<String, String> toDict(OrdenDespacho arreglo) throws Exception{
-        HashMap<String, String> aux = new HashMap<>();
+    private HashMap<String, Object> toDict(OrdenDespacho arreglo) throws Exception {
+        HashMap<String, Object> aux = new HashMap<>();
         DaoVehiculo dv = new DaoVehiculo();
         DaoPrecioEstablecido dp = new DaoPrecioEstablecido();
         DaoEstacion de = new DaoEstacion();
-        
+
         if (arreglo.getIdVehiculo() != null) {
             try {
                 dv.setObj(getObjectById(dv, arreglo.getIdVehiculo()));
@@ -131,23 +131,23 @@ public class DaoOrdenDespacho extends AdapterDao<OrdenDespacho> {
                 de.setObj(de.get(arreglo.getIdEstacion()));
             }
         }
-        
+
         aux.put("id", arreglo.getId().toString());
         aux.put("codigo", arreglo.getCodigo());
-        aux.put("nroGalones", arreglo.getNroGalones().toString());
+        aux.put("nroGalones", arreglo.getNroGalones());
         aux.put("fecha", arreglo.getFecha().toString());
-        aux.put("precioTotal", Float.toString(arreglo.getPrecioTotal()));
+        aux.put("precioTotal", arreglo.getPrecioTotal());
         aux.put("estado", arreglo.getEstado().toString());
         aux.put("nombreGasolina", dp.getObj().getTipoCombustible().toString());
 
         if (dp.getObj() != null) {
-            aux.put("precio_establecido", Float.toString(dp.getObj().getPrecio()));
+            aux.put("precio_establecido", dp.getObj().getPrecio());
             aux.put("tipo_combustible", dp.getObj().getTipoCombustible().toString());
         } else {
             aux.put("precio_establecido", "N/A");
             aux.put("tipo_combustible", "N/A");
         }
-        
+
         aux.put("idVehiculo", arreglo.getIdVehiculo().toString());
         aux.put("estacion", de.getObj() != null ? de.getObj().getCodigo() : "N/A");
         aux.put("placa", dv.getObj() != null ? dv.getObj().getPlaca() : "N/A");
@@ -159,7 +159,7 @@ public class DaoOrdenDespacho extends AdapterDao<OrdenDespacho> {
         if (dao.listAll().isEmpty()) {
             return null;
         }
-        
+
         T[] array = dao.listAll().toArray();
         for (T obj : array) {
             try {
@@ -175,26 +175,135 @@ public class DaoOrdenDespacho extends AdapterDao<OrdenDespacho> {
         return null;
     }
 
-
-
-    public LinkedList<HashMap<String, String>> orderbyOrdenDespacho(Integer type, String attribute) {
-        LinkedList<HashMap<String, String>> lista = all();
-        try {
-            if (!lista.isEmpty()){
-                // Convert HashMap array back to OrdenDespacho array for sorting
-                OrdenDespacho[] OrdenDespachos = this.listAll().toArray();
-                quickSort(OrdenDespachos, 0, OrdenDespachos.length - 1, type);
-                // Update lista with sorted OrdenDespachos
-                lista = new LinkedList<>();
-                for (OrdenDespacho OrdenDespacho : OrdenDespachos) {
-                  lista.add(toDict(OrdenDespacho));
-                 }
-              }
-        } catch (Exception e) {
+    public LinkedList<HashMap<String, Object>> orderByOrdenDespacho(Integer type, String attribute) throws Exception {
+        LinkedList<HashMap<String, Object>> lista = all();
+        if (!listAll().isEmpty()) {
+            HashMap arr[] = lista.toArray();
+            quickSort(arr, 0, arr.length - 1, type, attribute);
+            lista.toList(arr);
         }
         return lista;
     }
 
-    
+    private Integer bynaryLineal(HashMap<String, Object>[] arr, String attribute, String text) {
+        Integer half = 0;
+        if (!(arr.length == 0) && !text.isEmpty()) {
+            half = arr.length / 2;
+            int aux = 0;
+            if (text.trim().toLowerCase().charAt(0) > arr[half].get(attribute).toString().trim().toLowerCase().charAt(0)) {
+                aux = 1;
+            } else if (text.trim().toLowerCase().charAt(0) < arr[half].get(attribute).toString().trim().toLowerCase().charAt(0)) {
+                aux = -1;
+            }
 
-} 
+            half = half * aux;
+
+        }
+        return half;
+    }
+
+    public LinkedList<HashMap<String, Object>> search(String attribute, String text, Integer type) throws Exception {
+        LinkedList<HashMap<String, Object>> lista = all();
+        LinkedList<HashMap<String, Object>> resp = new LinkedList<>();
+        if (!lista.isEmpty()) {
+            lista = orderByOrdenDespacho(Utiles.ASCENDENTE, attribute);
+            HashMap<String, Object>[] arr = lista.toArray();
+            Integer n = bynaryLineal(arr, attribute, text);
+            switch (type) {
+                case 1:
+                    if (n > 0) {
+                        for (int i = n; i < arr.length; i++) {
+                            if (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase())) {
+                                resp.add(arr[i]);
+                            }
+                        }
+                    } else if (n < 0) {
+                        n *= -1;
+                        for (int i = 0; i < n; i++) {
+                            if (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase())) {
+                                resp.add(arr[i]);
+                            }
+                        }
+                    } else {
+                        for (int i = 0; i < arr.length; i++) {
+                            if (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase())) {
+                                resp.add(arr[i]);
+                            }
+                        }
+                    }
+                    break;
+                case 2:
+                    if (n > 0) {
+                        for (int i = n; i < arr.length; i++) {
+                            if (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase())) {
+                                resp.add(arr[i]);
+                            }
+                        }
+                    } else if (n < 0) {
+                        n *= -1;
+                        for (int i = 0; i < n; i++) {
+                            if (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase())) {
+                                resp.add(arr[i]);
+                            }
+                        }
+                    } else {
+                        for (int i = 0; i < arr.length; i++) {
+                            if (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase())) {
+                                resp.add(arr[i]);
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    /*
+                     * if (n > 0) {
+                     * for (int i = n; i < arr.length; i++) {
+                     * if
+                     * (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase()
+                     * )) {
+                     * resp.add(arr[i]);
+                     * }
+                     * }
+                     * } else if (n < 0) {
+                     * n *= -1;
+                     * for (int i = 0; i < n; i++) {
+                     * if
+                     * (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase()
+                     * )) {
+                     * resp.add(arr[i]);
+                     * }
+                     * }
+                     * } else {
+                     * for (int i = 0; i < arr.length; i++) {
+                     * if
+                     * (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase()
+                     * )) {
+                     * resp.add(arr[i]);
+                     * }
+                     * }
+                     * }
+                     */
+                    for (int i = 0; i < arr.length; i++) {
+                        if (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase())) {
+                            resp.add(arr[i]);
+                        }
+                    }
+                    break;
+
+            }
+        }
+        return resp;
+    }
+
+    public Boolean deleteOrdenDespacho(Integer id) {
+        try {
+            super.delete(id);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e);
+            return false;
+        }
+    }
+
+}
