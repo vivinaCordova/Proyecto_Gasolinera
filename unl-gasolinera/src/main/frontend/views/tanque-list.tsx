@@ -37,11 +37,11 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
   const capacidad = useSignal('');
   const capacidadMinima = useSignal('');
   const capacidadTotal = useSignal('');
-  const tipo = useSignal('');
+  const tipoCombustible = useSignal('');
   const createTanque = async () => {
     try {
       if (capacidad.value.trim().length > 0 && capacidadMinima.value.trim().length > 0) {
-        await TanqueService.createTanque(parseInt(capacidad.value), parseInt(capacidadMinima.value), parseInt(capacidadTotal.value), tipo.value, codigo.value);
+        await TanqueService.createTanque(parseInt(capacidad.value), parseInt(capacidadMinima.value), parseInt(capacidadTotal.value), tipoCombustible.value, codigo.value);
         if (props.onTanqueCreated) {
           props.onTanqueCreated();
         }
@@ -49,7 +49,7 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
         capacidad.value = '';
         capacidadMinima.value = '';
         capacidadTotal.value = '';
-        tipo.value = '';
+        tipoCombustible.value = '';
         dialogOpened.value = false;
         Notification.show('Tanque creado', { duration: 5000, position: 'bottom-end', theme: 'success' });
       } else {
@@ -114,8 +114,8 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
             items={listaTipo.value}
             placeholder='Seleccione un tipo'
             aria-label='Seleccione un tipo de la lista'
-            value={tipo.value}
-            onValueChanged={(evt) => (tipo.value = evt.detail.value)}
+            value={tipoCombustible.value}
+            onValueChanged={(evt) => (tipoCombustible.value = evt.detail.value)}
           />
           <NumberField label="Capacidad Minima"
             placeholder='Ingrese la capacidad minima'
@@ -153,6 +153,37 @@ export default function TanqueView() {
   };
   useEffect(() => {
     callData();
+    const verificarPagosYDescontarStock = async () => {
+      try {
+        const ordenesDespacho = await TanqueService.listOrdenesDespacho(); // Obtiene todas las órdenes de despacho
+        for (const orden of ordenesDespacho) {
+          if (orden.estadoPago === true) { // Verifica si el pago asociado es exitoso
+            const resultado = await TanqueService.descontarStock(orden.idOrdenDespacho, orden.idPago);
+            if (resultado) {
+              Notification.show(
+                `Stock descontado automáticamente para la orden de despacho ${orden.codigo}.`,
+                { duration: 5000, position: 'bottom-end', theme: 'success' }
+              );
+              callData(); // Actualiza la lista de tanques
+            } else {
+              Notification.show(
+                `No se pudo descontar el stock para la orden de despacho ${orden.codigo}.`,
+                { duration: 5000, position: 'top-center', theme: 'error' }
+              );
+            }
+          }
+        }
+      } catch (error) {
+        console.error(error);
+        Notification.show("Error al verificar pagos y descontar stock.", {
+          duration: 5000,
+          position: 'top-center',
+          theme: 'error',
+        });
+      }
+    };
+
+    verificarPagosYDescontarStock(); // Llama a la función al cargar la vista
   }, []);
   const order = (event, columnId) => {
     console.log(event);
@@ -177,7 +208,7 @@ export default function TanqueView() {
     {
 
       label: 'Tipo de Combustible',
-      value: 'tipo',
+      value: 'tipoCombustible',
     },
 
   ]
@@ -205,26 +236,33 @@ export default function TanqueView() {
             theme="error"
             onClick={async () => {
               try {
-                const mensajes = await TanqueService.obtenerAlertasTanques();
+                const mensajes = await TanqueService.obtenerAlertasTanques(); // Obtiene las alertas de los tanques
                 if (mensajes && mensajes.length > 0) {
-                  mensajes.forEach(async (msg: string | undefined) => {
+                  for (const msg of mensajes) {
                     if (msg && msg.includes("por debajo del mínimo")) {
-                      const resultado = await TanqueService.aumentarStockAutomaticamente(); // Asumiendo que el ID del proveedor es 1
+                      const resultado = await TanqueService.aumentarStockAutomaticamente(); // Llama al método para aumentar el stock
                       if (resultado) {
-                        Notification.show("Stock aumentado automáticamente y orden de compra generada exitosamente", { duration: 5000, position: 'bottom-end', theme: 'success' });
+                        Notification.show(
+                          "Stock aumentado automáticamente y orden de compra generada exitosamente.",
+                          { duration: 5000, position: "bottom-end", theme: "success" }
+                        );
+                        await callData(); // Refresca la lista de tanques
                       } else {
-                        Notification.show("No se pudo aumentar el stock ni generar la orden de compra. Verifique los datos.", { duration: 5000, position: 'top-center', theme: 'error' });
+                        Notification.show(
+                          "No se pudo aumentar el stock ni generar la orden de compra. Verifique los datos.",
+                          { duration: 5000, position: "top-center", theme: "error" }
+                        );
                       }
                     } else if (msg) {
-                      Notification.show(msg, { duration: 6000, position: 'bottom-start', theme: 'contrast' });
+                      Notification.show(msg, { duration: 6000, position: "bottom-start", theme: "contrast" });
                     }
-                  });
+                  }
                 } else {
-                  Notification.show("No hay alertas disponibles", { duration: 5000, position: 'top-center', theme: 'warning' });
+                  Notification.show("No hay alertas disponibles.", { duration: 5000, position: "top-center", theme: "warning" });
                 }
               } catch (error) {
                 console.error(error);
-                Notification.show("Error al verificar alertas", { duration: 5000, position: 'top-center', theme: 'error' });
+                Notification.show("Error al verificar alertas.", { duration: 5000, position: "top-center", theme: "error" });
               }
             }}
           >
@@ -259,7 +297,7 @@ export default function TanqueView() {
         <GridSortColumn path="capacidad" header="Capacidad" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridSortColumn path="capacidadMinima" header="Capacidad Minima" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridSortColumn path="capacidadTotal" header="Capacidad Maxima" onDirectionChanged={(e) => order(e, 'nombre')} />
-        <GridColumn path="tipo" header="Tipo">
+        <GridColumn path="tipoCombustible" header="Tipo">
         </GridColumn>
       </Grid>
     </main>

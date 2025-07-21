@@ -169,7 +169,7 @@ export default function ProveedorView() {
     {
 
       label: 'Tipo de Combustible',
-      value: 'tipo',
+      value: 'tipoCombustible',
     },
 
   ]

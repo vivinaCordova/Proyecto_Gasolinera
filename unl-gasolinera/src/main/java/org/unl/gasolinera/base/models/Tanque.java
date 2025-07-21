@@ -5,7 +5,15 @@ public class Tanque {
     private float capacidad;
     private float capacidadTotal;
     private float capacidadMinima;
-    private TipoCombustibleEnum tipo;
+    private Integer idPrecioEstablecido;
+
+    public Integer getIdPrecioEstablecido() {
+        return this.idPrecioEstablecido;
+    }
+
+    public void setIdPrecioEstablecido(Integer idPrecioEstablecido) {
+        this.idPrecioEstablecido = idPrecioEstablecido;
+    }
 
 
     public Integer getId() {
@@ -50,12 +58,4 @@ public class Tanque {
         this.capacidadMinima = capacidadMinima;
     }
 
-    public TipoCombustibleEnum getTipo() {
-        return this.tipo;
-    }
-
-    public void setTipo(TipoCombustibleEnum tipo) {
-        this.tipo = tipo;
-    }
-    
 }

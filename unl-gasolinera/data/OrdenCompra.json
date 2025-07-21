@@ -1,9 +1,1 @@
-[
-    {
-        "id": 1,
-        "cantidad": 50.0,
-        "idProveedor": 3,
-        "estado": "COMPLETADO",
-        "idTanque": 2
-    }
-]
+[{"id":1,"cantidad":200.0,"idProveedor":1,"estado":"COMPLETADO","idTanque":2}]
