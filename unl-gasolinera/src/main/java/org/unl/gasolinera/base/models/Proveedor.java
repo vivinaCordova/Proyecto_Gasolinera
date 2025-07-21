@@ -4,7 +4,15 @@ public class Proveedor {
     private Integer id;
     private String nombre;
     private String correoElectronico;
-    private TipoCombustibleEnum tipoCombustible;
+    private Integer idPrecioEstablecido;
+
+    public Integer getIdPrecioEstablecido() {
+        return this.idPrecioEstablecido;
+    }
+
+    public void setIdPrecioEstablecido(Integer idPrecioEstablecido) {
+        this.idPrecioEstablecido = idPrecioEstablecido;
+    }
 
     public Integer getId() {
         return this.id;
@@ -29,11 +37,4 @@ public class Proveedor {
         this.correoElectronico = correoElectronico;
     }
 
-    public TipoCombustibleEnum getTipoCombustible() {
-        return this.tipoCombustible;
-    }
-
-    public void setTipoCombustible(TipoCombustibleEnum tipoCombustible) {
-        this.tipoCombustible = tipoCombustible;
-    }
 }
