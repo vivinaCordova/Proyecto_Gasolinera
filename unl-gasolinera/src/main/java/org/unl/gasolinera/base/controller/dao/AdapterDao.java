@@ -105,4 +105,28 @@ public class AdapterDao<T> implements InterfaceDao<T> {
         return obj.getClass().getMethod("get" + attribute).invoke(obj);
     }
 
+    @Override
+    public void delete(Integer id) throws Exception {
+        LinkedList<T> list = listAll();
+        T itemToDelete = null;
+        int indexToDelete = -1;
+        
+        // Find the item to delete by id
+        for (int i = 0; i < list.getLength(); i++) {
+            T item = list.get(i);
+            if (((Integer) getMethod("Id", item)).equals(id)) {
+                itemToDelete = item;
+                indexToDelete = i;
+                break;
+            }
+        }
+        
+        if (itemToDelete != null && indexToDelete >= 0) {
+            list.delete(indexToDelete);
+            saveFile(g.toJson(list.toArray()));
+        } else {
+            throw new Exception("No se encontró el elemento con ID: " + id);
+        }
+    }
+
 }

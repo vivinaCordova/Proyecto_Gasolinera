@@ -14,7 +14,7 @@ import { logout } from '@vaadin/hilla-frontend';
 export const config: ViewConfig = {
   title: 'Proveedor',
   menu: {
-    icon: 'vaadin:clipboard-check',
+    icon: 'vaadin:truck',
     order: 1,
     title: 'Proveedor',
   },

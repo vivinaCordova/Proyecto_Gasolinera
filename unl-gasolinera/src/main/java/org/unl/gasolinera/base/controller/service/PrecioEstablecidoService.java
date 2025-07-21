@@ -1,6 +1,7 @@
 package org.unl.gasolinera.base.controller.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,7 @@ import org.unl.gasolinera.base.controller.dao.dao_models.DaoPrecioEstablecido;
 import org.unl.gasolinera.base.models.PrecioEstablecido;
 import org.unl.gasolinera.base.models.TipoCombustibleEnum;
 
+import com.github.javaparser.quality.NotNull;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 
@@ -18,40 +20,60 @@ import jakarta.validation.constraints.NotEmpty;
 @BrowserCallable
 @AnonymousAllowed
 public class PrecioEstablecidoService {
-    private DaoPrecioEstablecido db;
+    private DaoPrecioEstablecido dp;
     public PrecioEstablecidoService() {
-        db = new DaoPrecioEstablecido();
+        dp = new DaoPrecioEstablecido();
     }
 
     public void create(@NonNull Date fecha, @NonNull Date fechaFin, boolean estado, float precio, @NotEmpty String tipoCombustible) throws Exception {
         if (fecha != null && fechaFin != null && precio > 0 && tipoCombustible.trim().length() > 0) {
-            db.getObj().setId(db.listAll().getLength() + 1);
-            db.getObj().setFecha(fecha);
-            db.getObj().setFechaFin(fechaFin);
-            db.getObj().setEstado(estado);
-            db.getObj().setPrecio(precio);
-            db.getObj().setTipoCombustible(TipoCombustibleEnum.valueOf(tipoCombustible));
-            if (!db.save())
-                throw new Exception("No se pudo guardar el precio establecido");
+            
+        }
+        dp.getObj().setId(dp.listAll().getLength() + 1);
+        dp.getObj().setFecha(fecha);
+        dp.getObj().setFechaFin(fechaFin);
+        dp.getObj().setEstado(estado);
+        dp.getObj().setPrecio(precio);
+        dp.getObj().setTipoCombustible(TipoCombustibleEnum.valueOf(tipoCombustible));
+        
+        if (!dp.save()){
+            throw new Exception("No se pudo guardar el precio establecido");
         }
     }
 
-    public List<HashMap> listPrecioEstablecido() {
-        List<HashMap> lista = new ArrayList<>();
-        if (!db.listAll().isEmpty()) {
-            PrecioEstablecido[] arreglo = db.listAll().toArray();
-            for (int i = 0; i < arreglo.length; i++) {
-                HashMap<String, String> aux = new HashMap<>();
-                aux.put("id", arreglo[i].getId().toString());
-                aux.put("fecha", arreglo[i].getFecha().toString());
-                aux.put("fechaFin", arreglo[i].getFechaFin().toString());
-                aux.put("estado", arreglo[i].isEstado() ? "Activo" : "Inactivo");
-                aux.put("precio", String.valueOf(arreglo[i].getPrecio()));
-                aux.put("tipoCombustible", arreglo[i].getTipoCombustible().toString());
-                lista.add(aux);
+    public void update(@NotNull Integer id, @NonNull Date fecha, @NonNull Date fechaFin, boolean estado, float precio, @NotEmpty String tipoCombustible) throws Exception {
+        if (fecha != null && fechaFin != null && precio > 0 && tipoCombustible.trim().length() > 0) {  
+        }
+        
+        PrecioEstablecido precioExistente = dp.getById(id);
+        if (precioExistente == null) {
+            throw new Exception("No se encontró el precio establecido con ID: " + id);
+        }
+
+        Integer posicion = null;
+        for (int i = 0; i < dp.listAll().getLength(); i++) {
+            PrecioEstablecido precioEnPosicion = dp.listAll().get(i);
+            if (precioEnPosicion.getId().equals(id)) {
+                posicion = i;
+                break;
             }
         }
-        return lista;
+        
+        if (posicion == null) {
+            throw new Exception("No se pudo encontrar la posición del precio establecido con ID: " + id);
+        }
+        
+        dp.setObj(new PrecioEstablecido());
+        dp.getObj().setId(id); // Mantener el ID original
+        dp.getObj().setFecha(fecha);
+        dp.getObj().setFechaFin(fechaFin);
+        dp.getObj().setEstado(estado);
+        dp.getObj().setPrecio(precio);
+        dp.getObj().setTipoCombustible(TipoCombustibleEnum.valueOf(tipoCombustible));
+        
+        if(!dp.update(posicion)){
+            throw new Exception("No se pudo guardar los datos del Precio Establecido");
+        }
     }
 
     public List<String> listTipoCombustible() {
@@ -61,4 +83,21 @@ public class PrecioEstablecidoService {
         }
         return lista;
     }
+
+     @SuppressWarnings("unchecked")
+     public List<HashMap<String, Object>> listAll() {
+        if(dp.listAll().isEmpty()) {
+            return new ArrayList<>();
+        } else return (List<HashMap<String, Object>>) (List<?>) Arrays.asList(dp.all().toArray());
+        
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<HashMap<String, Object>> order(String attribute, Integer type) {
+        return (List<HashMap<String, Object>>) (List<?>) Arrays.asList(dp.orderByPrecioEstablecido(type, attribute).toArray());
+    }
+
+
+
+
 }

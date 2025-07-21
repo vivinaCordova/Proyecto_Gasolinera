@@ -9,7 +9,7 @@ public class OrdenDespacho {
     private Date fecha;
     private float precioTotal;
     private EstadoOrdenDespachadoEnum estado;
-    private Integer idPrecioGalon;
+    private Integer idPrecioEstablecido;
     private Integer idVehiculo;
     private Integer idEstacion;
 
@@ -61,12 +61,12 @@ public class OrdenDespacho {
         this.estado = estado;
     }
 
-    public Integer getIdPrecioGalon() {
-        return this.idPrecioGalon;
+    public Integer getIdPrecioEstablecido() {
+        return this.idPrecioEstablecido;
     }
 
-    public void setIdPrecioGalon(Integer idPrecioGalon) {
-        this.idPrecioGalon = idPrecioGalon;
+    public void setIdPrecioEstablecido(Integer idPrecioEstablecido) {
+        this.idPrecioEstablecido = idPrecioEstablecido;
     }
 
     public Integer getIdVehiculo() {
@@ -85,7 +85,7 @@ public class OrdenDespacho {
         this.idEstacion = idEstacion;
     }
 
-
+    
 
     
 }

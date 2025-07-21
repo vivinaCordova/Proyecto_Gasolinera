@@ -14,9 +14,9 @@ import { logout } from '@vaadin/hilla-frontend';
 export const config: ViewConfig = {
   title: 'Orden Compra',
   menu: {
-    icon: 'vaadin:clipboard-check',
+    icon: 'vaadin:cart',
     order: 1,
-    title: 'Orden Compra',
+    title: 'Orden de Compra',
   },
 };
 type OrdenCompraEntryFormProps = {
@@ -119,13 +119,13 @@ useEffect(() => {
             value={proveedor.value}
             onValueChanged={(evt) => (proveedor.value = evt.detail.value)}
           />
-          <ComboBox label="Tanque" 
+          <ComboBox label="Tanque"
             items={listaProveedor.value}
             placeholder='Seleccione el Tanque'
             aria-label='Seleccione un tanque'
             value={tanque.value}
             onValueChanged={(evt) => (tanque.value = evt.detail.value)}
-            />
+          />
           <ComboBox label="Tipo"
             items={listaEstadoOrden.value}
             placeholder='Seleccione un tipo'
@@ -207,9 +207,33 @@ export default function OrdenCompraView() {
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
 
-      <ViewToolbar title="Lista de Proveedores">
+      <ViewToolbar title="Lista de Ordenes de Compra">
         <Group>
           <OrdenCompraEntryForm onOrdenCompraCreated={callData} />
+          <Button
+            theme="primary"
+            onClick={async () => {
+              try {
+                const cantidad = parseFloat(prompt("Ingrese la cantidad para aumentar el stock:") || "0");
+                if (cantidad > 0) {
+                  const resultado = await OrdenCompraService.aumentarStockTanques(cantidad);
+                  if (resultado) {
+                    Notification.show("Stock aumentado exitosamente", { duration: 5000, position: 'bottom-end', theme: 'success' });
+                    callData(); // Actualiza la lista de órdenes de compra
+                  } else {
+                    Notification.show("No se pudo aumentar el stock. Verifique los tanques.", { duration: 5000, position: 'top-center', theme: 'error' });
+                  }
+                } else {
+                  Notification.show("Cantidad inválida. Intente nuevamente.", { duration: 5000, position: 'top-center', theme: 'error' });
+                }
+              } catch (error) {
+                console.error(error);
+                Notification.show("Error al aumentar el stock", { duration: 5000, position: 'top-center', theme: 'error' });
+              }
+            }}
+          >
+            Aumentar Stock
+          </Button>
         </Group>
       </ViewToolbar>
       <HorizontalLayout theme="spacing">

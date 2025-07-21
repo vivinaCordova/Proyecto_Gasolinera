@@ -222,7 +222,16 @@ public LinkedList<HashMap<String, Object>> all() throws Exception {
             return BinarySearchRecursive(arr, n + 1, b, attribute, value);
     }
 
-    
+    public Boolean deleteCuenta(Integer id) {
+        try {
+            super.delete(id);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(e);
+            return false;
+        }
+    }
 
     public static void main(String[] args) {
         DaoCuenta dc = new DaoCuenta();

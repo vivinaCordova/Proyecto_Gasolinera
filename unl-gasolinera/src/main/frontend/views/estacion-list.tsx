@@ -25,7 +25,7 @@ type Estacion = {
   id: number;
   codigo: string;
   estado: string;
-  
+
 };
 
 type EstacionEntryFormProps = {
@@ -39,14 +39,14 @@ type EstacionEntryFormPropsUpdate = {
 
 //GUARDAR Estacion
 function EstacionEntryForm(props: EstacionEntryFormProps) {
-    useEffect(() => {
-      role().then(async (data) => {
-        if (data?.rol != 'ROLE_admin') {
-          await CuentaService.logout();
-          await logout();
-        }
-      });
-    }, []);
+  useEffect(() => {
+    role().then(async (data) => {
+      if (data?.rol != 'ROLE_admin') {
+        await CuentaService.logout();
+        await logout();
+      }
+    });
+  }, []);
   const codigo = useSignal('');
   const estado = useSignal('');
   const createEstacion = async () => {
@@ -78,7 +78,7 @@ function EstacionEntryForm(props: EstacionEntryFormProps) {
       listaestado.value = data
     );
   }, []);
-  
+
   const dialogOpened = useSignal(false);
   return (
     <>
@@ -178,7 +178,7 @@ function EstacionEntryFormUpdate(props: EstacionEntryFormPropsUpdate) {
       listaestado.value = data
     );
   }, []);
-  
+
 
   return (
     <>
@@ -230,6 +230,31 @@ export default function EstacionView() {
     });
   }, []);
 
+  const deleteEstacion = async (estacion: Estacion) => {
+    // Mostrar confirmación antes de eliminar
+    const confirmed = window.confirm(`¿Está seguro de que desea eliminar la estación con el código ${estacion.codigo}?`);
+
+    if (confirmed) {
+      try {
+        await EstacionService.delete(estacion.id);
+        Notification.show('Estación eliminada exitosamente', {
+          duration: 5000,
+          position: 'bottom-end',
+          theme: 'success'
+        });
+        // Recargar la lista después de eliminar
+        callData();
+      } catch (error) {
+        console.error('Error al eliminar la estación:', error);
+        Notification.show('Error al eliminar la estación', {
+          duration: 5000,
+          position: 'top-center',
+          theme: 'error'
+        });
+      }
+    }
+  }
+
   const order = (event, columnId) => {
     const direction = event.detail.value;
     if (!direction) {
@@ -280,6 +305,17 @@ export default function EstacionView() {
         <GridSortColumn onDirectionChanged={(e) => order(e, "codigo")} path="codigo" header="Estacion" />
         <GridSortColumn onDirectionChanged={(e) => order(e, "estado")} path="estado" header="estado" />
         <GridColumn header="Acciones" renderer={indexLink} />
+        <GridColumn
+          header="Eliminar"
+          renderer={({ item }) => (
+            <Button
+              theme="error"
+              onClick={() => deleteEstacion(item)}
+            >
+              Eliminar
+            </Button>
+          )}
+        />
 
       </Grid>
     </main>

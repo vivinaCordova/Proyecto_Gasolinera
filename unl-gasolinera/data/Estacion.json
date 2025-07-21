@@ -1,1 +1,12 @@
-[{"id":1,"codigo":"001","estadoE":"FUERA_SERVICIO"},{"id":2,"codigo":"002","estadoE":"ACTIVO"}]
+[
+    {
+        "id": 1,
+        "codigo": "001",
+        "estadoE": "ACTIVO"
+    },
+    {
+        "id": 2,
+        "codigo": "002",
+        "estadoE": "ACTIVO"
+    }
+]
