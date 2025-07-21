@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoPrecioEstablecido;
+import org.unl.gasolinera.base.models.PrecioEstablecido;
 import org.unl.gasolinera.base.models.TipoCombustibleEnum;
 
 import com.github.javaparser.quality.NotNull;
@@ -41,19 +42,37 @@ public class PrecioEstablecidoService {
     }
 
     public void update(@NotNull Integer id, @NonNull Date fecha, @NonNull Date fechaFin, boolean estado, float precio, @NotEmpty String tipoCombustible) throws Exception {
-        if (fecha != null && fechaFin != null && precio > 0 && tipoCombustible.trim().length() > 0) {
-            
+        if (fecha != null && fechaFin != null && precio > 0 && tipoCombustible.trim().length() > 0) {  
         }
-        dp.setObj(dp.listAll().get(id));
+        
+        PrecioEstablecido precioExistente = dp.getById(id);
+        if (precioExistente == null) {
+            throw new Exception("No se encontró el precio establecido con ID: " + id);
+        }
+
+        Integer posicion = null;
+        for (int i = 0; i < dp.listAll().getLength(); i++) {
+            PrecioEstablecido precioEnPosicion = dp.listAll().get(i);
+            if (precioEnPosicion.getId().equals(id)) {
+                posicion = i;
+                break;
+            }
+        }
+        
+        if (posicion == null) {
+            throw new Exception("No se pudo encontrar la posición del precio establecido con ID: " + id);
+        }
+        
+        dp.setObj(new PrecioEstablecido());
+        dp.getObj().setId(id); // Mantener el ID original
         dp.getObj().setFecha(fecha);
         dp.getObj().setFechaFin(fechaFin);
         dp.getObj().setEstado(estado);
         dp.getObj().setPrecio(precio);
         dp.getObj().setTipoCombustible(TipoCombustibleEnum.valueOf(tipoCombustible));
         
-        if(!dp.update(id)){
-            throw new  Exception("No se pudo guardar los datos de Estacion");
-
+        if(!dp.update(posicion)){
+            throw new Exception("No se pudo guardar los datos del Precio Establecido");
         }
     }
 
@@ -65,15 +84,17 @@ public class PrecioEstablecidoService {
         return lista;
     }
 
-     public List<HashMap> listAll() {
+     @SuppressWarnings("unchecked")
+     public List<HashMap<String, Object>> listAll() {
         if(dp.listAll().isEmpty()) {
             return new ArrayList<>();
-        } else return Arrays.asList(dp.all().toArray());
+        } else return (List<HashMap<String, Object>>) (List<?>) Arrays.asList(dp.all().toArray());
         
     }
 
-    public List<HashMap> order(String attribute, Integer type) {
-        return Arrays.asList(dp.orderByPrecioEstablecido(type, attribute).toArray());
+    @SuppressWarnings("unchecked")
+    public List<HashMap<String, Object>> order(String attribute, Integer type) {
+        return (List<HashMap<String, Object>>) (List<?>) Arrays.asList(dp.orderByPrecioEstablecido(type, attribute).toArray());
     }
 
 

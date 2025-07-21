@@ -40,7 +40,6 @@ public class DaoEstacion extends AdapterDao<Estacion> {
 
     public Boolean update(Integer pos) {
         try {
-            obj.setId(listAll().getLength());
             this.update(obj, pos);
             return true;
 
@@ -102,9 +101,8 @@ public class DaoEstacion extends AdapterDao<Estacion> {
 
 
     private HashMap<String, Object> toDict(Estacion arreglo, Integer i) {
-        HashMap<String, Object> map = new HashMap<>();
         HashMap<String, Object> aux = new HashMap<>();
-        aux.put("id", arreglo.getId().toString(i));
+        aux.put("id", arreglo.getId());
         aux.put("codigo", arreglo.getCodigo());
         aux.put("estado", arreglo.getEstadoE().toString());
         return aux;
@@ -113,14 +111,11 @@ public class DaoEstacion extends AdapterDao<Estacion> {
     public LinkedList<HashMap<String, Object>> orderbyEstacion(Integer type, String attribute) {
         LinkedList<HashMap<String, Object>> lista = all();
         if (!lista.isEmpty()){
-          HashMap arr[] = lista.toArray();
-          // Convert HashMap array back to Estacion array for sorting
           Estacion[] Estaciones = this.listAll().toArray();
           quickSort(Estaciones, 0, Estaciones.length - 1, type);
-          // Update lista with sorted Estaciones
           lista = new LinkedList<>();
-          for (Estacion Estacion : Estaciones) {
-            lista.add(toDict(Estacion, type));
+          for (int i = 0; i < Estaciones.length; i++) {
+            lista.add(toDict(Estaciones[i], i));
            }
         }
         return lista;
