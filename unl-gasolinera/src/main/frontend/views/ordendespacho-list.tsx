@@ -723,4 +723,3 @@ export default function OrdenDespachoView() {
 
   );
 }
-

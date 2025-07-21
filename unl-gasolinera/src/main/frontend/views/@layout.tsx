@@ -55,12 +55,17 @@ function MainMenu({ username, setUsername }: { username: string | null; setUsern
     { to: '/Proveedor-list', icon: 'vaadin:truck', title: 'Proveedores' },
     { to: '/tanque-list', icon: 'vaadin:bar-chart', title: 'Tanques' },
     { to: '/vehiculo-list', icon: 'vaadin:car', title: 'Vehículos' },
+    {to: '/bienvenida-list', icon: 'vaadin:home', title: 'Bienvenida' },
+
   ];
 
   const userMenuItems = [
     { to: '/ordendespacho-list', icon: 'vaadin:clipboard-check', title: 'Orden de Despacho' },
     { to: '/pago-form', icon: 'vaadin:credit-card', title: 'Formulario de Pago' },
     { to: '/pago-list', icon: 'vaadin:list', title: 'Lista de Pagos' },
+    {to: '/bienvenida-list', icon: 'vaadin:home', title: 'Bienvenida' },
+
+
   ];
 
   const menuItems = role === 'ROLE_admin' ? adminMenuItems : userMenuItems;

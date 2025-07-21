@@ -1,0 +1,24 @@
+.registro-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 2rem;
+    border-radius: 16px;
+    background: linear-gradient(to bottom right, #ffffff, #f0f0f5);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .registro-container h1 {
+    text-align: center;
+    font-size: 24px;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+  }
+  
+  .registro-container vaadin-text-field,
+  .registro-container vaadin-password-field,
+  .registro-container vaadin-select,
+  .registro-container vaadin-button {
+    width: 100%;
+    margin-top: 1rem;
+  }
+  
