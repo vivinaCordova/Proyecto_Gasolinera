@@ -48,7 +48,7 @@ public class OrdenDespachoService {
                 throw new Exception("No se encontró el PrecioEstablecido con id: " + idPrecioEstablecido);
             }
 
-            float precioTotal = precio.getPrecio() * nroGalones;
+            float precioTotal = Math.round((precio.getPrecio() * nroGalones) * 100.0f) / 100.0f;
 
             db.getObj().setCodigo(codigo);
             db.getObj().setNroGalones(nroGalones);
