@@ -153,37 +153,6 @@ export default function TanqueView() {
   };
   useEffect(() => {
     callData();
-    const verificarPagosYDescontarStock = async () => {
-      try {
-        const ordenesDespacho = await TanqueService.listOrdenesDespacho(); // Obtiene todas las órdenes de despacho
-        for (const orden of ordenesDespacho) {
-          if (orden.estadoPago === true) { // Verifica si el pago asociado es exitoso
-            const resultado = await TanqueService.descontarStock(orden.idOrdenDespacho, orden.idPago);
-            if (resultado) {
-              Notification.show(
-                `Stock descontado automáticamente para la orden de despacho ${orden.codigo}.`,
-                { duration: 5000, position: 'bottom-end', theme: 'success' }
-              );
-              callData(); // Actualiza la lista de tanques
-            } else {
-              Notification.show(
-                `No se pudo descontar el stock para la orden de despacho ${orden.codigo}.`,
-                { duration: 5000, position: 'top-center', theme: 'error' }
-              );
-            }
-          }
-        }
-      } catch (error) {
-        console.error(error);
-        Notification.show("Error al verificar pagos y descontar stock.", {
-          duration: 5000,
-          position: 'top-center',
-          theme: 'error',
-        });
-      }
-    };
-
-    verificarPagosYDescontarStock(); // Llama a la función al cargar la vista
   }, []);
   const order = (event, columnId) => {
     console.log(event);
@@ -202,6 +171,15 @@ export default function TanqueView() {
       </span>
     );
   }
+
+  function capacidad({ item }: { item: Tanque }) {
+    return (
+      <span>
+        {item.capacidad} Gl
+      </span>
+    );
+  }
+
   const criterio = useSignal('');
   const texto = useSignal('');
   const itemSelect = [
@@ -226,6 +204,7 @@ export default function TanqueView() {
       handleError(error);
     }
   };
+
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
 
@@ -294,7 +273,7 @@ export default function TanqueView() {
       <Grid items={items}>
         <GridColumn renderer={indexIndex} header="Nro" />
         <GridSortColumn path="codigo" header="Codigo" onDirectionChanged={(e) => order(e, 'nombre')} />
-        <GridSortColumn path="capacidad" header="Capacidad" onDirectionChanged={(e) => order(e, 'nombre')} />
+        <GridSortColumn renderer={capacidad} header="Capacidad" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridSortColumn path="capacidadMinima" header="Capacidad Minima" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridSortColumn path="capacidadTotal" header="Capacidad Maxima" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridColumn path="tipoCombustible" header="Tipo">

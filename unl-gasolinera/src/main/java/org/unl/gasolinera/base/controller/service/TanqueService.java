@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import org.unl.gasolinera.base.controller.dao.dao_models.DaoOrdenDespacho;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoPrecioEstablecido;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoTanque;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
@@ -15,6 +16,8 @@ import com.vaadin.hilla.BrowserCallable;
 
 import jakarta.validation.constraints.NotEmpty;
 
+import org.unl.gasolinera.base.models.EstadoOrdenDespachadoEnum;
+import org.unl.gasolinera.base.models.OrdenDespacho;
 import org.unl.gasolinera.base.models.PrecioEstablecido;
 import org.unl.gasolinera.base.models.Tanque;
 
@@ -64,14 +67,7 @@ public class TanqueService {
             return false; // Retorna false en caso de excepción
         }
     }
-    public Boolean descontarStock(Integer idOrdenDespacho, Integer idPago) {
-        try {
-            return db.descontarStock(idOrdenDespacho, idPago); // Llama al método del DAO que realiza el descuento de stock
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false; // Retorna false en caso de excepción
-        }
-    }
+    
     public void createTanque(float capacidad, float capacidadTotal, float capacidadMinima, Integer tipoCombustible, @NotEmpty String codigo) throws Exception {
         if (codigo.trim().length() > 0 && capacidad > 0 && capacidadTotal > 0  && capacidadMinima > 0 && tipoCombustible > 0 && codigo.toString().length() > 0  ) {
             db.getObj().setCodigo(codigo);;
@@ -99,4 +95,13 @@ public class TanqueService {
         }
         return lista;
     }  
+    public Boolean descontarStock(Integer idOrdenDespacho) {
+        try {
+            DaoTanque daoTanque = new DaoTanque();
+            return daoTanque.descontarStock(idOrdenDespacho);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
