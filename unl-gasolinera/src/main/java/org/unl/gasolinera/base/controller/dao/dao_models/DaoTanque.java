@@ -8,6 +8,7 @@ import org.unl.gasolinera.base.controller.Utiles;
 import org.unl.gasolinera.base.controller.dao.AdapterDao;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.EstadoOrdenCompraEnum;
+import org.unl.gasolinera.base.models.EstadoOrdenDespachadoEnum;
 import org.unl.gasolinera.base.models.OrdenCompra;
 import org.unl.gasolinera.base.models.OrdenDespacho;
 import org.unl.gasolinera.base.models.Pago;
@@ -293,26 +294,26 @@ public class DaoTanque extends AdapterDao<Tanque> {
             DaoTanque daoTanque = new DaoTanque();
             DaoProveedor daoProveedor = new DaoProveedor();
             DaoOrdenCompra daoOrdenCompra = new DaoOrdenCompra();
-    
+
             LinkedList<Tanque> tanques = daoTanque.listAll();
             LinkedList<Proveedor> proveedores = daoProveedor.listAll();
-    
+
             if (tanques.isEmpty() || proveedores.isEmpty()) {
                 System.out.println("No hay tanques o proveedores registrados.");
                 return false; // Retorna false si no hay tanques o proveedores registrados
             }
-    
+
             boolean actualizado = false; // Variable para verificar si se actualizó algún tanque
-    
+
             for (int i = 0; i < tanques.getLength(); i++) {
                 Tanque tanque = tanques.get(i);
-    
+
                 if (tanque.getCapacidad() <= tanque.getCapacidadMinima()) {
                     System.out.println("Tanque " + tanque.getCodigo() + " con capacidad actual " +
                             tanque.getCapacidad() +
                             " está por debajo de la capacidad mínima " + tanque.getCapacidadMinima() +
                             ". Buscando proveedor y generando orden de compra...");
-    
+
                     // Buscar un proveedor que coincida con el idPrecioEstablecido del tanque
                     Proveedor proveedorAsociado = null;
                     for (int j = 0; j < proveedores.getLength(); j++) {
@@ -323,17 +324,19 @@ public class DaoTanque extends AdapterDao<Tanque> {
                             break;
                         }
                     }
-    
+
                     if (proveedorAsociado == null) {
                         System.out.println("No se encontró un proveedor asociado al idPrecioEstablecido: "
                                 + tanque.getIdPrecioEstablecido());
                         continue; // Saltar al siguiente tanque si no hay proveedor asociado
                     }
-    
-                    // Calcular el aumento como el 30% de la capacidad mínima y agregar dos ceros adicionales
+
+                    // Calcular el aumento como el 30% de la capacidad mínima y agregar dos ceros
+                    // adicionales
                     float cantidadAumento = tanque.getCapacidadMinima() * 0.2f;
-                    //cantidadAumento *= 10; // Multiplicar por 100 para agregar dos ceros adicionales
-    
+                    // cantidadAumento *= 10; // Multiplicar por 100 para agregar dos ceros
+                    // adicionales
+
                     OrdenCompra nuevaOrden = new OrdenCompra();
                     nuevaOrden.setCantidad(cantidadAumento); // Aumentar automáticamente con el ajuste
                     nuevaOrden.setIdProveedor(proveedorAsociado.getId());
@@ -341,11 +344,11 @@ public class DaoTanque extends AdapterDao<Tanque> {
                     nuevaOrden.setEstado(EstadoOrdenCompraEnum.COMPLETADO); // Estado inicial de la orden
                     daoOrdenCompra.setObj(nuevaOrden);
                     daoOrdenCompra.save();
-    
+
                     // Aumentar el stock del tanque
                     tanque.setCapacidad(tanque.getCapacidad() + cantidadAumento);
                     daoTanque.update(tanque, i);
-    
+
                     System.out.println("Orden de compra generada y stock aumentado exitosamente en el tanque " +
                             tanque.getCodigo() +
                             ". Nueva capacidad: " + tanque.getCapacidad());
@@ -354,7 +357,7 @@ public class DaoTanque extends AdapterDao<Tanque> {
                     System.out.println("Tanque " + tanque.getCodigo() + " está en condiciones seguras.");
                 }
             }
-    
+
             return actualizado; // Retorna true si se actualizó al menos un tanque
         } catch (Exception e) {
             e.printStackTrace();
@@ -363,87 +366,76 @@ public class DaoTanque extends AdapterDao<Tanque> {
         }
     }
 
-    public Boolean descontarStock(Integer idOrdenDespacho, Integer idPago) {
-        try {
-            // Instancias necesarias
-            DaoOrdenDespacho daoOrdenDespacho = new DaoOrdenDespacho();
-            DaoPago daoPago = new DaoPago();
-            DaoPrecioEstablecido daoPrecioEstablecido = new DaoPrecioEstablecido();
-            DaoTanque daoTanque = new DaoTanque();
+    public Boolean descontarStock(Integer idOrdenDespacho) {
+    try {
+        // Instancias necesarias
+        DaoOrdenDespacho daoOrdenDespacho = new DaoOrdenDespacho();
+        DaoPrecioEstablecido daoPrecioEstablecido = new DaoPrecioEstablecido();
+        DaoTanque daoTanque = new DaoTanque();
 
-            // Buscar la Orden de Despacho
-            OrdenDespacho ordenDespacho = daoOrdenDespacho.get(idOrdenDespacho);
-            if (ordenDespacho == null) {
-                System.out.println("La orden de despacho no existe.");
-                return false; // Retorna false si la orden de despacho no existe
-            }
-
-            // Validar el estado del Pago asociado a la Orden de Despacho
-            Pago pago = daoPago.get(ordenDespacho.getId());
-            // Pago pago = daoPago.get(ordenDespacho.getIdPago());
-            if (pago == null || !pago.getEstadoP()) {
-                System.out.println("El pago asociado no fue exitoso o no existe.");
-                return false; // Retorna false si el pago no fue exitoso
-            }
-
-            // Obtener el número de galones de la Orden de Despacho
-            Integer numeroGalones = Math.round(ordenDespacho.getNroGalones()); // Convertir Float a Integer
-            System.out.println("Número de galones en la orden de despacho: " + numeroGalones);
-
-            // Buscar el Precio Establecido asociado a la Orden de Despacho
-            PrecioEstablecido precioEstablecido = daoPrecioEstablecido.getById(ordenDespacho.getIdPrecioEstablecido());
-            if (precioEstablecido == null) {
-                System.out.println("No se encontró el precio establecido para la orden.");
-                return false; // Retorna false si no se encuentra el precio establecido
-            }
-
-            // Buscar el Tanque asociado al Precio Establecido
-            LinkedList<Tanque> tanques = daoTanque.listAll();
-            Tanque tanqueAsociado = null;
-            for (int i = 0; i < tanques.getLength(); i++) {
-                Tanque tanque = tanques.get(i);
-                if (tanque.getIdPrecioEstablecido() != null &&
-                        tanque.getIdPrecioEstablecido().equals(precioEstablecido.getId())) {
-                    tanqueAsociado = tanque;
-                    break;
-                }
-            }
-
-            if (tanqueAsociado == null) {
-                System.out.println("No se encontró un tanque asociado al precio establecido.");
-                return false; // Retorna false si no se encuentra un tanque asociado
-            }
-
-            // Descontar los galones del tanque asociado
-            Float nuevaCapacidad = tanqueAsociado.getCapacidad() - numeroGalones;
-            if (nuevaCapacidad < 0) {
-                System.out.println("La capacidad del tanque no puede ser negativa.");
-                return false; // Retorna false si la capacidad es negativa
-            }
-
-            int index = -1;
-            for (int i = 0; i < tanques.getLength(); i++) {
-                if (tanques.get(i).equals(tanqueAsociado)) {
-                    index = i;
-                    break;
-                }
-            }
-
-            if (index == -1) {
-                System.out.println("No se encontró el tanque en la lista.");
-                return false; // Retorna false si no se encuentra el tanque
-            }
-
-            // Actualizar el tanque
-            daoTanque.update(tanqueAsociado, index);// Actualizar el tanque
-
-            System.out.println("Descuento realizado exitosamente. Nueva capacidad del tanque: " + nuevaCapacidad);
-
-            return true; // Retorna true si el descuento se realizó correctamente
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Error al verificar la orden de despacho y descontar los galones.");
-            return false; // Retorna false en caso de excepción
+        // Buscar la Orden de Despacho
+        OrdenDespacho ordenDespacho = daoOrdenDespacho.get(idOrdenDespacho);
+        if (ordenDespacho == null) {
+            System.out.println("La orden de despacho no existe.");
+            return false;
         }
+
+        // Verificar que el estado de la orden sea COMPLETADO
+        if (!EstadoOrdenDespachadoEnum.COMPLETADO.equals(ordenDespacho.getEstado())) {
+            System.out.println("La orden de despacho no está marcada como COMPLETADA.");
+            return false;
+        }
+
+        // Obtener la cantidad de galones
+        Float galones = ordenDespacho.getNroGalones();
+        System.out.println("Galones solicitados: " + galones);
+
+        // Obtener el PrecioEstablecido
+        PrecioEstablecido precioEstablecido = daoPrecioEstablecido.getById(ordenDespacho.getIdPrecioEstablecido());
+        if (precioEstablecido == null) {
+            System.out.println("No se encontró el precio establecido.");
+            return false;
+        }
+
+        // Buscar el tanque asociado a ese PrecioEstablecido
+        LinkedList<Tanque> tanques = daoTanque.listAll();
+        Tanque tanqueAsociado = null;
+        int index = -1;
+
+        for (int i = 0; i < tanques.getLength(); i++) {
+            Tanque tanque = tanques.get(i);
+            if (tanque.getIdPrecioEstablecido() != null &&
+                tanque.getIdPrecioEstablecido().equals(precioEstablecido.getId())) {
+                tanqueAsociado = tanque;
+                index = i;
+                break;
+            }
+        }
+
+        if (tanqueAsociado == null || index == -1) {
+            System.out.println("No se encontró un tanque asociado al precio establecido.");
+            return false;
+        }
+
+        // Validar stock
+        Float capacidadActual = tanqueAsociado.getCapacidad();
+        Float nuevaCapacidad = capacidadActual - galones;
+        if (nuevaCapacidad < 0) {
+            System.out.println("Stock insuficiente. Capacidad actual: " + capacidadActual + ", se requiere: " + galones);
+            return false;
+        }
+
+        // Actualizar el tanque
+        tanqueAsociado.setCapacidad(nuevaCapacidad);
+        daoTanque.update(tanqueAsociado, index);
+
+        System.out.println("Descuento exitoso. Nueva capacidad del tanque: " + nuevaCapacidad);
+        return true;
+
+    } catch (Exception e) {
+        System.out.println("Error al descontar galones: " + e.getMessage());
+        e.printStackTrace();
+        return false;
     }
+}
 }
