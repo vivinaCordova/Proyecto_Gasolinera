@@ -64,7 +64,7 @@ public class OrdenCompraService {
             for(int i = 0; i < arreglo.length; i++) {
                 HashMap<String, String> aux = new HashMap<>();
                 aux.put("value", arreglo[i].getId().toString(i));
-                aux.put("label", arreglo[i].getNombre());
+                aux.put("label", arreglo[i].getNombre().toString());
                 lista.add(aux); 
             }
 
@@ -79,7 +79,7 @@ public class OrdenCompraService {
             for(int i = 0; i < arreglo.length; i++) {
                 HashMap<String, String> aux = new HashMap<>();
                 aux.put("value", arreglo[i].getId().toString(i));
-                aux.put("label", arreglo[i].getCodigo());
+                aux.put("label", arreglo[i].getCodigo().toString());
                 lista.add(aux); 
             }
 

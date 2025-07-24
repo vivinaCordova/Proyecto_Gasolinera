@@ -13,6 +13,7 @@ import org.unl.gasolinera.base.controller.Utiles;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoEstacion;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoOrdenDespacho;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoPrecioEstablecido;
+import org.unl.gasolinera.base.controller.dao.dao_models.DaoTanque;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoVehiculo;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.EstadoOrdenDespachadoEnum;
@@ -238,6 +239,18 @@ public class OrdenDespachoService {
         }
 
         System.out.println("Estado de OrdenDespacho ID " + id + " actualizado a: " + nuevoEstado);
+
+        // Descontar stock solo si la orden fue completada
+        // Si la orden quedó COMPLETADA, descontar stock
+        if (EstadoOrdenDespachadoEnum.COMPLETADO.equals(ordenEncontrada.getEstado())) {
+            DaoTanque daoTanque = new DaoTanque();
+            boolean descontado = daoTanque.descontarStock(id); // solo idOrdenDespacho
+            if (descontado) {
+                System.out.println("Stock descontado correctamente para la orden " + id);
+            } else {
+                System.out.println("No se pudo descontar stock para la orden " + id);
+            }
+        }
     }
 
     public List<HashMap> search(String attribute, String text, Integer type) throws Exception {
@@ -263,7 +276,7 @@ public class OrdenDespachoService {
         if (id == null) {
             throw new Exception("ID no puede ser null");
         }
-        
+
         // Buscar en la lista por ID
         if (!db.listAll().isEmpty()) {
             OrdenDespacho[] ordenes = db.listAll().toArray();
@@ -275,7 +288,7 @@ public class OrdenDespachoService {
         }
         return null; // No se encontró
     }
-    
+
     // Método para generar el enum EstadoOrdenDespachadoEnum en TypeScript
     public EstadoOrdenDespachadoEnum getEstadoDespacho() {
         return EstadoOrdenDespachadoEnum.EN_PROCESO;

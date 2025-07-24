@@ -152,7 +152,6 @@ export default function OrdenCompraView() {
   //useEffect(() =>{
   const callData = () => {
     OrdenCompraService.listAll().then(function (data) {
-      //items.values = data;
       setItems(data);
     });
   };
@@ -210,30 +209,6 @@ export default function OrdenCompraView() {
       <ViewToolbar title="Lista de Ordenes de Compra">
         <Group>
           <OrdenCompraEntryForm onOrdenCompraCreated={callData} />
-          <Button
-            theme="primary"
-            onClick={async () => {
-              try {
-                const cantidad = parseFloat(prompt("Ingrese la cantidad para aumentar el stock:") || "0");
-                if (cantidad > 0) {
-                  const resultado = await OrdenCompraService.aumentarStockTanques(cantidad);
-                  if (resultado) {
-                    Notification.show("Stock aumentado exitosamente", { duration: 5000, position: 'bottom-end', theme: 'success' });
-                    callData(); // Actualiza la lista de órdenes de compra
-                  } else {
-                    Notification.show("No se pudo aumentar el stock. Verifique los tanques.", { duration: 5000, position: 'top-center', theme: 'error' });
-                  }
-                } else {
-                  Notification.show("Cantidad inválida. Intente nuevamente.", { duration: 5000, position: 'top-center', theme: 'error' });
-                }
-              } catch (error) {
-                console.error(error);
-                Notification.show("Error al aumentar el stock", { duration: 5000, position: 'top-center', theme: 'error' });
-              }
-            }}
-          >
-            Aumentar Stock
-          </Button>
         </Group>
       </ViewToolbar>
       <HorizontalLayout theme="spacing">
