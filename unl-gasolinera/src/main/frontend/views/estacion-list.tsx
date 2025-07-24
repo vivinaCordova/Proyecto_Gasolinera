@@ -1,5 +1,5 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, NumberField, TextField, VerticalLayout } from '@vaadin/react-components';
+import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, HorizontalLayout, Icon, NumberField, Select, TextField, VerticalLayout } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
 import { CuentaService, EstacionService, TaskService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
@@ -291,6 +291,50 @@ export default function EstacionView() {
     );
   }
 
+  const criterio = useSignal('');
+  const texto = useSignal('');
+  const itemSelect = [
+    {
+      label: 'Codigo',
+      value: 'codigo',
+    },
+    {
+      label: 'Estado',
+      value: 'estado',
+    }
+  ];
+  const search = async () => {
+    try {
+      console.log(criterio.value + ' ' + texto.value);
+      EstacionService.search(criterio.value, texto.value, 0).then(function (data) {
+        setItems(data);
+      });
+
+      criterio.value = '';
+      texto.value = '';
+
+      Notification.show('Busqueda realizada', { duration: 5000, position: 'bottom-end', theme: 'success' });
+    } catch (error) {
+      console.log(error);
+      handleError(error);
+    }
+  };
+
+  function renderEstado({ model }: { model: GridItemModel<Estacion> }) {
+    const estado = model.item.estado;
+    switch (estado) {
+      case 'ACTIVO':
+        return <span>Activo</span>;
+      case 'ENUSO':
+        return <span>En Uso</span>;
+      case 'FUERA_SERVICIO':
+        return <span>Fuera de Servicio</span>;
+      default:
+        return <span>{estado}</span>;
+    }
+  }
+
+
   return (
 
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
@@ -300,10 +344,46 @@ export default function EstacionView() {
           <EstacionEntryForm onEstacionCreated={callData} />
         </Group>
       </ViewToolbar>
+      <HorizontalLayout theme="spacing">
+        <Select
+          items={itemSelect}
+          value={criterio.value}
+          onValueChanged={(evt) => (criterio.value = evt.detail.value)}
+          placeholder="Selecione un criterio"></Select>
+        {criterio.value === 'estado' ? (
+          <Select
+            items={[
+              { label: 'Activo', value: 'ACTIVO' },
+              { label: 'En Uso', value: 'ENUSO' },
+              { label: 'Fuera de Servicio', value: 'FUERA_SERVICIO' },
+            ]}
+            value={texto.value}
+            onValueChanged={(evt) => (texto.value = evt.detail.value)}
+            placeholder="Seleccione el estado"
+            style={{ width: '50%' }}
+          />
+        ) : (
+          <>
+            <TextField
+              placeholder="Search"
+              style={{ width: '50%' }}
+              value={texto.value}
+              onValueChanged={(evt) => (texto.value = evt.detail.value)}>
+              <Icon slot="prefix" icon="vaadin:search" />
+            </TextField>
+          </>
+        )}
+        <Button onClick={search} theme="primary">
+          BUSCAR
+        </Button>
+        <Button onClick={callData} theme="secondary">
+          REFRESCAR
+        </Button>
+      </HorizontalLayout>
       <Grid items={items}>
         <GridColumn renderer={indexIndex} header="Nro" />
         <GridSortColumn onDirectionChanged={(e) => order(e, "codigo")} path="codigo" header="Estacion" />
-        <GridSortColumn onDirectionChanged={(e) => order(e, "estado")} path="estado" header="estado" />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "estado")} renderer={renderEstado} header="estado" />
         <GridColumn header="Acciones" renderer={indexLink} />
         <GridColumn
           header="Eliminar"
