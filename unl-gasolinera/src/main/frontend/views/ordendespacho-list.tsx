@@ -7,6 +7,7 @@ import handleError from 'Frontend/views/_ErrorHandler';
 import { Group, ViewToolbar } from 'Frontend/components/ViewToolbar';
 import { useDataProvider } from '@vaadin/hilla-react-crud';
 import { useEffect, useState } from 'react';
+import OrdenDespacho from 'Frontend/generated/org/unl/gasolinera/base/models/OrdenDespacho';
 
 export const config: ViewConfig = {
   title: 'Orden de Despacho',
@@ -17,21 +18,14 @@ export const config: ViewConfig = {
   },
 };
 
-type OrdenDespacho = {
-  id: number;
-  codigo: string;
-  fecha: string;
-  placa: string;
-  estacion: string;
-  nombreGasolina: string;
-  precio_establecido: number;
-  nroGalones: number;
-  precioTotal: number;
-  estado: string;
-}
 
 type OrdenDespachoEntryFormProps = {
   onOrdenCreated?: () => void;
+};
+
+type OrdenDespachoEntryFormUpdate = {
+  orden_despacho: OrdenDespacho;
+  onOrdenUpdated?: () => void;
 };
 
 function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
@@ -44,31 +38,31 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
   const idPrecioEstablecido = useSignal('');
   const idEstacion = useSignal('');
 
-  const listaEstados = useSignal<string[]>([]);
+  const listaEstados = useSignal<any[]>([]);
   useEffect(() => {
     OrdenDespachoService.listEstadoOrdenDespacho().then((data) => {
-      listaEstados.value = data;
+      listaEstados.value = data || [];
     });
   }, []);
 
   const listaPrecios = useSignal<any[]>([]);
   useEffect(() => {
     OrdenDespachoService.listPrecioGalonCombo().then((data) => {
-      listaPrecios.value = data;
+      listaPrecios.value = data || [];
     });
   }, []);
 
   const listaVehiculos = useSignal<any[]>([]);
   useEffect(() => {
     OrdenDespachoService.listVehiculoCombo().then((data) => {
-      listaVehiculos.value = data;
+      listaVehiculos.value = data || [];
     });
   }, []);
 
   const listaEstaciones = useSignal<any[]>([]);
   useEffect(() => {
     OrdenDespachoService.listEstacionCombo().then((data) => {
-      listaEstaciones.value = data;
+      listaEstaciones.value = data || [];
     });
   }, []);
 
@@ -79,7 +73,7 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
       );
       if (precioSeleccionado) {
         const precio = parseFloat(precioSeleccionado.precio);
-        const galones = parseFloat(nroGalones.value);
+        const galones = parseFloat(String(nroGalones.value));
         if (!isNaN(precio) && !isNaN(galones)) {
           precioTotal.value = (precio * galones).toFixed(2);
         }
@@ -101,14 +95,11 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
         idPrecioEstablecido.value &&
         idEstacion.value
       ) {
-        const fechaActual = new Date();
-        const [year, month, day] = fecha.value.split('-').map(Number);
-        const fechaConHoraActual = new Date(year, month - 1, day, fechaActual.getHours(), fechaActual.getMinutes(), fechaActual.getSeconds());
-
+       
         await OrdenDespachoService.create(
           codigo.value,
           parseFloat(nroGalones.value),
-          fechaConHoraActual,
+          new Date(fecha.value),
           estado.value,
           parseInt(idPrecioEstablecido.value),
           parseInt(idVehiculo.value),
@@ -182,7 +173,7 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
           <NumberField
             label="Nro Galones"
             placeholder="Ingrese el número de galones"
-            value={nroGalones.value}
+            value={nroGalones.value?.toString() ?? ''}
             onValueChanged={(e) => (nroGalones.value = e.detail.value)}
           />
           <ComboBox
@@ -198,7 +189,7 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
           />
           <TextField
             label="Precio Total (automático)"
-            value={precioTotal.value}
+            value={precioTotal.value?.toString() ?? ''}
             readonly
           />
           <ComboBox
@@ -234,18 +225,250 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
   );
 }
 
+function OrdenDespachoUpdateForm(props: OrdenDespachoEntryFormUpdate) {
+  const dialogOpened = useSignal(false);
+
+  const id = useSignal(props.orden_despacho?.id?.toString() || '');
+  const codigo = useSignal(props.orden_despacho?.codigo || '');
+  const nroGalones = useSignal(props.orden_despacho?.nroGalones || '');
+  const fecha = useSignal(props.orden_despacho?.fecha || '');
+  const precioTotal = useSignal(props.orden_despacho?.precioTotal || '');
+  const estado = useSignal(props.orden_despacho?.estado || '');
+  const placa = useSignal(props.orden_despacho?.placa || '');
+  const precioEstablecido = useSignal(props.orden_despacho?.precio_establecido || '');
+  const estacion = useSignal(props.orden_despacho?.estacion || '');
+
+  const openDialog = () => {
+    id.value = props.orden_despacho?.id?.toString() || '';
+    codigo.value = props.orden_despacho?.codigo || '';
+    nroGalones.value = props.orden_despacho?.nroGalones || '';
+    fecha.value = props.orden_despacho?.fecha || '';
+    precioTotal.value = props.orden_despacho?.precioTotal || '';
+    estado.value = props.orden_despacho?.estado || '';
+    
+    // Cargar valores para los ComboBox con setTimeout para asegurar que las listas estén cargadas
+    setTimeout(() => {
+      // Para el vehículo, necesitamos encontrar el ID basado en la placa
+      if (props.orden_despacho?.placa && listaVehiculos.value.length > 0) {
+        const vehiculoEncontrado = listaVehiculos.value.find(v => v.label === props.orden_despacho.placa);
+        if (vehiculoEncontrado) {
+          idVehiculo.value = vehiculoEncontrado.value;
+        }
+      }
+      
+      // Para el precio establecido, basado en precio_establecido
+      if (props.orden_despacho?.precio_establecido && listaPrecios.value.length > 0) {
+        const precioEncontrado = listaPrecios.value.find(p => p.precio == props.orden_despacho.precio_establecido);
+        if (precioEncontrado) {
+          idPrecioEstablecido.value = precioEncontrado.value;
+        }
+      }
+      
+      // Para la estación, basado en el nombre de la estación
+      if (props.orden_despacho?.estacion && listaEstaciones.value.length > 0) {
+        const estacionEncontrada = listaEstaciones.value.find(e => e.label === props.orden_despacho.estacion);
+        if (estacionEncontrada) {
+          idEstacion.value = estacionEncontrada.value;
+        }
+      }
+    }, 100);
+
+    dialogOpened.value = true;
+  };
+
+  const updateOrdenDespacho = async () => {
+    try {
+      if (
+        codigo.value.trim().length > 0 &&
+        Number(nroGalones.value) > 0 &&
+        fecha.value.trim().length > 0 &&
+        Number(precioTotal.value) > 0 &&
+        estado.value.trim().length > 0 &&
+        idVehiculo.value.trim().length > 0 &&
+        idPrecioEstablecido.value.trim().length > 0 &&
+        idEstacion.value.trim().length > 0
+      ) {
+        await OrdenDespachoService.update(
+          parseInt(id.value), 
+          codigo.value, 
+          parseFloat(String(nroGalones.value)), 
+          new Date(fecha.value), 
+          estado.value, 
+          parseInt(idPrecioEstablecido.value), 
+          parseInt(idVehiculo.value), 
+          parseInt(idEstacion.value)
+        );
+        if (props.onOrdenUpdated) {
+          props.onOrdenUpdated();
+        }
+        codigo.value = '';
+        nroGalones.value = '';
+        fecha.value = '';
+        precioTotal.value = '';
+        estado.value = '';
+        placa.value = '';
+        precioEstablecido.value = '';
+        estacion.value = '';
+
+
+        dialogOpened.value = false;
+        Notification.show('Orden de Despacho editada', { duration: 5000, position: 'bottom-end', theme: 'success' });
+      } else {
+        Notification.show('No se pudo editar, faltan datos', { duration: 5000, position: 'top-center', theme: 'error' });
+      }
+
+    } catch (error) {
+      console.log(error);
+      handleError(error);
+    }
+  };
+
+
+  let listaEstados = useSignal<any[]>([]);
+  useEffect(() => {
+    OrdenDespachoService.listEstadoOrdenDespacho().then((data) => {
+      listaEstados.value = data || [];
+    });
+  }, []);
+
+  let listaPrecios = useSignal<any[]>([]);
+  useEffect(() => {
+    OrdenDespachoService.listPrecioGalonCombo().then((data) => {
+      listaPrecios.value = data || [];
+    });
+  }, []);
+
+  let listaVehiculos = useSignal<any[]>([]);
+  useEffect(() => {
+    OrdenDespachoService.listVehiculoCombo().then((data) => {
+      listaVehiculos.value = data || [];
+    });
+  }, []);
+
+  let listaEstaciones = useSignal<any[]>([]);
+  useEffect(() => {
+    OrdenDespachoService.listEstacionCombo().then((data) => {
+      listaEstaciones.value = data || [];
+    });
+  }, []);
+
+  const idVehiculo = useSignal('');
+  const idPrecioEstablecido = useSignal('');
+  const idEstacion = useSignal('');
+
+ useEffect(() => {
+    if (nroGalones.value && idPrecioEstablecido.value) {
+      const precioSeleccionado = listaPrecios.value.find(
+        (p) => p.value === idPrecioEstablecido.value
+      );
+      if (precioSeleccionado) {
+        const precio = parseFloat(precioSeleccionado.precio);
+        const galones = parseFloat(String(nroGalones.value));
+        if (!isNaN(precio) && !isNaN(galones)) {
+          precioTotal.value = (precio * galones).toFixed(2);
+        }
+      }
+    } else {
+      precioTotal.value = '';
+    }
+  }, [nroGalones.value, idPrecioEstablecido.value, listaPrecios.value]);
+
+  return (
+    <>
+      <Dialog
+        modeless
+        headerTitle="Editar Orden Despacho"
+        opened={dialogOpened.value}
+        onOpenedChanged={({ detail }) => {
+          dialogOpened.value = detail.value;
+        }}
+        footer={
+          <>
+            <Button onClick={() => { dialogOpened.value = false; }}>Cancelar</Button>
+            <Button onClick={updateOrdenDespacho} theme="primary">Registrar</Button>
+          </>
+        }
+      >
+        <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
+          <TextField
+            label="Código"
+            placeholder="Ingrese el código"
+            value={codigo.value}
+            onValueChanged={(e) => (codigo.value = e.detail.value)}
+          />
+          <DatePicker
+            label="Fecha"
+            placeholder="Seleccione la fecha"
+            value={fecha.value}
+            onValueChanged={(e) => (fecha.value = e.detail.value)}
+          />
+          <NumberField
+            label="Nro Galones"
+            placeholder="Ingrese el número de galones"
+            value={nroGalones.value}
+            onValueChanged={(e) => (nroGalones.value = e.detail.value)}
+          />
+          <ComboBox
+            label="Tipo de Gasolina"
+            items={listaPrecios.value}
+            placeholder="Seleccione el tipo"
+            itemLabelPath="label"
+            itemValuePath="value"
+            value={idPrecioEstablecido.value}
+            onValueChanged={(e) => {
+              idPrecioEstablecido.value = e.detail.value;
+            }}
+          />
+          <TextField
+            label="Precio Total (automático)"
+            value={precioTotal.value?.toString() ?? ''}
+            readonly
+          />
+          <ComboBox
+            label="Estado"
+            items={listaEstados.value}
+            placeholder="Seleccione un estado"
+            value={estado.value}
+            onValueChanged={(e) => (estado.value = e.detail.value)}
+          />
+          <ComboBox
+            label="Matrícula del Vehículo"
+            items={listaVehiculos.value}
+            placeholder="Seleccione una matrícula"
+            itemLabelPath="label"
+            itemValuePath="value"
+            value={idVehiculo.value}
+            onValueChanged={(e) => (idVehiculo.value = e.detail.value)}
+          />
+          <ComboBox
+            label="Estación"
+            items={listaEstaciones.value}
+            placeholder="Seleccione una estación"
+            itemLabelPath="label"
+            itemValuePath="value"
+            value={idEstacion.value}
+            onValueChanged={(e) => (idEstacion.value = e.detail.value)}
+          />
+        </VerticalLayout>
+      </Dialog>
+      <Button onClick={openDialog}>Editar</Button>
+    </>
+  );
+
+}
+
 export default function OrdenDespachoView() {
   const dataProvider = useDataProvider<any>({
-    list: () => OrdenDespachoService.listOrdenDespacho()
+    list: () => OrdenDespachoService.listOrdenDespacho().then(data => data || [])
   });
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<any[]>([]);
   const [ordenPago, setOrdenPago] = useState<any | null>(null);
   const [checkoutId, setCheckoutId] = useState<string | null>(null);
   const [mensajePago, setMensajePago] = useState<string | null>(null);
 
   useEffect(() => {
     OrdenDespachoService.listAll().then(function (data) {
-      setItems(data);
+      setItems(data || []);
     });
   }, []);
 
@@ -288,7 +511,7 @@ export default function OrdenDespachoView() {
   }
   const callData = () => {
     OrdenDespachoService.listAll().then(function (data: any) {
-      setItems(data);
+      setItems(data || []);
     });
   }
 
@@ -383,6 +606,14 @@ export default function OrdenDespachoView() {
     return <span>{model.index + 1}</span>;
   }
 
+  function indexLink({ model }: { model: GridItemModel<OrdenDespacho> }) {
+    return (
+      <span>
+        <OrdenDespachoUpdateForm orden_despacho={model.item} onOrdenUpdated={callData} />
+      </span>
+    );
+  }
+
 
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
@@ -427,7 +658,7 @@ export default function OrdenDespachoView() {
         <GridSortColumn onDirectionChanged={(e) => order(e, "nroGalones")} path="nroGalones" header="Galones" width="150px" flexGrow={0} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "precioTotal")} path="precioTotal" header="Precio Total" width="120px" flexGrow={0} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "estado")} path="estado" header="Estado" width="230px" flexGrow={0} />
-
+        <GridColumn header="Editar" renderer={indexLink} />
         <GridColumn
           header="Pagar"
           renderer={({ item }) => (
@@ -492,4 +723,3 @@ export default function OrdenDespachoView() {
 
   );
 }
-

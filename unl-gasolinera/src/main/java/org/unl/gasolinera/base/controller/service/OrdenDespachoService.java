@@ -1,5 +1,6 @@
 package org.unl.gasolinera.base.controller.service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -64,11 +65,28 @@ public class OrdenDespachoService {
         }
     }
 
-    public void update(@NotNull Integer id, @NotEmpty String codigo, float nroGalones, @NonNull Date fecha,
+    public void update(@NotNull Integer id, @NotEmpty String codigo, float nroGalones, @NotEmpty String fecha,
             @NotEmpty String estado, Integer idPrecioEstablecido, Integer idVehiculo, Integer idEstacion)
             throws Exception {
         if (codigo.trim().length() > 0 && nroGalones > 0 && fecha != null && estado.trim().length() > 0
                 && idPrecioEstablecido != null && idVehiculo != null && idEstacion != null) {
+
+            // Buscar la orden por ID y obtener su posición en la lista
+            var listaOrdenes = db.listAll();
+            OrdenDespacho ordenExistente = null;
+            Integer posicion = null;
+
+            for (int i = 0; i < listaOrdenes.getLength(); i++) {
+                if (listaOrdenes.get(i).getId().equals(id)) {
+                    ordenExistente = listaOrdenes.get(i);
+                    posicion = i;
+                    break;
+                }
+            }
+
+            if (ordenExistente == null) {
+                throw new Exception("No se encontró la Orden de Despacho con id: " + id);
+            }
 
             DaoPrecioEstablecido daoPrecio = new DaoPrecioEstablecido();
             PrecioEstablecido precio = daoPrecio.getById(idPrecioEstablecido);
@@ -77,18 +95,25 @@ public class OrdenDespachoService {
             }
 
             Utiles utiles = new Utiles();
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            Date fechaDate = formatter.parse(fecha);
             float precioTotal = Float.parseFloat(utiles.tranformStringFloatTwoDecimal(precio.getPrecio() * nroGalones));
 
-            db.getObj().setCodigo(codigo);
-            db.getObj().setNroGalones(nroGalones);
-            db.getObj().setFecha(fecha);
-            db.getObj().setPrecioTotal(precioTotal);
-            db.getObj().setEstado(EstadoOrdenDespachadoEnum.valueOf(estado));
-            db.getObj().setIdPrecioEstablecido(idPrecioEstablecido);
-            db.getObj().setIdVehiculo(idVehiculo);
-            db.getObj().setIdEstacion(idEstacion);
+            // Actualizar el objeto existente
+            ordenExistente.setCodigo(codigo);
+            ordenExistente.setNroGalones(nroGalones);
+            ordenExistente.setFecha(fechaDate);
+            ordenExistente.setPrecioTotal(precioTotal);
+            ordenExistente.setEstado(EstadoOrdenDespachadoEnum.valueOf(estado));
+            ordenExistente.setIdPrecioEstablecido(idPrecioEstablecido);
+            ordenExistente.setIdVehiculo(idVehiculo);
+            ordenExistente.setIdEstacion(idEstacion);
 
-            if (!db.update(id)) {
+            // Establecer el objeto actualizado en el DAO
+            db.setObj(ordenExistente);
+
+            // Usar la posición en lugar del ID para la actualización
+            if (!db.update(posicion)) {
                 throw new Exception("No se pudo actualizar la Orden de Despacho");
             }
         }
@@ -231,5 +256,28 @@ public class OrdenDespachoService {
         if (!db.deleteOrdenDespacho(id)) {
             throw new Exception("No se pudo eliminar el pago con ID: " + id);
         }
+    }
+
+    // Método para generar tipos TypeScript automáticamente
+    public OrdenDespacho getById(Integer id) throws Exception {
+        if (id == null) {
+            throw new Exception("ID no puede ser null");
+        }
+        
+        // Buscar en la lista por ID
+        if (!db.listAll().isEmpty()) {
+            OrdenDespacho[] ordenes = db.listAll().toArray();
+            for (OrdenDespacho orden : ordenes) {
+                if (orden.getId() != null && orden.getId().equals(id)) {
+                    return orden;
+                }
+            }
+        }
+        return null; // No se encontró
+    }
+    
+    // Método para generar el enum EstadoOrdenDespachadoEnum en TypeScript
+    public EstadoOrdenDespachadoEnum getEstadoDespacho() {
+        return EstadoOrdenDespachadoEnum.EN_PROCESO;
     }
 }
