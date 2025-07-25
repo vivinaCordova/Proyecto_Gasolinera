@@ -40,8 +40,15 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
   const tipoCombustible = useSignal('');
   const createTanque = async () => {
     try {
-      if (capacidad.value.trim().length > 0 && capacidadMinima.value.trim().length > 0) {
-        await TanqueService.createTanque(parseInt(capacidad.value), parseInt(capacidadMinima.value), parseInt(capacidadTotal.value), tipoCombustible.value, codigo.value);
+      if (capacidad.value.trim().length > 0 && capacidadMinima.value.trim().length > 0 && capacidadTotal.value.trim().length > 0 && tipoCombustible.value.trim().length > 0 && codigo.value.trim().length > 0) {
+        // Orden correcto: capacidad, capacidadTotal, capacidadMinima, tipoCombustible (como Integer), codigo
+        await TanqueService.createTanque(
+          parseFloat(capacidad.value), 
+          parseFloat(capacidadTotal.value), 
+          parseFloat(capacidadMinima.value), 
+          parseInt(tipoCombustible.value), 
+          codigo.value
+        );
         if (props.onTanqueCreated) {
           props.onTanqueCreated();
         }
@@ -53,7 +60,7 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
         dialogOpened.value = false;
         Notification.show('Tanque creado', { duration: 5000, position: 'bottom-end', theme: 'success' });
       } else {
-        Notification.show('No se pudo crear, faltan datos', { duration: 5000, position: 'top-center', theme: 'error' });
+        Notification.show('No se pudo crear, faltan datos obligatorios', { duration: 5000, position: 'top-center', theme: 'error' });
       }
 
     } catch (error) {
@@ -63,11 +70,13 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
   };
 
 
-  let listaTipo = useSignal<String[]>([]);
+  let listaTipo = useSignal<any[]>([]);
   useEffect(() => {
-    TanqueService.listTipo().then(data =>
-      listaTipo.value = data
-    );
+    TanqueService.listTipo().then(data => {
+      if (data) {
+        listaTipo.value = data;
+      }
+    });
   }, []);
 
   const dialogOpened = useSignal(false);
@@ -112,6 +121,8 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
           />
           <ComboBox label="Tipo"
             items={listaTipo.value}
+            itemLabelPath="label"
+            itemValuePath="value"
             placeholder='Seleccione un tipo'
             aria-label='Seleccione un tipo de la lista'
             value={tipoCombustible.value}

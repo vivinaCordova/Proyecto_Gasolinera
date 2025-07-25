@@ -1,14 +1,1 @@
-[
-    {
-        "id": 1,
-        "nombre": "Proveedor 1",
-        "correoElectronico": "d km);@d.com",
-        "idPrecioEstablecido": 1
-    },
-    {
-        "id": 2,
-        "nombre": "Proveedor 2",
-        "correoElectronico": "d km);211@d.com",
-        "idPrecioEstablecido": 2
-    }
-]
+[{"id":1,"nombre":"Proveedor 1","correoElectronico":"d km);@d.com","idPrecioEstablecido":1},{"id":2,"nombre":"Proveedor 2","correoElectronico":"d km);211@d.com","idPrecioEstablecido":2},{"id":3,"nombre":"Proveedor 3","correoElectronico":"extra@gmail.com","idPrecioEstablecido":2}]

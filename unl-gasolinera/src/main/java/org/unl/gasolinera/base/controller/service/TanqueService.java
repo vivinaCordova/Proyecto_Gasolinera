@@ -87,7 +87,7 @@ public class TanqueService {
             PrecioEstablecido[] arreglo = da.listAll().toArray();
             for(int i = 0; i < arreglo.length; i++) {
                 HashMap<String, String> aux = new HashMap<>();
-                aux.put("value", arreglo[i].getId().toString(i));
+                aux.put("value", arreglo[i].getId().toString());
                 aux.put("label", arreglo[i].getTipoCombustible().toString());
                 lista.add(aux); 
             }
