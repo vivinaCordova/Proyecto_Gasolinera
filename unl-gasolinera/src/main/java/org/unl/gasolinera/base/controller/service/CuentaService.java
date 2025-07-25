@@ -60,6 +60,7 @@ public class CuentaService {
         return false;
     }
 
+
     public void createCuenta(@NotEmpty @NotBlank String correo, @NotEmpty @NotBlank String clave, boolean estado,
             Integer id_persona) throws Exception {
                     da.getObj().setCorreo(correo);
