@@ -5,7 +5,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-
+import org.unl.gasolinera.base.controller.dao.dao_models.DaoOrdenDespacho;
+import org.unl.gasolinera.base.controller.dao.dao_models.DaoPrecioEstablecido;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoTanque;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.TipoCombustibleEnum;
@@ -14,6 +15,10 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.hilla.BrowserCallable;
 
 import jakarta.validation.constraints.NotEmpty;
+
+import org.unl.gasolinera.base.models.EstadoOrdenDespachadoEnum;
+import org.unl.gasolinera.base.models.OrdenDespacho;
+import org.unl.gasolinera.base.models.PrecioEstablecido;
 import org.unl.gasolinera.base.models.Tanque;
 
 @BrowserCallable
@@ -62,23 +67,41 @@ public class TanqueService {
             return false; // Retorna false en caso de excepción
         }
     }
-    public void createTanque(float capacidad, float capacidadTotal, float capacidadMinima, @NotEmpty String tipo, @NotEmpty String codigo) throws Exception {
-        if (tipo.trim().length() > 0 && capacidad > 0 && capacidadTotal > 0  && capacidadMinima > 0 && tipo.toString().length() > 0 && codigo.toString().length() > 0  ) {
+    
+    public void createTanque(float capacidad, float capacidadTotal, float capacidadMinima, Integer tipoCombustible, @NotEmpty String codigo) throws Exception {
+        if (codigo.trim().length() > 0 && capacidad > 0 && capacidadTotal > 0  && capacidadMinima > 0 && tipoCombustible > 0 && codigo.toString().length() > 0  ) {
             db.getObj().setCodigo(codigo);;
             db.getObj().setCapacidad(capacidad);
             db.getObj().setCapacidadMinima(capacidadMinima);
             db.getObj().setCapacidadTotal(capacidadTotal);
-            db.getObj().setTipo(TipoCombustibleEnum.valueOf(tipo));
+            db.getObj().setIdPrecioEstablecido(tipoCombustible);
             if (!db.save())
                 throw new Exception("No se pudo guardar los datos de la Tanque");
         }
     }
 
-    public List<String> listTipo() {
-        List<String> lista = new ArrayList<>();
-        for (TipoCombustibleEnum r : TipoCombustibleEnum.values()) {
-            lista.add(r.toString());
+    public List<HashMap> listTipo() {
+        List<HashMap> lista = new ArrayList<>();
+        DaoPrecioEstablecido da = new DaoPrecioEstablecido();
+        if(!db.listAll().isEmpty()) {
+            PrecioEstablecido[] arreglo = da.listAll().toArray();
+            for(int i = 0; i < arreglo.length; i++) {
+                HashMap<String, String> aux = new HashMap<>();
+                aux.put("value", arreglo[i].getId().toString());
+                aux.put("label", arreglo[i].getTipoCombustible().toString());
+                lista.add(aux); 
+            }
+
         }
         return lista;
+    }  
+    public Boolean descontarStock(Integer idOrdenDespacho) {
+        try {
+            DaoTanque daoTanque = new DaoTanque();
+            return daoTanque.descontarStock(idOrdenDespacho);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

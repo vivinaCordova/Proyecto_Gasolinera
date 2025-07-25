@@ -5,26 +5,27 @@ import java.util.HashMap;
 import org.unl.gasolinera.base.controller.Utiles;
 import org.unl.gasolinera.base.controller.dao.AdapterDao;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
+import org.unl.gasolinera.base.models.PrecioEstablecido;
 import org.unl.gasolinera.base.models.Proveedor;
 
 public class DaoProveedor extends AdapterDao<Proveedor> {
-    
+
     private Proveedor obj;
 
-    public DaoProveedor(){
+    public DaoProveedor() {
         super(Proveedor.class);
     }
 
     public Proveedor getObj() {
-        if(obj==null)
-            this.obj=new Proveedor();
+        if (obj == null)
+            this.obj = new Proveedor();
         return this.obj;
     }
 
-    
     public void setObj(Proveedor obj) {
         this.obj = obj;
     }
+
     public Boolean save() {
         try {
             obj.setId(listAll().getLength() + 1);
@@ -36,6 +37,7 @@ public class DaoProveedor extends AdapterDao<Proveedor> {
             // TODO: handle exception
         }
     }
+
     public Boolean update(Integer pos) {
         try {
             obj.setId(listAll().getLength() + 1);
@@ -62,11 +64,23 @@ public class DaoProveedor extends AdapterDao<Proveedor> {
     }
 
     private HashMap<String, Object> toDict(Proveedor arreglo, Integer i) {
+        DaoPrecioEstablecido daoPrecioEstablecido = new DaoPrecioEstablecido();
         HashMap<String, Object> aux = new HashMap<>();
         aux.put("id", arreglo.getId().toString());
         aux.put("nombre", arreglo.getNombre().toString());
         aux.put("correoElectronico", arreglo.getCorreoElectronico().toString());
-        aux.put("tipoCombustible", arreglo.getTipoCombustible().toString());
+
+        if (arreglo.getIdPrecioEstablecido() != null) {
+            PrecioEstablecido precioEstablecido = daoPrecioEstablecido.getById(arreglo.getIdPrecioEstablecido());
+            if (precioEstablecido != null) {
+                aux.put("tipoCombustible", precioEstablecido.getTipoCombustible());
+            } else {
+                aux.put("tipoCombustible", "N/A");
+            }
+        } else {
+            aux.put("tipoCombustible", "N/A");
+        }
+
         return aux;
     }
 
@@ -220,5 +234,25 @@ public class DaoProveedor extends AdapterDao<Proveedor> {
             quickSort(arr, partitionIndex + 1, end, type, attribute);
         }
     }
-    
+
+    public static void main(String[] args) {
+        DaoProveedor dao = new DaoProveedor();
+        dao.getObj().setId(dao.listAll().getLength() + 1);
+        dao.getObj().setNombre("Proveedor 1");
+        dao.getObj().setCorreoElectronico("d km);@d.com");
+        dao.getObj().setIdPrecioEstablecido(1);
+        if (dao.save())
+            System.out.println("Proveedor guardado correctamente");
+        else
+            System.out.println("Error al guardar el proveedor");
+        dao.getObj().setId(dao.listAll().getLength() + 1);
+        dao.getObj().setNombre("Proveedor 2");
+        dao.getObj().setCorreoElectronico("d km);211@d.com");
+        dao.getObj().setIdPrecioEstablecido(2);
+        if (dao.save())
+            System.out.println("Proveedor guardado correctamente");
+        else
+            System.out.println("Error al guardar el proveedor");
+
+    }
 }

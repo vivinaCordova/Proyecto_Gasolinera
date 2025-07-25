@@ -614,6 +614,16 @@ export default function OrdenDespachoView() {
     );
   }
 
+  function precioRenderer({ model }: { model: GridItemModel<any> }) {
+    const precio = model.item.precio_establecido;
+    return <span>${precio ? Number(precio).toFixed(2) : '0.00'}</span>;
+  }
+
+  function precioTotalRenderer({ model }: { model: GridItemModel<any> }) {
+    const precioTotal = model.item.precioTotal;
+    return <span>${precioTotal ? Number(precioTotal).toFixed(2) : '0.00'}</span>;
+  }
+
 
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
@@ -629,16 +639,29 @@ export default function OrdenDespachoView() {
           placeholder={'Seleccione un criterio'}>
 
         </Select>
+        
+        {criterio.value === 'estado' ? (
+          <Select
+            items={[
+              { label: 'En Proceso', value: 'EN_PROCESO' },
+              { label: 'Completado', value: 'COMPLETADO' },
+            ]}
+            value={texto.value}
+            onValueChanged={(evt) => (texto.value = evt.detail.value)}
+            placeholder="Seleccione el estado"
+            style={{ width: '50%' }}
+          />
+        ) : (
+          <TextField
+            placeholder="Search"
+            style={{ width: '50%' }}
+            value={texto.value}
+            onValueChanged={(evt) => (texto.value = evt.detail.value)}
+          >
+            <Icon slot="prefix" icon="vaadin:search" />
+          </TextField>
+        )}
 
-        <TextField
-          placeholder="Search"
-          style={{ width: '50%' }}
-          value={texto.value}
-          onValueChanged={(evt) => (texto.value = evt.detail.value)}
-
-        >
-          <Icon slot="prefix" icon="vaadin:search" />
-        </TextField>
         <Button onClick={searchCri} theme="primary">
           BUSCAR
         </Button>
@@ -654,9 +677,9 @@ export default function OrdenDespachoView() {
         <GridSortColumn onDirectionChanged={(e) => order(e, "placa")} path="placa" header="Placa del Vehículo" width="200px" flexGrow={0} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "estacion")} path="estacion" header="Estación" width="150px" flexGrow={0} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "nombreGasolina")} path="nombreGasolina" header="Tipo de Gasolina" width="150px" flexGrow={0} />
-        <GridSortColumn onDirectionChanged={(e) => order(e, "precio_establecido")} path="precio_establecido" header="Precio por Galón" width="170px" flexGrow={0} />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "precio_establecido")} path="precio_establecido" header="Precio por Galón" width="170px" flexGrow={0} renderer={precioRenderer} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "nroGalones")} path="nroGalones" header="Galones" width="150px" flexGrow={0} />
-        <GridSortColumn onDirectionChanged={(e) => order(e, "precioTotal")} path="precioTotal" header="Precio Total" width="120px" flexGrow={0} />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "precioTotal")} path="precioTotal" header="Precio Total" width="120px" flexGrow={0} renderer={precioTotalRenderer} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "estado")} path="estado" header="Estado" width="230px" flexGrow={0} />
         <GridColumn header="Editar" renderer={indexLink} />
         <GridColumn
@@ -692,7 +715,7 @@ export default function OrdenDespachoView() {
 
       {ordenPago && !checkoutId && (
         <div style={{ marginTop: '1rem' }}>
-          <h4>Pago para orden: {ordenPago.codigo} (${ordenPago.precioTotal})</h4>
+          <h4>Pago para orden: {ordenPago.codigo} (${Number(ordenPago.precioTotal).toFixed(2)})</h4>
           <Button
             theme="primary"
             onClick={async () => {
