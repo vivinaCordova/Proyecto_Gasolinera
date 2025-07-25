@@ -469,9 +469,14 @@ function PagoEntryForm(props: PagoEntryFormProps) {
             value={orden_despacho.value}
             onValueChanged={(evt) => (orden_despacho.value = evt.detail.value)}
           />
-          <TextField label="Estado del Pago"
-            placeholder="Ingrese el estado del pago (true/false)"
+          <Select
+            label="Estado del Pago"
+            placeholder="Seleccione el estado del pago"
             aria-label="Estado del Pago"
+            items={[
+              { label: 'Completado', value: 'true' },
+              { label: 'Error', value: 'false' },
+            ]}
             value={estadoP.value}
             onValueChanged={(evt) => (estadoP.value = evt.detail.value)}
           />
@@ -486,6 +491,9 @@ function PagoEntryForm(props: PagoEntryFormProps) {
       </Button>
     </>
   );
+}
+function renderEstado({ model }: { model: GridItemModel<Pago> }) {
+  return <span>{model.item.estadoP ? 'Completado' : 'Error'}</span>;
 }
 
 
@@ -559,7 +567,7 @@ export default function PagoView() {
   const deletePago = async (pago: Pago) => {
     // Mostrar confirmación antes de eliminar
     const confirmed = window.confirm(`¿Está seguro de que desea eliminar el pago con transacción ${pago.nroTransaccion}?`);
-    
+
     if (confirmed) {
       try {
         await PagoService.delete(pago.id);
@@ -628,7 +636,6 @@ export default function PagoView() {
 
       Notification.show('Busqueda realizada', { duration: 5000, position: 'bottom-end', theme: 'success' });
 
-
     } catch (error) {
       console.log(error);
       handleError(error);
@@ -661,20 +668,36 @@ export default function PagoView() {
       <HorizontalLayout theme="spacing">
         <Select items={itemSelect}
           value={criterio.value}
-          onValueChanged={(evt) => (criterio.value = evt.detail.value)}
+          onValueChanged={(evt) => {
+            criterio.value = evt.detail.value;
+            texto.value = ''; 
+          }}
           placeholder={'Seleccione un criterio'}>
 
         </Select>
 
-        <TextField
-          placeholder="Search"
-          style={{ width: '50%' }}
-          value={texto.value}
-          onValueChanged={(evt) => (texto.value = evt.detail.value)}
-
-        >
-          <Icon slot="prefix" icon="vaadin:search" />
-        </TextField>
+        {criterio.value === 'estadoP' ? (
+          <Select
+            items={[
+              { label: 'Completado', value: 'true' },
+              { label: 'Error', value: 'false' },
+            ]}
+            value={texto.value}
+            onValueChanged={(evt) => (texto.value = evt.detail.value)}
+            placeholder="Seleccione el estado"
+            style={{ width: '50%' }}
+          />
+        ) : (
+          <TextField
+            placeholder="Search"
+            style={{ width: '50%' }}
+            value={texto.value}
+            onValueChanged={(evt) => (texto.value = evt.detail.value)}
+          >
+            <Icon slot="prefix" icon="vaadin:search" />
+          </TextField>
+        )}
+        
         <Button onClick={search} theme="primary">
           BUSCAR
         </Button>
@@ -687,7 +710,7 @@ export default function PagoView() {
         <GridColumn renderer={indexIndex} header="Nro" />
         <GridSortColumn onDirectionChanged={(e) => order(e, "nroTransaccion")} path="nroTransaccion" header="nroTransaccion" />
         <GridSortColumn onDirectionChanged={(e) => order(e, "orden_despacho")} path="orden_despacho" header="Orden Despacho" />
-        <GridSortColumn onDirectionChanged={(e) => order(e, "estadoP")} path="estadoP" header="Estado" />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "estadoP")} path="estadoP" header="Estado" renderer={renderEstado} />
 
         <GridColumn
           header="Recibo"

@@ -196,7 +196,75 @@ public class PagoService {
                     estado.put("warning", "Pago exitoso pero no se pudo registrar: " + e.getMessage());
                     throw e;
                 }
+            } else {
+                // Si el pago no fue exitoso, crear un pago con estado false
+                System.out.println("PAGO NO EXITOSO DETECTADO - Estado: '" + estadoPago + "'");
+                
+                try {
+                    // Obtener idOrdenDespacho desde el mapa usando el checkoutId
+                    Integer idOrdenDespacho = checkoutToOrdenMap.get(idCheckout);
+                    System.out.println("ID Orden Despacho obtenido del mapa para pago fallido: " + idOrdenDespacho);
+                    
+                    if (idOrdenDespacho != null) {
+                        // Generar número de transacción automáticamente
+                        Integer nroTransaccion = db.listAll().getLength() + 1;
+                        System.out.println("Número de transacción generado para pago fallido: " + nroTransaccion);
+                        
+                        // Crear el nuevo pago con estado false (fallido)
+                        create(nroTransaccion, false, idOrdenDespacho);
+                        System.out.println("Pago fallido registrado - Transacción: " + nroTransaccion + ", Orden: " + idOrdenDespacho);
+                        
+                        // Limpiar la asociación del mapa
+                        checkoutToOrdenMap.remove(idCheckout);
+                        System.out.println("Asociación eliminada del mapa para checkoutId (pago fallido): " + idCheckout);
+                        
+                        // Agregar información del pago fallido al estado
+                        estado.put("pago_registrado", "false");
+                        estado.put("nro_transaccion", nroTransaccion);
+                    } else {
+                        System.out.println("WARNING: No se encontró idOrdenDespacho para checkoutId en pago fallido: " + idCheckout);
+                    }
+                    
+                } catch (Exception e) {
+                    System.err.println("ERROR al crear el registro de pago fallido: " + e.getMessage());
+                    e.printStackTrace();
+                    estado.put("error_registro", "No se pudo registrar el pago fallido: " + e.getMessage());
+                }
             }
+        } else {
+            // Si no se pudo obtener el estado del pago, también crear un pago fallido si existe la asociación
+            System.out.println("ERROR: No se pudo obtener el estado del pago para checkoutId: " + idCheckout);
+            
+            try {
+                Integer idOrdenDespacho = checkoutToOrdenMap.get(idCheckout);
+                if (idOrdenDespacho != null) {
+                    Integer nroTransaccion = db.listAll().getLength() + 1;
+                    create(nroTransaccion, false, idOrdenDespacho);
+                    System.out.println("Pago fallido registrado por error de consulta - Transacción: " + nroTransaccion + ", Orden: " + idOrdenDespacho);
+                    
+                    checkoutToOrdenMap.remove(idCheckout);
+                    
+                    // Inicializar estado si es null
+                    if (estado == null) {
+                        estado = new HashMap<>();
+                        estado.put("estado", "error");
+                    }
+                    
+                    estado.put("pago_registrado", "false");
+                    estado.put("nro_transaccion", nroTransaccion);
+                    estado.put("motivo", "Error al consultar estado del pago");
+                }
+            } catch (Exception e) {
+                System.err.println("ERROR al crear el registro de pago fallido por error de consulta: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        
+        // Asegurar que estado no sea null antes de retornarlo
+        if (estado == null) {
+            estado = new HashMap<>();
+            estado.put("estado", "error");
+            estado.put("mensaje", "No se pudo consultar el estado del pago");
         }
         
         return estado;
@@ -315,13 +383,23 @@ public class PagoService {
 
     
 
-    /*public static void main(String[] args) {
+    public static void main(String[] args) {
         PagoService service = new PagoService();
+        String checkoutIdTest = "TEST_CHECKOUT_123";
+        Integer ordenIdTest = 1;
+        checkoutToOrdenMap.put(checkoutIdTest, ordenIdTest);
+        System.out.println("PRUEBA: Asociación creada para testing: " + checkoutIdTest + " -> " + ordenIdTest);
+        
         try {
-            HashMap<String, Object> resultado = service.consultarEstadoPago("8920F4D08D3C0D65606BB9670B00C4E5.uat01-vm-tx04");
-            System.out.println("Estado del pago: " + resultado.get("estado"));
-        } catch (IOException e) {
+                     
+            // Probar con el checkout de prueba que agregamos
+            System.out.println("\nCheckout de prueba");
+            HashMap<String, Object> resultado3 = service.consultarEstadoPago(checkoutIdTest);
+            System.out.println("Resultado caso 3: " + resultado3);
+            
+        } catch (Exception e) {
+            System.err.println("Error durante las pruebas: " + e.getMessage());
             e.printStackTrace();
         }
-    }*/
+    }
 }
