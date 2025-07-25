@@ -47,7 +47,7 @@ public class DaoCuenta extends AdapterDao<Cuenta> {
         }
     }
 
-////////////////miooooooooooooooooooo
+
 public LinkedList<HashMap<String, Object>> search(String attribute, String text, Integer type) throws Exception {
     LinkedList<HashMap<String, Object>> lista = all();
     LinkedList<HashMap<String, Object>> resp = new LinkedList<>();
@@ -107,8 +107,6 @@ public LinkedList<HashMap<String, Object>> all() throws Exception {
     }
     return lista;
 }
-
-//////
 
     public HashMap<String, Object> toDict(Cuenta c) throws Exception {
         HashMap<String, Object> map = new HashMap<>();
@@ -211,9 +209,6 @@ public LinkedList<HashMap<String, Object>> all() throws Exception {
         }
         int n = a + (b = 1) / 2;
         System.out.println("n "+(n-1)+" a "+a+"  b "+b+" arrgelo "+arr.length+" atributo "+attribute+" valor "+value+" atributo valor "+arr[n].get(attribute));
-        /*FileWriter fl = new FileWriter("data/arelys");
-        fl.write("n "+(n-1)+" a "+a+"  b "+b);
-        fl.close();*/
         if (arr[n].get(attribute).toString().equals(value))
             return arr[n];
         else if (arr[n].get(attribute).toString().compareTo(value) > 0){            
@@ -230,15 +225,6 @@ public LinkedList<HashMap<String, Object>> all() throws Exception {
             e.printStackTrace();
             System.out.println(e);
             return false;
-        }
-    }
-
-    public static void main(String[] args) {
-        DaoCuenta dc = new DaoCuenta();
-        try {
-            dc.login("hjh", "hj");
-        } catch (Exception e) {
-            System.out.println("Error "+e);
         }
     }
 

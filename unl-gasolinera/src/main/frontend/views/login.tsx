@@ -75,9 +75,8 @@ export default function LoginView() {
             CuentaService.login(username, password).then(async function(data) {
               console.log(data);
               if (data?.estado === 'false') {
-                hasError.value = true;  // marca que hay error para mostrar el mensaje
-                // No redirigimos ni cambiamos URL
-                return; // Salimos para que no siga con login exitoso
+                hasError.value = true;  
+                return; 
               } else {
                 const { error } = await login(username, password);
                 hasError.value = Boolean(error);
