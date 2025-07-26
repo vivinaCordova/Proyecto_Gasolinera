@@ -24,7 +24,7 @@ type OrdenCompraEntryFormProps = {
 };
 //GUARDAR OrdenCompra
 function OrdenCompraEntryForm(props: OrdenCompraEntryFormProps) {
-useEffect(() => {
+  useEffect(() => {
     role().then(async (data) => {
       if (data?.rol != 'ROLE_admin') {
         await CuentaService.logout();
@@ -215,7 +215,7 @@ export default function OrdenCompraView() {
         <Select items={itemSelect}
           value={criterio.value}
           onValueChanged={(evt) => (criterio.value = evt.detail.value)}
-          placeholder="seleccione criterio">
+          placeholder="Seleccione un criterio">
 
         </Select>
         <TextField
@@ -228,7 +228,10 @@ export default function OrdenCompraView() {
           <Icon slot="prefix" icon="vaadin:search" />
         </TextField>
         <Button onClick={search} theme="primary">
-          Buscar
+          BUSCAR
+        </Button>
+        <Button onClick={callData} theme="secondary">
+          REFRESCAR
         </Button>
       </HorizontalLayout>
       <Grid items={items}>

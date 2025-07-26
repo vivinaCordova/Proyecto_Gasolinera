@@ -274,13 +274,16 @@ export default function PersonaView() {
         <Button onClick={search} theme="primary">
           BUSCAR
         </Button>
+        <Button onClick={callData} theme="secondary">
+          REFRESCAR
+        </Button>
       </HorizontalLayout>
       <Grid items={items}>
         <GridColumn renderer={indexIndex} header="Nro" />
         <GridSortColumn path="usuario" header="Usuario" onDirectionChanged={(e) => order(e, 'usuario')} />
         <GridSortColumn path="cedula" header="Cedula" onDirectionChanged={(e) => order(e, 'cedula')} />
         <GridSortColumn path="rol" header="Rol" onDirectionChanged={(e) => order(e, 'rol')} />
-        <GridColumn
+        {/*<GridColumn
           header="Eliminar"
           renderer={({ item }) => (
             <Button
@@ -290,7 +293,7 @@ export default function PersonaView() {
               Eliminar
             </Button>
           )}
-        />
+        />*/}
       </Grid>
     </main >
   );

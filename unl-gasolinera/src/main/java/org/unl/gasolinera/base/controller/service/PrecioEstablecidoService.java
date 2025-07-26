@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoPrecioEstablecido;
+import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.PrecioEstablecido;
 import org.unl.gasolinera.base.models.TipoCombustibleEnum;
 
@@ -92,9 +93,17 @@ public class PrecioEstablecidoService {
         
     }
 
-    @SuppressWarnings("unchecked")
-    public List<HashMap<String, Object>> order(String attribute, Integer type) {
-        return (List<HashMap<String, Object>>) (List<?>) Arrays.asList(dp.orderByPrecioEstablecido(type, attribute).toArray());
+    public List<HashMap> order(String attribute, Integer type) throws Exception {
+        return Arrays.asList(dp.orderByPrecioEstablecido(type, attribute).toArray());
+    }
+
+    public List<HashMap> search(String attribute, String text, Integer type) throws Exception {
+        LinkedList<HashMap<String, Object>> lista = dp.search(attribute, text, type);
+        if (!lista.isEmpty()) {
+            return Arrays.asList(lista.toArray());
+        } else {
+            return new ArrayList<>();
+        }
     }
 
 

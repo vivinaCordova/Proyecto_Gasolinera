@@ -162,7 +162,7 @@ function ReciboDialog({ pago, opened, onClose }: ReciboDialogProps) {
       <body>
         <div class="header">
           <h1>RECIBO DE PAGO</h1>
-          <p>Sistema de Gestión de Gasolinera</p>
+          <p>Gasolinera UNL</p>
         </div>
 
         <div class="section">
@@ -726,7 +726,7 @@ export default function PagoView() {
             </Button>
           )}
         />
-        <GridColumn
+        {/*<GridColumn
           header="Eliminar"
           renderer={({ item }) => (
             <Button
@@ -736,7 +736,7 @@ export default function PagoView() {
               Eliminar
             </Button>
           )}
-        />
+        />*/}
       </Grid>
 
       <ReciboDialog

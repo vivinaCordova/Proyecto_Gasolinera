@@ -187,14 +187,7 @@ public class OrdenDespachoService {
         return Arrays.asList(db.orderByOrdenDespacho(type, attribute).toArray());
     }
 
-    /**
-     * Actualiza únicamente el estado de una OrdenDespacho
-     * Método útil para cambios de estado cuando se procesan pagos
-     * 
-     * @param id          ID de la orden de despacho
-     * @param nuevoEstado Nuevo estado ("EN_PROCESO", "COMPLETADO")
-     * @throws Exception Si hay error en la actualización
-     */
+    
     public void actualizarEstado(@NotNull Integer id, @NotEmpty String nuevoEstado) throws Exception {
         if (id == null || id <= 0) {
             throw new Exception("ID de orden de despacho inválido");
@@ -262,16 +255,15 @@ public class OrdenDespachoService {
         }
     }
 
-    public void delete(Integer id) throws Exception {
+    /*public void delete(Integer id) throws Exception {
         if (id == null || id <= 0) {
             throw new Exception("ID de pago inválido");
         }
         if (!db.deleteOrdenDespacho(id)) {
             throw new Exception("No se pudo eliminar el pago con ID: " + id);
         }
-    }
+    }*/
 
-    // Método para generar tipos TypeScript automáticamente
     public OrdenDespacho getById(Integer id) throws Exception {
         if (id == null) {
             throw new Exception("ID no puede ser null");
@@ -289,7 +281,6 @@ public class OrdenDespachoService {
         return null; // No se encontró
     }
 
-    // Método para generar el enum EstadoOrdenDespachadoEnum en TypeScript
     public EstadoOrdenDespachadoEnum getEstadoDespacho() {
         return EstadoOrdenDespachadoEnum.EN_PROCESO;
     }

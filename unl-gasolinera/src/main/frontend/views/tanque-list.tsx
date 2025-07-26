@@ -43,10 +43,10 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
       if (capacidad.value.trim().length > 0 && capacidadMinima.value.trim().length > 0 && capacidadTotal.value.trim().length > 0 && tipoCombustible.value.trim().length > 0 && codigo.value.trim().length > 0) {
         // Orden correcto: capacidad, capacidadTotal, capacidadMinima, tipoCombustible (como Integer), codigo
         await TanqueService.createTanque(
-          parseFloat(capacidad.value), 
-          parseFloat(capacidadTotal.value), 
-          parseFloat(capacidadMinima.value), 
-          parseInt(tipoCombustible.value), 
+          parseFloat(capacidad.value),
+          parseFloat(capacidadTotal.value),
+          parseFloat(capacidadMinima.value),
+          parseInt(tipoCombustible.value),
           codigo.value
         );
         if (props.onTanqueCreated) {
@@ -264,7 +264,7 @@ export default function TanqueView() {
         <Select items={itemSelect}
           value={criterio.value}
           onValueChanged={(evt) => (criterio.value = evt.detail.value)}
-          placeholder="seleccione criterio">
+          placeholder="Seleccione un criterio">
 
         </Select>
         <TextField
@@ -277,7 +277,10 @@ export default function TanqueView() {
           <Icon slot="prefix" icon="vaadin:search" />
         </TextField>
         <Button onClick={search} theme="primary">
-          Buscar
+          BUSCAR
+        </Button>
+        <Button onClick={callData} theme="secondary">
+          REFRESCAR
         </Button>
       </HorizontalLayout>
 
