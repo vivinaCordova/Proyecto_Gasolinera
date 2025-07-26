@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoPersona;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoVehiculo;
+import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.Persona;
 
 import com.github.javaparser.quality.NotNull;
@@ -80,8 +81,16 @@ public class VehiculoService {
     }
 
     public List<HashMap> order(String attribute, Integer type) throws Exception {
-        return Arrays.asList(dv.orderbyVehiculo(type, attribute).toArray());
+        return Arrays.asList(dv.orderByVehiculo(type, attribute).toArray());
     }
 
+     public List<HashMap> search(String attribute, String text, Integer type) throws Exception {
+        LinkedList<HashMap<String, Object>> lista = dv.search(attribute, text, type);
+        if (!lista.isEmpty()) {
+            return Arrays.asList(lista.toArray());
+        } else {
+            return new ArrayList<>();
+        }
+    }
 
 }

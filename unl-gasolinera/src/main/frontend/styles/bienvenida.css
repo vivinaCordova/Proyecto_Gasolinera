@@ -105,6 +105,22 @@
   animation: showUp 2s ease forwards 1.5s;
 }
 
+.boton-registrarse {
+  margin-top: 2rem;
+  padding: 0.9rem 2.5rem;
+  font-size: 1.3rem;
+  background: linear-gradient(to right, #ff512f, #dd2476);
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  animation: showUp 2s ease forwards 1.5s;
+}
+
 .boton-iniciar:hover {
   transform: scale(1.05);
   box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.4);

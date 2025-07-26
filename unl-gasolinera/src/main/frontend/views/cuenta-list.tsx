@@ -294,17 +294,20 @@ export default function CuentaView() {
             placeholder="Seleccione el estado"
             style={{ width: '50%' }}
           />
-        ):(
-        <TextField
-          placeholder="Search"
-          style={{ width: '50%' }}
-          value={texto.value}
-          onValueChanged={(evt) => (texto.value = evt.detail.value)}>
-          <Icon slot="prefix" icon="vaadin:search" />
-        </TextField>
+        ) : (
+          <TextField
+            placeholder="Search"
+            style={{ width: '50%' }}
+            value={texto.value}
+            onValueChanged={(evt) => (texto.value = evt.detail.value)}>
+            <Icon slot="prefix" icon="vaadin:search" />
+          </TextField>
         )}
         <Button onClick={search} theme="primary">
           BUSCAR
+        </Button>
+        <Button onClick={callData} theme="secondary">
+          REFRESCAR
         </Button>
       </HorizontalLayout>
       <Grid items={items}>
@@ -312,7 +315,7 @@ export default function CuentaView() {
         <GridSortColumn path="correo" header="Correos" onDirectionChanged={(e) => order(e, 'correo')} />
         <GridSortColumn path="estado" onDirectionChanged={(e) => order(e, 'estado')} header="Estado" renderer={renderEstado} />
         <GridSortColumn path="usuario" header="Usuario" onDirectionChanged={(e) => order(e, 'usuario')} />
-        <GridColumn
+        {/* <GridColumn
           header="Eliminar"
           renderer={({ item }) => (
             <Button
@@ -322,7 +325,7 @@ export default function CuentaView() {
               Eliminar
             </Button>
           )}
-        />
+        /> */}
       </Grid>
     </main>
   );

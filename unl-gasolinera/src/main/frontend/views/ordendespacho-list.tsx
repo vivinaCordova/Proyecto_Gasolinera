@@ -676,12 +676,12 @@ export default function OrdenDespachoView() {
         <GridSortColumn onDirectionChanged={(e) => order(e, "fecha")} path="fecha" header="Fecha" width="320px" flexGrow={0} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "placa")} path="placa" header="Placa del Vehículo" width="200px" flexGrow={0} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "estacion")} path="estacion" header="Estación" width="150px" flexGrow={0} />
-        <GridSortColumn onDirectionChanged={(e) => order(e, "nombreGasolina")} path="nombreGasolina" header="Tipo de Gasolina" width="150px" flexGrow={0} />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "nombreGasolina")} path="nombreGasolina" header="Tipo de Gasolina" width="200px" flexGrow={0} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "precio_establecido")} path="precio_establecido" header="Precio por Galón" width="170px" flexGrow={0} renderer={precioRenderer} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "nroGalones")} path="nroGalones" header="Galones" width="150px" flexGrow={0} />
-        <GridSortColumn onDirectionChanged={(e) => order(e, "precioTotal")} path="precioTotal" header="Precio Total" width="120px" flexGrow={0} renderer={precioTotalRenderer} />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "precioTotal")} path="precioTotal" header="Precio Total" width="150px" flexGrow={0} renderer={precioTotalRenderer} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "estado")} path="estado" header="Estado" width="230px" flexGrow={0} />
-        <GridColumn header="Editar" renderer={indexLink} />
+        {/* <GridColumn header="Editar" renderer={indexLink} /> */}
         <GridColumn
           header="Pagar"
           renderer={({ item }) => (
@@ -700,7 +700,7 @@ export default function OrdenDespachoView() {
           )}
         />
 
-        <GridColumn
+        {/*<GridColumn
           header="Eliminar"
           renderer={({ item }) => (
             <Button
@@ -710,7 +710,7 @@ export default function OrdenDespachoView() {
               Eliminar
             </Button>
           )}
-        />
+        />*/}
       </Grid>
 
       {ordenPago && !checkoutId && (

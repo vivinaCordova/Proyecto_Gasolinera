@@ -177,7 +177,7 @@ public class DaoPersona extends AdapterDao<Persona> {
         return i + 1;
     }
 
-    public Boolean deletePersona(Integer id) {
+    /*public Boolean deletePersona(Integer id) {
         try {
             super.delete(id);
             return true;
@@ -186,6 +186,6 @@ public class DaoPersona extends AdapterDao<Persona> {
             System.out.println(e);
             return false;
         }
-    }
+    }*/
 
 }

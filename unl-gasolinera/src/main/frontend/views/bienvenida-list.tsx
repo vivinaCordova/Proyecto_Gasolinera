@@ -18,6 +18,7 @@ export default function BienvenidaView() {
   }, []);
 
   const handleIniciar = () => navigate('/login');
+  const handleRegister = () => navigate('/register');
 
   return (
     <div className="bienvenida-fondo">
@@ -34,8 +35,11 @@ export default function BienvenidaView() {
           Gracias por elegir nuestra gasolinera UNL. Aquí encontrarás eficiencia, confianza
           y el mejor servicio para tu vehículo.
         </p>
+        <button className="boton-registrarse" onClick={handleRegister}>
+          Registrarse
+        </button>
         <button className="boton-iniciar" onClick={handleIniciar}>
-          Iniciar
+          Iniciar Sesión
         </button>
       </div>
     </div>

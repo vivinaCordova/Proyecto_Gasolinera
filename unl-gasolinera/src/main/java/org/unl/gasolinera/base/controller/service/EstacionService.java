@@ -89,14 +89,14 @@ public class EstacionService {
         return Arrays.asList(db.orderByEstacion(type, attribute).toArray());
     }
 
-    public void delete(Integer id) throws Exception {
+    /*public void delete(Integer id) throws Exception {
         if (id == null || id <= 0) {
             throw new Exception("ID de estación inválido");
         }
         if (!db.deleteEstacion(id)) {
             throw new Exception("No se pudo eliminar la estación con ID: " + id);
         }
-    }
+    }*/
 
     public List<HashMap> search(String attribute, String text, Integer type) throws Exception {
         LinkedList<HashMap<String, Object>> lista = db.search(attribute, text, type);
