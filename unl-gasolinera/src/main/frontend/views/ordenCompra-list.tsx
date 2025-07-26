@@ -231,7 +231,7 @@ export default function OrdenCompraView() {
           BUSCAR
         </Button>
         <Button onClick={callData} theme="secondary">
-          REFRESCAR
+          <Icon icon="vaadin:refresh" />
         </Button>
       </HorizontalLayout>
       <Grid items={items}>

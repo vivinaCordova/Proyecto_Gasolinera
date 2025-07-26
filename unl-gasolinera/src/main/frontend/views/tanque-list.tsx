@@ -108,13 +108,13 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
 
         <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
           <TextField label="Codigo"
-            placeholder="Ingrese el codigo de la Tanque"
+            placeholder="Ingrese el codigo del Tanque"
             aria-label="Nombre del codigo"
             value={codigo.value}
             onValueChanged={(evt) => (codigo.value = evt.detail.value)}
           />
           <NumberField label="Capacidad"
-            placeholder="Ingrese el nombre de la Tanque"
+            placeholder="Ingrese el nombre del Tanque"
             aria-label="Nombre del tanque"
             value={capacidad.value}
             onValueChanged={(evt) => (capacidad.value = evt.detail.value)}
@@ -135,8 +135,8 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
             onValueChanged={(evt) => (capacidadMinima.value = evt.detail.value)}
           />
           <NumberField label="Capacidad Maxima"
-            placeholder='Inserte capacidad la capacidad maxima'
-            aria-label='Inserte capacidad la capacidad maxima'
+            placeholder='Ingrese capacidad la capacidad maxima'
+            aria-label='Ingrese capacidad la capacidad maxima'
             value={capacidadTotal.value}
             onValueChanged={(evt) => (capacidadTotal.value = evt.detail.value)}
           />
@@ -191,14 +191,35 @@ export default function TanqueView() {
     );
   }
 
+  function capacidadMinima({ item }: { item: Tanque }) {
+    return (
+      <span>
+        {item.capacidadMinima} Gl
+      </span>
+    );
+  }
+
+  function capacidadTotal({ item }: { item: Tanque }) {
+    return (
+      <span>
+        {item.capacidadTotal} Gl
+      </span>
+    );
+  }
+
   const criterio = useSignal('');
   const texto = useSignal('');
   const itemSelect = [
     {
 
+      label: 'Codigo',
+      value: 'codigo',
+    },
+    {
+
       label: 'Tipo de Combustible',
       value: 'tipoCombustible',
-    },
+    }
 
   ]
   const search = async () => {
@@ -280,7 +301,7 @@ export default function TanqueView() {
           BUSCAR
         </Button>
         <Button onClick={callData} theme="secondary">
-          REFRESCAR
+          <Icon icon="vaadin:refresh" />
         </Button>
       </HorizontalLayout>
 
@@ -288,8 +309,8 @@ export default function TanqueView() {
         <GridColumn renderer={indexIndex} header="Nro" />
         <GridSortColumn path="codigo" header="Codigo" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridSortColumn renderer={capacidad} header="Capacidad" onDirectionChanged={(e) => order(e, 'nombre')} />
-        <GridSortColumn path="capacidadMinima" header="Capacidad Minima" onDirectionChanged={(e) => order(e, 'nombre')} />
-        <GridSortColumn path="capacidadTotal" header="Capacidad Maxima" onDirectionChanged={(e) => order(e, 'nombre')} />
+        <GridSortColumn renderer={capacidadMinima} header="Capacidad Minima" onDirectionChanged={(e) => order(e, 'nombre')} />
+        <GridSortColumn renderer={capacidadTotal} header="Capacidad Maxima" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridColumn path="tipoCombustible" header="Tipo">
         </GridColumn>
       </Grid>
