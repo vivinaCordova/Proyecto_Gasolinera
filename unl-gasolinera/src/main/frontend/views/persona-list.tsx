@@ -275,7 +275,7 @@ export default function PersonaView() {
           BUSCAR
         </Button>
         <Button onClick={callData} theme="secondary">
-          REFRESCAR
+          <Icon icon="vaadin:refresh" />
         </Button>
       </HorizontalLayout>
       <Grid items={items}>

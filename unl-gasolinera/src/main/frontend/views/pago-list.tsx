@@ -670,7 +670,7 @@ export default function PagoView() {
           value={criterio.value}
           onValueChanged={(evt) => {
             criterio.value = evt.detail.value;
-            texto.value = ''; 
+            texto.value = '';
           }}
           placeholder={'Seleccione un criterio'}>
 
@@ -697,12 +697,12 @@ export default function PagoView() {
             <Icon slot="prefix" icon="vaadin:search" />
           </TextField>
         )}
-        
+
         <Button onClick={search} theme="primary">
           BUSCAR
         </Button>
         <Button onClick={callData} theme="secondary">
-          REFRESCAR
+          <Icon icon="vaadin:refresh" />
         </Button>
 
       </HorizontalLayout>

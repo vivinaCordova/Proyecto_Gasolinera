@@ -377,7 +377,7 @@ export default function EstacionView() {
           BUSCAR
         </Button>
         <Button onClick={callData} theme="secondary">
-          REFRESCAR
+          <Icon icon="vaadin:refresh" />
         </Button>
       </HorizontalLayout>
       <Grid items={items}>
