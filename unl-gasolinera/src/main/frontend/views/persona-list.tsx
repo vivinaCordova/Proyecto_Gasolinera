@@ -45,7 +45,7 @@ type PersonaEntryFormPropsUpdate = () => {
   onPersonaUpdated?: () => void;
 };
 
-//GUARDAR Persona
+//Guardar Persona
 function PersonaEntryForm(props: PersonaEntryFormProps) {
   useEffect(() => {
     role().then(async (data) => {
@@ -61,10 +61,18 @@ function PersonaEntryForm(props: PersonaEntryFormProps) {
   const createPersona = async () => {
     try {
       if (usuario.value.trim().length > 0 && cedula.value.trim().length > 0) {
-        const yaExiste = await PersonaService.isCreated(cedula.value);
-        console.log(yaExiste);
-        if (yaExiste) {
-          Notification.show('Esta persona ya existe', {
+        const isPerson = await PersonaService.isCreated(cedula.value);
+        const isUser = await PersonaService.isUser(usuario.value);
+        if (isPerson) {
+          Notification.show('Esta cedula ya esta registrada', {
+            duration: 5000,
+            position: 'top-center',
+            theme: 'error',
+          });
+          return;
+        }
+        if (isUser) {
+          Notification.show('Esta usuario ya esta en uso', {
             duration: 5000,
             position: 'top-center',
             theme: 'error',
@@ -162,7 +170,7 @@ function indexIndex({ model }: { model: GridItemModel<Persona> }) {
   );
 }
 
-//LISTA DE PersonaES
+//Vista de personas
 export default function PersonaView() {
   const [items, setItems] = useState([]);
   const callData = () => {
