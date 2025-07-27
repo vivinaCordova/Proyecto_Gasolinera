@@ -38,9 +38,8 @@ function ProveedorEntryForm(props: ProveedorEntryFormProps) {
   const tipoCombustible = useSignal('');
   const createProveedor = async () => {
     try {
-      if (nombre.value.trim().length > 0 && correoElectronico.value.trim().length > 0 && tipoCombustible.value.trim().length > 0) {
-        // Llamada al servicio para crear el proveedor
-        await ProveedorService.createProveedor((nombre.value),(correoElectronico.value),parseInt(tipoCombustible.value));
+      if (nombre.value.trim().length > 0 && correoElectronico.value.trim().length > 0 && tipoCombustible.value.trim().length > 0){
+        await ProveedorService.createProveedor((nombre.value),(correoElectronico.value),(tipoCombustible.value));
         if (props.onProveedorCreated) {
           props.onProveedorCreated();
         }
@@ -59,10 +58,10 @@ function ProveedorEntryForm(props: ProveedorEntryFormProps) {
     }
   };
   
-  let listaTipo= useSignal<String[]>([]);
+  let listaTipoCombustible= useSignal<String[]>([]);
   useEffect(() => {
   ProveedorService.listTipo().then(data =>
-      listaTipo.value = data
+      listaTipoCombustible.value = data
     );
   }, []);
 
@@ -106,7 +105,7 @@ function ProveedorEntryForm(props: ProveedorEntryFormProps) {
             onValueChanged={(evt) => (correoElectronico.value = evt.detail.value)}
             />
             <ComboBox label="Tipo" 
-            items={listaTipo.value}
+            items={listaTipoCombustible.value}
             placeholder='Seleccione un tipo'
             aria-label='Seleccione un tipo de combustible'
             value={tipoCombustible.value}
@@ -224,6 +223,8 @@ export default function ProveedorView() {
         <GridSortColumn path="nombre" header="Nombre" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridSortColumn path="tipoCombustible" header="Tipo" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridColumn path="correoElectronico" header="Correo Electronico">
+        
+
         </GridColumn>
       </Grid>
     </main>

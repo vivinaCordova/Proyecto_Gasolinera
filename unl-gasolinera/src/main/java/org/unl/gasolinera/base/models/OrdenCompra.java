@@ -3,9 +3,7 @@ package org.unl.gasolinera.base.models;
 public class OrdenCompra {
     private Integer id;
     private float cantidad;
-    private float precioTotal;
     private Integer idProveedor;
-    private Integer idTanque;
     private EstadoOrdenCompraEnum estado;
 
     public EstadoOrdenCompraEnum getEstado() {
@@ -15,7 +13,8 @@ public class OrdenCompra {
     public void setEstado(EstadoOrdenCompraEnum estado) {
         this.estado = estado;
     }
-    
+    private Integer idTanque;
+
     public Integer getIdTanque() {
         return this.idTanque;
     }
@@ -44,13 +43,6 @@ public class OrdenCompra {
 
     public void setId(Integer id) {
         this.id = id;
-    }
-    public float getPrecioTotal() {
-        return this.precioTotal;
-    }
-
-    public void setPrecioTotal(float precioTotal) {
-        this.precioTotal = precioTotal;
     }
     
 }
