@@ -40,7 +40,7 @@ type CuentaEntryFormProps = {
   onCuentaCreated?: () => void;
 };
 
-//GUARDAR CUENTA
+//Guardar Cuenta
 function CuentaEntryForm(props: CuentaEntryFormProps) {
   useEffect(() => {
     role().then(async (data) => {
@@ -189,7 +189,7 @@ function renderEstado({ model }: { model: GridItemModel<Cuenta> }) {
   return <span>{model.item.estado ? 'Activo' : 'Inactivo'}</span>;
 }
 
-//LISTA DE CUENTAS
+//Vista para las Cuentas
 export default function CuentaView() {
   const [items, setItems] = useState([]);
   const callData = () => {
@@ -281,17 +281,33 @@ export default function CuentaView() {
           items={itemSelect}
           value={criterio.value}
           onValueChanged={(evt) => (criterio.value = evt.detail.value)}
-          placeholder="Selecione un criterio"></Select>
-
-        <TextField
-          placeholder="Search"
-          style={{ width: '50%' }}
-          value={texto.value}
-          onValueChanged={(evt) => (texto.value = evt.detail.value)}>
-          <Icon slot="prefix" icon="vaadin:search" />
-        </TextField>
+          placeholder="Selecione un criterio">
+        </Select>
+        {criterio.value === 'estado' ? (
+          <Select
+            items={[
+              { label: 'Activo', value: 'true' },
+              { label: 'Inactivo', value: 'false' },
+            ]}
+            value={texto.value}
+            onValueChanged={(evt) => (texto.value = evt.detail.value)}
+            placeholder="Seleccione el estado"
+            style={{ width: '50%' }}
+          />
+        ) : (
+          <TextField
+            placeholder="Search"
+            style={{ width: '50%' }}
+            value={texto.value}
+            onValueChanged={(evt) => (texto.value = evt.detail.value)}>
+            <Icon slot="prefix" icon="vaadin:search" />
+          </TextField>
+        )}
         <Button onClick={search} theme="primary">
           BUSCAR
+        </Button>
+        <Button onClick={callData} theme="secondary">
+          <Icon icon="vaadin:refresh" />
         </Button>
       </HorizontalLayout>
       <Grid items={items}>
@@ -299,7 +315,7 @@ export default function CuentaView() {
         <GridSortColumn path="correo" header="Correos" onDirectionChanged={(e) => order(e, 'correo')} />
         <GridSortColumn path="estado" onDirectionChanged={(e) => order(e, 'estado')} header="Estado" renderer={renderEstado} />
         <GridSortColumn path="usuario" header="Usuario" onDirectionChanged={(e) => order(e, 'usuario')} />
-        <GridColumn
+        {/* <GridColumn
           header="Eliminar"
           renderer={({ item }) => (
             <Button
@@ -309,7 +325,7 @@ export default function CuentaView() {
               Eliminar
             </Button>
           )}
-        />
+        /> */}
       </Grid>
     </main>
   );

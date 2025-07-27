@@ -1,18 +1,1 @@
-[
-    {
-        "id": 1,
-        "fecha": "Jun 30, 2025, 7:00:00 PM",
-        "fechaFin": "Jul 1, 2025, 7:00:00 PM",
-        "estado": true,
-        "precio": 2.5,
-        "tipoCombustible": "SUPER"
-    },
-    {
-        "id": 2,
-        "fecha": "Jun 30, 2025, 7:00:00 PM",
-        "fechaFin": "Jul 1, 2025, 7:00:00 PM",
-        "estado": true,
-        "precio": 2.63,
-        "tipoCombustible": "ECOPAIS"
-    }
-]
+[{"id":1,"fecha":"Jun 30, 2025, 7:00:00 PM","fechaFin":"Jul 1, 2025, 7:00:00 PM","estado":true,"precio":2.5,"tipoCombustible":"SUPER"},{"id":2,"fecha":"Jun 30, 2025, 7:00:00 PM","fechaFin":"Jul 1, 2025, 7:00:00 PM","estado":true,"precio":2.63,"tipoCombustible":"ECOPAIS"},{"id":3,"fecha":"Jul 23, 2025, 7:00:00 PM","fechaFin":"Jul 30, 2025, 7:00:00 PM","estado":false,"precio":2.63,"tipoCombustible":"EXTRA"}]

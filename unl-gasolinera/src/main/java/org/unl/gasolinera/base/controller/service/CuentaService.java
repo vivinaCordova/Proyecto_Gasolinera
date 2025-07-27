@@ -60,6 +60,7 @@ public class CuentaService {
         return false;
     }
 
+
     public void createCuenta(@NotEmpty @NotBlank String correo, @NotEmpty @NotBlank String clave, boolean estado,
             Integer id_persona) throws Exception {
                     da.getObj().setCorreo(correo);
@@ -173,13 +174,13 @@ public class CuentaService {
         return lista;
     }
 
-    public void delete(Integer id) throws Exception {
+    /*public void delete(Integer id) throws Exception {
         if (id == null || id <= 0) {
             throw new Exception("ID de pago inválido");
         }
         if (!da.deleteCuenta(id)) {
             throw new Exception("No se pudo eliminar el pago con ID: " + id);
         }
-    }
+    }*/
 
 }

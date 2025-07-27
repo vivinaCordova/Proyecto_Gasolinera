@@ -26,12 +26,14 @@ import jakarta.validation.constraints.NotEmpty;
 
 public class PersonaService {
     private DaoPersona da;
+    private DaoCuenta dc;
 
     public PersonaService() {
         da = new DaoPersona();
+
     }
 
-        public List<HashMap> listAll() throws Exception{
+    public List<HashMap> listAll() throws Exception{
         return Arrays.asList(da.all().toArray());
     }
 
@@ -57,6 +59,17 @@ public class PersonaService {
         }
         return false;
     }
+        
+        public boolean isUser(String usuario) throws Exception {
+            List<HashMap> personas = listAll();
+            for (HashMap persona : personas) {
+                Object personaObj = persona.get("usuario");
+                if (personaObj != null && personaObj.toString().trim().equalsIgnoreCase(usuario.trim())) {
+                    return true;
+                }
+            }
+            return false;
+        }
     
     
     public void createPersona(@NotEmpty String usuario, String cedula, Integer id_rol) throws Exception {
@@ -66,6 +79,24 @@ public class PersonaService {
             da.getObj().setId_rol(id_rol);
             if (!da.save())
                 throw new Exception("No se pudo guardar los datos de Persona");
+        }
+    }
+
+    public void createRegistro(@NotEmpty String usuario, @NotEmpty String cedula, @NotEmpty String correo, @NotEmpty String clave) throws Exception {
+        if (usuario.trim().length() > 0 && cedula.trim().length() > 0 && correo.trim().length() > 0 && clave.trim().length() > 0) {
+            dc = new DaoCuenta();
+            da.getObj().setUsuario(usuario);
+            da.getObj().setCedula(cedula);
+            da.getObj().setId_rol(2); 
+            Integer idPersona = da.listAll().getLength() + 1;
+            if (!da.save())
+            throw new Exception("No se pudo guardar los datos de Persona");
+            dc.getObj().setCorreo(correo);
+            dc.getObj().setClave(clave);
+            dc.getObj().setId_persona(idPersona);
+            dc.getObj().setEstado(true); 
+            if (!dc.save())
+            throw new Exception("No se pudo guardar la cuenta del usuario");
         }
     }
 
@@ -84,12 +115,12 @@ public class PersonaService {
         return lista;
     }
 
-    public void delete(Integer id) throws Exception {
+    /*public void delete(Integer id) throws Exception {
         if (id == null || id <= 0) {
             throw new Exception("ID de pago inválido");
         }
         if (!da.deletePersona(id)) {
             throw new Exception("No se pudo eliminar el pago con ID: " + id);
         }
-    }
+    }*/
 }

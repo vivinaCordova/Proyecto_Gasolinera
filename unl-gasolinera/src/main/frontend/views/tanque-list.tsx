@@ -37,11 +37,18 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
   const capacidad = useSignal('');
   const capacidadMinima = useSignal('');
   const capacidadTotal = useSignal('');
-  const tipo = useSignal('');
+  const tipoCombustible = useSignal('');
   const createTanque = async () => {
     try {
-      if (capacidad.value.trim().length > 0 && capacidadMinima.value.trim().length > 0) {
-        await TanqueService.createTanque(parseInt(capacidad.value), parseInt(capacidadMinima.value), parseInt(capacidadTotal.value), tipo.value, codigo.value);
+      if (capacidad.value.trim().length > 0 && capacidadMinima.value.trim().length > 0 && capacidadTotal.value.trim().length > 0 && tipoCombustible.value.trim().length > 0 && codigo.value.trim().length > 0) {
+        // Orden correcto: capacidad, capacidadTotal, capacidadMinima, tipoCombustible (como Integer), codigo
+        await TanqueService.createTanque(
+          parseFloat(capacidad.value),
+          parseFloat(capacidadTotal.value),
+          parseFloat(capacidadMinima.value),
+          parseInt(tipoCombustible.value),
+          codigo.value
+        );
         if (props.onTanqueCreated) {
           props.onTanqueCreated();
         }
@@ -49,11 +56,11 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
         capacidad.value = '';
         capacidadMinima.value = '';
         capacidadTotal.value = '';
-        tipo.value = '';
+        tipoCombustible.value = '';
         dialogOpened.value = false;
         Notification.show('Tanque creado', { duration: 5000, position: 'bottom-end', theme: 'success' });
       } else {
-        Notification.show('No se pudo crear, faltan datos', { duration: 5000, position: 'top-center', theme: 'error' });
+        Notification.show('No se pudo crear, faltan datos obligatorios', { duration: 5000, position: 'top-center', theme: 'error' });
       }
 
     } catch (error) {
@@ -63,11 +70,13 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
   };
 
 
-  let listaTipo = useSignal<String[]>([]);
+  let listaTipo = useSignal<any[]>([]);
   useEffect(() => {
-    TanqueService.listTipo().then(data =>
-      listaTipo.value = data
-    );
+    TanqueService.listTipo().then(data => {
+      if (data) {
+        listaTipo.value = data;
+      }
+    });
   }, []);
 
   const dialogOpened = useSignal(false);
@@ -99,23 +108,25 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
 
         <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
           <TextField label="Codigo"
-            placeholder="Ingrese el codigo de la Tanque"
+            placeholder="Ingrese el codigo del Tanque"
             aria-label="Nombre del codigo"
             value={codigo.value}
             onValueChanged={(evt) => (codigo.value = evt.detail.value)}
           />
           <NumberField label="Capacidad"
-            placeholder="Ingrese el nombre de la Tanque"
+            placeholder="Ingrese el nombre del Tanque"
             aria-label="Nombre del tanque"
             value={capacidad.value}
             onValueChanged={(evt) => (capacidad.value = evt.detail.value)}
           />
           <ComboBox label="Tipo"
             items={listaTipo.value}
+            itemLabelPath="label"
+            itemValuePath="value"
             placeholder='Seleccione un tipo'
             aria-label='Seleccione un tipo de la lista'
-            value={tipo.value}
-            onValueChanged={(evt) => (tipo.value = evt.detail.value)}
+            value={tipoCombustible.value}
+            onValueChanged={(evt) => (tipoCombustible.value = evt.detail.value)}
           />
           <NumberField label="Capacidad Minima"
             placeholder='Ingrese la capacidad minima'
@@ -124,8 +135,8 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
             onValueChanged={(evt) => (capacidadMinima.value = evt.detail.value)}
           />
           <NumberField label="Capacidad Maxima"
-            placeholder='Inserte capacidad la capacidad maxima'
-            aria-label='Inserte capacidad la capacidad maxima'
+            placeholder='Ingrese capacidad la capacidad maxima'
+            aria-label='Ingrese capacidad la capacidad maxima'
             value={capacidadTotal.value}
             onValueChanged={(evt) => (capacidadTotal.value = evt.detail.value)}
           />
@@ -171,14 +182,44 @@ export default function TanqueView() {
       </span>
     );
   }
+
+  function capacidad({ item }: { item: Tanque }) {
+    return (
+      <span>
+        {item.capacidad} Gl
+      </span>
+    );
+  }
+
+  function capacidadMinima({ item }: { item: Tanque }) {
+    return (
+      <span>
+        {item.capacidadMinima} Gl
+      </span>
+    );
+  }
+
+  function capacidadTotal({ item }: { item: Tanque }) {
+    return (
+      <span>
+        {item.capacidadTotal} Gl
+      </span>
+    );
+  }
+
   const criterio = useSignal('');
   const texto = useSignal('');
   const itemSelect = [
     {
 
-      label: 'Tipo de Combustible',
-      value: 'tipo',
+      label: 'Codigo',
+      value: 'codigo',
     },
+    {
+
+      label: 'Tipo de Combustible',
+      value: 'tipoCombustible',
+    }
 
   ]
   const search = async () => {
@@ -195,6 +236,7 @@ export default function TanqueView() {
       handleError(error);
     }
   };
+
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
 
@@ -205,26 +247,33 @@ export default function TanqueView() {
             theme="error"
             onClick={async () => {
               try {
-                const mensajes = await TanqueService.obtenerAlertasTanques();
+                const mensajes = await TanqueService.obtenerAlertasTanques(); // Obtiene las alertas de los tanques
                 if (mensajes && mensajes.length > 0) {
-                  mensajes.forEach(async (msg: string | undefined) => {
+                  for (const msg of mensajes) {
                     if (msg && msg.includes("por debajo del mínimo")) {
-                      const resultado = await TanqueService.aumentarStockAutomaticamente(); // Asumiendo que el ID del proveedor es 1
+                      const resultado = await TanqueService.aumentarStockAutomaticamente(); // Llama al método para aumentar el stock
                       if (resultado) {
-                        Notification.show("Stock aumentado automáticamente y orden de compra generada exitosamente", { duration: 5000, position: 'bottom-end', theme: 'success' });
+                        Notification.show(
+                          "Stock aumentado automáticamente y orden de compra generada exitosamente.",
+                          { duration: 5000, position: "bottom-end", theme: "success" }
+                        );
+                        await callData(); // Refresca la lista de tanques
                       } else {
-                        Notification.show("No se pudo aumentar el stock ni generar la orden de compra. Verifique los datos.", { duration: 5000, position: 'top-center', theme: 'error' });
+                        Notification.show(
+                          "No se pudo aumentar el stock ni generar la orden de compra. Verifique los datos.",
+                          { duration: 5000, position: "top-center", theme: "error" }
+                        );
                       }
                     } else if (msg) {
-                      Notification.show(msg, { duration: 6000, position: 'bottom-start', theme: 'contrast' });
+                      Notification.show(msg, { duration: 6000, position: "bottom-start", theme: "contrast" });
                     }
-                  });
+                  }
                 } else {
-                  Notification.show("No hay alertas disponibles", { duration: 5000, position: 'top-center', theme: 'warning' });
+                  Notification.show("No hay alertas disponibles.", { duration: 5000, position: "top-center", theme: "warning" });
                 }
               } catch (error) {
                 console.error(error);
-                Notification.show("Error al verificar alertas", { duration: 5000, position: 'top-center', theme: 'error' });
+                Notification.show("Error al verificar alertas.", { duration: 5000, position: "top-center", theme: "error" });
               }
             }}
           >
@@ -236,7 +285,7 @@ export default function TanqueView() {
         <Select items={itemSelect}
           value={criterio.value}
           onValueChanged={(evt) => (criterio.value = evt.detail.value)}
-          placeholder="seleccione criterio">
+          placeholder="Seleccione un criterio">
 
         </Select>
         <TextField
@@ -249,17 +298,20 @@ export default function TanqueView() {
           <Icon slot="prefix" icon="vaadin:search" />
         </TextField>
         <Button onClick={search} theme="primary">
-          Buscar
+          BUSCAR
+        </Button>
+        <Button onClick={callData} theme="secondary">
+          <Icon icon="vaadin:refresh" />
         </Button>
       </HorizontalLayout>
 
       <Grid items={items}>
         <GridColumn renderer={indexIndex} header="Nro" />
         <GridSortColumn path="codigo" header="Codigo" onDirectionChanged={(e) => order(e, 'nombre')} />
-        <GridSortColumn path="capacidad" header="Capacidad" onDirectionChanged={(e) => order(e, 'nombre')} />
-        <GridSortColumn path="capacidadMinima" header="Capacidad Minima" onDirectionChanged={(e) => order(e, 'nombre')} />
-        <GridSortColumn path="capacidadTotal" header="Capacidad Maxima" onDirectionChanged={(e) => order(e, 'nombre')} />
-        <GridColumn path="tipo" header="Tipo">
+        <GridSortColumn renderer={capacidad} header="Capacidad" onDirectionChanged={(e) => order(e, 'nombre')} />
+        <GridSortColumn renderer={capacidadMinima} header="Capacidad Minima" onDirectionChanged={(e) => order(e, 'nombre')} />
+        <GridSortColumn renderer={capacidadTotal} header="Capacidad Maxima" onDirectionChanged={(e) => order(e, 'nombre')} />
+        <GridColumn path="tipoCombustible" header="Tipo">
         </GridColumn>
       </Grid>
     </main>

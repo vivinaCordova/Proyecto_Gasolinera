@@ -13,6 +13,7 @@ import org.unl.gasolinera.base.controller.Utiles;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoEstacion;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoOrdenDespacho;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoPrecioEstablecido;
+import org.unl.gasolinera.base.controller.dao.dao_models.DaoTanque;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoVehiculo;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.EstadoOrdenDespachadoEnum;
@@ -48,7 +49,7 @@ public class OrdenDespachoService {
                 throw new Exception("No se encontró el PrecioEstablecido con id: " + idPrecioEstablecido);
             }
 
-            float precioTotal = precio.getPrecio() * nroGalones;
+            float precioTotal = Math.round((precio.getPrecio() * nroGalones) * 100.0f) / 100.0f;
 
             db.getObj().setCodigo(codigo);
             db.getObj().setNroGalones(nroGalones);
@@ -186,14 +187,7 @@ public class OrdenDespachoService {
         return Arrays.asList(db.orderByOrdenDespacho(type, attribute).toArray());
     }
 
-    /**
-     * Actualiza únicamente el estado de una OrdenDespacho
-     * Método útil para cambios de estado cuando se procesan pagos
-     * 
-     * @param id          ID de la orden de despacho
-     * @param nuevoEstado Nuevo estado ("EN_PROCESO", "COMPLETADO")
-     * @throws Exception Si hay error en la actualización
-     */
+    
     public void actualizarEstado(@NotNull Integer id, @NotEmpty String nuevoEstado) throws Exception {
         if (id == null || id <= 0) {
             throw new Exception("ID de orden de despacho inválido");
@@ -238,6 +232,18 @@ public class OrdenDespachoService {
         }
 
         System.out.println("Estado de OrdenDespacho ID " + id + " actualizado a: " + nuevoEstado);
+
+        // Descontar stock solo si la orden fue completada
+        // Si la orden quedó COMPLETADA, descontar stock
+        if (EstadoOrdenDespachadoEnum.COMPLETADO.equals(ordenEncontrada.getEstado())) {
+            DaoTanque daoTanque = new DaoTanque();
+            boolean descontado = daoTanque.descontarStock(id); // solo idOrdenDespacho
+            if (descontado) {
+                System.out.println("Stock descontado correctamente para la orden " + id);
+            } else {
+                System.out.println("No se pudo descontar stock para la orden " + id);
+            }
+        }
     }
 
     public List<HashMap> search(String attribute, String text, Integer type) throws Exception {
@@ -249,21 +255,20 @@ public class OrdenDespachoService {
         }
     }
 
-    public void delete(Integer id) throws Exception {
+    /*public void delete(Integer id) throws Exception {
         if (id == null || id <= 0) {
             throw new Exception("ID de pago inválido");
         }
         if (!db.deleteOrdenDespacho(id)) {
             throw new Exception("No se pudo eliminar el pago con ID: " + id);
         }
-    }
+    }*/
 
-    // Método para generar tipos TypeScript automáticamente
     public OrdenDespacho getById(Integer id) throws Exception {
         if (id == null) {
             throw new Exception("ID no puede ser null");
         }
-        
+
         // Buscar en la lista por ID
         if (!db.listAll().isEmpty()) {
             OrdenDespacho[] ordenes = db.listAll().toArray();
@@ -275,8 +280,7 @@ public class OrdenDespachoService {
         }
         return null; // No se encontró
     }
-    
-    // Método para generar el enum EstadoOrdenDespachadoEnum en TypeScript
+
     public EstadoOrdenDespachadoEnum getEstadoDespacho() {
         return EstadoOrdenDespachadoEnum.EN_PROCESO;
     }

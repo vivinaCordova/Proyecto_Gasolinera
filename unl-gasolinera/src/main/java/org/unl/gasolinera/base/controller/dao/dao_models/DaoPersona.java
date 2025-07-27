@@ -177,30 +177,7 @@ public class DaoPersona extends AdapterDao<Persona> {
         return i + 1;
     }
 
-    public static void main(String[] args) {
-        /*DaoPersona da= new DaoPersona();
-        da.getObj().setId(da.listAll().getLength()+1);
-        da.getObj().setNombre("Viviana");
-        da.getObj().setApellido("Cordova");
-        da.getObj().setCedula("1107303293");
-        if(da.save())
-            System.out.println("GUARDADO");
-        else
-        System.out.println("Error");*/
-
-        DaoPersona dp = new DaoPersona();
-        try {
-            DaoCuenta dc = new DaoCuenta();
-            HashMap mapa = dc.login("arelys@mail.com", "Are");
-            if(mapa != null){
-                System.out.println(mapa.get("usuario"));
-            }
-        } catch (Exception e) {
-            System.out.println("Hubo un error"+e);
-        }
-    }
-
-    public Boolean deletePersona(Integer id) {
+    /*public Boolean deletePersona(Integer id) {
         try {
             super.delete(id);
             return true;
@@ -209,6 +186,6 @@ public class DaoPersona extends AdapterDao<Persona> {
             System.out.println(e);
             return false;
         }
-    }
+    }*/
 
 }

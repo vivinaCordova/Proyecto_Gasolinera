@@ -24,7 +24,7 @@ type OrdenCompraEntryFormProps = {
 };
 //GUARDAR OrdenCompra
 function OrdenCompraEntryForm(props: OrdenCompraEntryFormProps) {
-useEffect(() => {
+  useEffect(() => {
     role().then(async (data) => {
       if (data?.rol != 'ROLE_admin') {
         await CuentaService.logout();
@@ -152,7 +152,6 @@ export default function OrdenCompraView() {
   //useEffect(() =>{
   const callData = () => {
     OrdenCompraService.listAll().then(function (data) {
-      //items.values = data;
       setItems(data);
     });
   };
@@ -210,37 +209,13 @@ export default function OrdenCompraView() {
       <ViewToolbar title="Lista de Ordenes de Compra">
         <Group>
           <OrdenCompraEntryForm onOrdenCompraCreated={callData} />
-          <Button
-            theme="primary"
-            onClick={async () => {
-              try {
-                const cantidad = parseFloat(prompt("Ingrese la cantidad para aumentar el stock:") || "0");
-                if (cantidad > 0) {
-                  const resultado = await OrdenCompraService.aumentarStockTanques(cantidad);
-                  if (resultado) {
-                    Notification.show("Stock aumentado exitosamente", { duration: 5000, position: 'bottom-end', theme: 'success' });
-                    callData(); // Actualiza la lista de órdenes de compra
-                  } else {
-                    Notification.show("No se pudo aumentar el stock. Verifique los tanques.", { duration: 5000, position: 'top-center', theme: 'error' });
-                  }
-                } else {
-                  Notification.show("Cantidad inválida. Intente nuevamente.", { duration: 5000, position: 'top-center', theme: 'error' });
-                }
-              } catch (error) {
-                console.error(error);
-                Notification.show("Error al aumentar el stock", { duration: 5000, position: 'top-center', theme: 'error' });
-              }
-            }}
-          >
-            Aumentar Stock
-          </Button>
         </Group>
       </ViewToolbar>
       <HorizontalLayout theme="spacing">
         <Select items={itemSelect}
           value={criterio.value}
           onValueChanged={(evt) => (criterio.value = evt.detail.value)}
-          placeholder="seleccione criterio">
+          placeholder="Seleccione un criterio">
 
         </Select>
         <TextField
@@ -253,7 +228,10 @@ export default function OrdenCompraView() {
           <Icon slot="prefix" icon="vaadin:search" />
         </TextField>
         <Button onClick={search} theme="primary">
-          Buscar
+          BUSCAR
+        </Button>
+        <Button onClick={callData} theme="secondary">
+          <Icon icon="vaadin:refresh" />
         </Button>
       </HorizontalLayout>
       <Grid items={items}>
