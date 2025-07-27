@@ -86,6 +86,7 @@ public class DaoOrdenCompra extends AdapterDao<OrdenCompra> {
         aux.put("estado", arreglo.getEstado().toString());
         aux.put("proveedor", db.listAll().get(arreglo.getIdProveedor() - 1).getNombre());
         aux.put("tanque", da.listAll().get(arreglo.getIdTanque() - 1).getCodigo());
+        aux.put("precioTotal", arreglo.getPrecioTotal());
         return aux;
     }
 

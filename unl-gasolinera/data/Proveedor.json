@@ -1,14 +1,14 @@
 [
     {
         "id": 1,
-        "nombre": "Proveedor 1",
-        "correoElectronico": "d km);@d.com",
-        "idPrecioEstablecido": 1
+        "nombre": "PetroEcuador",
+        "correoElectronico": "petro.p.ecuad@gmail.gob..e",
+        "idPrecioEstablecido": 2
     },
     {
         "id": 2,
-        "nombre": "Proveedor 2",
-        "correoElectronico": "d km);211@d.com",
-        "idPrecioEstablecido": 2
+        "nombre": "Primax",
+        "correoElectronico": "primax.a.ecugob@gmail.pri.gob",
+        "idPrecioEstablecido": 1
     }
 ]
