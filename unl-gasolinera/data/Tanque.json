@@ -1,18 +1,1 @@
-[
-    {
-        "id": 1,
-        "capacidad": 1000.0,
-        "capacidadTotal": 1000.0,
-        "capacidadMinima": 100.0,
-        "idPrecioEstablecido": 1,
-        "codigo": "T001"
-    },
-    {
-        "id": 2,
-        "capacidad": 100.0,
-        "capacidadTotal": 1000.0,
-        "capacidadMinima": 1000.0,
-        "idPrecioEstablecido": 2,
-        "codigo": "T001"
-    }
-]
+[{"id":1,"capacidad":500.0,"capacidadTotal":1000.0,"capacidadMinima":400.0,"idPrecioEstablecido":1,"codigo":"T001"},{"id":2,"capacidad":457.0,"capacidadTotal":1000.0,"capacidadMinima":400.0,"idPrecioEstablecido":2,"codigo":"T002"}]

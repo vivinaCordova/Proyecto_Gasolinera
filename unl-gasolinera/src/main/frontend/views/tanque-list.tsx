@@ -40,8 +40,15 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
   const tipoCombustible = useSignal('');
   const createTanque = async () => {
     try {
-      if (capacidad.value.trim().length > 0 && capacidadMinima.value.trim().length > 0) {
-        await TanqueService.createTanque(parseInt(capacidad.value), parseInt(capacidadMinima.value), parseInt(capacidadTotal.value), tipoCombustible.value, codigo.value);
+      if (capacidad.value.trim().length > 0 && capacidadMinima.value.trim().length > 0 && capacidadTotal.value.trim().length > 0 && tipoCombustible.value.trim().length > 0 && codigo.value.trim().length > 0) {
+        // Orden correcto: capacidad, capacidadTotal, capacidadMinima, tipoCombustible (como Integer), codigo
+        await TanqueService.createTanque(
+          parseFloat(capacidad.value),
+          parseFloat(capacidadTotal.value),
+          parseFloat(capacidadMinima.value),
+          parseInt(tipoCombustible.value),
+          codigo.value
+        );
         if (props.onTanqueCreated) {
           props.onTanqueCreated();
         }
@@ -53,7 +60,7 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
         dialogOpened.value = false;
         Notification.show('Tanque creado', { duration: 5000, position: 'bottom-end', theme: 'success' });
       } else {
-        Notification.show('No se pudo crear, faltan datos', { duration: 5000, position: 'top-center', theme: 'error' });
+        Notification.show('No se pudo crear, faltan datos obligatorios', { duration: 5000, position: 'top-center', theme: 'error' });
       }
 
     } catch (error) {
@@ -63,12 +70,15 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
   };
 
 
-  let listaTipo = useSignal<String[]>([]);
+  let listaTipo = useSignal<any[]>([]);
   useEffect(() => {
-    TanqueService.listTipo().then(data =>
-      listaTipo.value = data
-    );
+    TanqueService.listTipo().then(data => {
+      if (data) {
+        listaTipo.value = data;
+      }
+    });
   }, []);
+
 
   const dialogOpened = useSignal(false);
   return (
@@ -99,19 +109,21 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
 
         <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
           <TextField label="Codigo"
-            placeholder="Ingrese el codigo de la Tanque"
+            placeholder="Ingrese el codigo del Tanque"
             aria-label="Nombre del codigo"
             value={codigo.value}
             onValueChanged={(evt) => (codigo.value = evt.detail.value)}
           />
           <NumberField label="Capacidad"
-            placeholder="Ingrese el nombre de la Tanque"
+            placeholder="Ingrese el nombre del Tanque"
             aria-label="Nombre del tanque"
             value={capacidad.value}
             onValueChanged={(evt) => (capacidad.value = evt.detail.value)}
           />
           <ComboBox label="Tipo"
             items={listaTipo.value}
+            itemLabelPath="label"
+            itemValuePath="value"
             placeholder='Seleccione un tipo'
             aria-label='Seleccione un tipo de la lista'
             value={tipoCombustible.value}
@@ -124,8 +136,8 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
             onValueChanged={(evt) => (capacidadMinima.value = evt.detail.value)}
           />
           <NumberField label="Capacidad Maxima"
-            placeholder='Inserte capacidad la capacidad maxima'
-            aria-label='Inserte capacidad la capacidad maxima'
+            placeholder='Ingrese capacidad la capacidad maxima'
+            aria-label='Ingrese capacidad la capacidad maxima'
             value={capacidadTotal.value}
             onValueChanged={(evt) => (capacidadTotal.value = evt.detail.value)}
           />
@@ -141,6 +153,7 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
     </>
   );
 }
+
 //LiSTA TANQUES
 export default function TanqueView() {
   const [items, setItems] = useState([]);
@@ -180,14 +193,35 @@ export default function TanqueView() {
     );
   }
 
+  function capacidadMinima({ item }: { item: Tanque }) {
+    return (
+      <span>
+        {item.capacidadMinima} Gl
+      </span>
+    );
+  }
+
+  function capacidadTotal({ item }: { item: Tanque }) {
+    return (
+      <span>
+        {item.capacidadTotal} Gl
+      </span>
+    );
+  }
+
   const criterio = useSignal('');
   const texto = useSignal('');
   const itemSelect = [
     {
 
+      label: 'Codigo',
+      value: 'codigo',
+    },
+    {
+
       label: 'Tipo de Combustible',
       value: 'tipoCombustible',
-    },
+    }
 
   ]
   const search = async () => {
@@ -204,49 +238,12 @@ export default function TanqueView() {
       handleError(error);
     }
   };
-
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
 
       <ViewToolbar title="Lista de Tanques">
         <Group>
           <TanqueEntryForm onTanqueCreated={callData} />
-          <Button
-            theme="error"
-            onClick={async () => {
-              try {
-                const mensajes = await TanqueService.obtenerAlertasTanques(); // Obtiene las alertas de los tanques
-                if (mensajes && mensajes.length > 0) {
-                  for (const msg of mensajes) {
-                    if (msg && msg.includes("por debajo del mínimo")) {
-                      const resultado = await TanqueService.aumentarStockAutomaticamente(); // Llama al método para aumentar el stock
-                      if (resultado) {
-                        Notification.show(
-                          "Stock aumentado automáticamente y orden de compra generada exitosamente.",
-                          { duration: 5000, position: "bottom-end", theme: "success" }
-                        );
-                        await callData(); // Refresca la lista de tanques
-                      } else {
-                        Notification.show(
-                          "No se pudo aumentar el stock ni generar la orden de compra. Verifique los datos.",
-                          { duration: 5000, position: "top-center", theme: "error" }
-                        );
-                      }
-                    } else if (msg) {
-                      Notification.show(msg, { duration: 6000, position: "bottom-start", theme: "contrast" });
-                    }
-                  }
-                } else {
-                  Notification.show("No hay alertas disponibles.", { duration: 5000, position: "top-center", theme: "warning" });
-                }
-              } catch (error) {
-                console.error(error);
-                Notification.show("Error al verificar alertas.", { duration: 5000, position: "top-center", theme: "error" });
-              }
-            }}
-          >
-            Verificar Alertas
-          </Button>
         </Group>
       </ViewToolbar>
       <HorizontalLayout theme="spacing">
@@ -277,54 +274,50 @@ export default function TanqueView() {
         <GridColumn renderer={indexIndex} header="Nro" />
         <GridSortColumn path="codigo" header="Codigo" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridSortColumn renderer={capacidad} header="Capacidad" onDirectionChanged={(e) => order(e, 'nombre')} />
-        <GridSortColumn path="capacidadMinima" header="Capacidad Minima" onDirectionChanged={(e) => order(e, 'nombre')} />
-        <GridSortColumn path="capacidadTotal" header="Capacidad Maxima" onDirectionChanged={(e) => order(e, 'nombre')} />
-        <GridColumn path="tipoCombustible" header="Tipo">
-        </GridColumn>
+        <GridSortColumn renderer={capacidadMinima} header="Capacidad Minima" onDirectionChanged={(e) => order(e, 'nombre')} />
+        <GridSortColumn renderer={capacidadTotal} header="Capacidad Maxima" onDirectionChanged={(e) => order(e, 'nombre')} />
+        <GridColumn path="tipoCombustible" header="Tipo" />
+        <GridColumn
+          header="Acciones"
+          renderer={({ item }: { item: Tanque }) => (
+            <Button
+              theme="primary"
+              onClick={async () => {
+                try {
+                  // Llamar al método del servicio para aumentar el stock
+                  const resultado = await TanqueService.aumentarStock(item.codigo);
+
+                  // Mostrar notificaciones según el resultado
+                  if (resultado) {
+                    Notification.show(
+                      `El stock del tanque ${item.codigo} se ha aumentado exitosamente.`,
+                      { duration: 5000, position: 'bottom-end', theme: 'success' }
+                    );
+                  } else {
+                    Notification.show(
+                      `El tanque ${item.codigo} no requiere reposición.`,
+                      { duration: 5000, position: 'top-center', theme: 'warning' }
+                    );
+                  }
+
+                  // Refrescar la lista de tanques después de la operación
+                  await callData();
+                } catch (error) {
+                  console.error('Error al intentar aumentar el stock:', error);
+
+                  // Mostrar notificación de error
+                  Notification.show(
+                    `Error al intentar aumentar el stock del tanque ${item.codigo}. Por favor, inténtelo de nuevo.`,
+                    { duration: 5000, position: 'top-center', theme: 'error' }
+                  );
+                }
+              }}
+            >
+              Aumentar Stock
+            </Button>
+          )}
+        />
       </Grid>
     </main>
   );
 }
-/*export default function TanqueView() {
-  const [items, setItems] = useState([]);
-
-  const callData = () => {
-    TanqueService.listAll().then(function (data: [Tanque]) {
-      setItems(data);
-    });
-  };
-
-  useEffect(() => {
-    callData();
-  }, []);
-
-  return (
-    <main className="w-full h-full flex flex-col box-border gap-s p-m">
-      <ViewToolbar title="Lista de Tanques">
-        <Group>
-          <TanqueEntryForm onTanqueCreated={callData} />
-        </Group>
-      </ViewToolbar>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {items.map((tanque) => (
-          <Card key={tanque.codigo}>
-            <img
-              slot="media"
-              width="60%"
-              src={'/img/tanque.jpg'} // URL de la imagen del tanque
-              alt={`Tanque ${tanque.codigo}`}
-            />
-            <div style={{ padding: '1rem' }}>
-              <GridSortColumn path="codigo" header="Codigo" />
-              <GridSortColumn path="capacidad" header="Capacidad"  />
-              <GridSortColumn path="capacidadMinima" header="Capacidad Minima"  />
-              <GridSortColumn path="capacidadTotal" header="Capacidad Maxima"  />
-              <GridColumn path="tipo" header="Tipo" />
-            </div>
-          </Card>
-        ))}
-      </div>
-    </main>
-  );
-}*/
