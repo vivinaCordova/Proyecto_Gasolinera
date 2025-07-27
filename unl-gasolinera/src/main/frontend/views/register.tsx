@@ -1,13 +1,12 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, Dialog, EmailField, PasswordField, TextField, VerticalLayout } from '@vaadin/react-components';
+import { Button, Dialog, EmailField, PasswordField, TextField } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
 import { CuentaService, PersonaService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
-import { useAuth, AuthProvider, isLogin } from 'Frontend/security/auth';
+import { useAuth, isLogin } from 'Frontend/security/auth';
 import { useNavigate, useSearchParams } from 'react-router';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import handleError from './_ErrorHandler';
-import { Email } from '@vaadin/hilla-lit-form';
 import { login } from 'Frontend/generated/CuentaService';
 import { Link } from 'react-router-dom';
 import '../styles/registro.css';
@@ -20,16 +19,6 @@ export const config: ViewConfig = {
 };
 
 export default function CuentaView() {
-
-  useEffect(() => {
-    isLogin().then((data) => {
-      if (data === true) {
-        navigate('/');
-      }
-      console.log(data + ' -- ');
-    });
-  }, []);
-
   const usuario = useSignal('');
   const cedula = useSignal('');
   const correo = useSignal('');
@@ -38,6 +27,14 @@ export default function CuentaView() {
   const modelo = useSignal('');
   const marca = useSignal('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    isLogin().then((data) => {
+      if (data === true) {
+        navigate('/');
+      }
+    });
+  }, []);
 
   const crearCuenta = async () => {
     try {
@@ -54,28 +51,15 @@ export default function CuentaView() {
         const isUser = await PersonaService.isUser(usuario.value);
         const existEmail = await CuentaService.isCreated(correo.value);
 
-        if (isCreated) {
-          Notification.show('La cédula ya está registrada', {
-            duration: 5000,
-            position: 'top-center',
-            theme: 'error',
-          });
-          return;
-        }
-        if (existEmail) {
-          Notification.show('Este correo ya está registrado', {
-            duration: 5000,
-            position: 'top-center',
-            theme: 'error',
-          });
-          return;
-        }
-        if (isUser) {
-          Notification.show('Este usuario ya está registrado', {
-            duration: 5000,
-            position: 'top-center',
-            theme: 'error',
-          });
+        if (isCreated || isUser || existEmail) {
+          Notification.show(
+            isCreated
+              ? 'La cédula ya está registrada'
+              : isUser
+                ? 'Este usuario ya está registrado'
+                : 'Este correo ya está registrado',
+            { duration: 5000, position: 'top-center', theme: 'error' }
+          );
           return;
         }
 
@@ -88,6 +72,7 @@ export default function CuentaView() {
           });
           return;
         }
+
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
         if (!passwordRegex.test(clave.value)) {
           Notification.show(
@@ -137,66 +122,66 @@ export default function CuentaView() {
   return (
     <main className="registro-fondo">
       <div className="registro-overlay"></div>
-      <VerticalLayout className="registro-container" theme="spacing">
+
+      <div className="registro-container">
         <h2>Crea una Cuenta</h2>
+        <div className="registro-formulario">
+          <div className="columna">
+            <TextField
+              label="Usuario"
+              placeholder="Ingrese su usuario"
+              value={usuario.value}
+              onValueChanged={(e) => (usuario.value = e.detail.value)}
+            />
+            <EmailField
+              label="Correo electrónico"
+              placeholder="ejemplo@correo.com"
+              value={correo.value}
+              onValueChanged={(e) => (correo.value = e.detail.value)}
+            />
 
-        <TextField
-          label="Usuario"
-          placeholder="Ingrese su usuario"
-          value={usuario.value}
-          onValueChanged={(e) => (usuario.value = e.detail.value)}
-        />
+            <PasswordField
+              label="Contraseña"
+              placeholder="Cree una contraseña segura"
+              value={clave.value}
+              onValueChanged={(e) => (clave.value = e.detail.value)}
+            />
 
-        <TextField
-          label="Cédula"
-          placeholder="Ingrese su número de cédula"
-          value={cedula.value}
-          onValueChanged={(e) => (cedula.value = e.detail.value)}
-        />
+          </div>
+          <div className="columna">
+            <TextField
+              label="Cédula"
+              placeholder="Ingrese su número de cédula"
+              value={cedula.value}
+              onValueChanged={(e) => (cedula.value = e.detail.value)}
+            />
+            <TextField
+              label="Placa del Vehículo"
+              placeholder="Ingrese la placa de su vehículo"
+              value={placa.value}
+              onValueChanged={(e) => (placa.value = e.detail.value)}
+            />
+            <TextField
+              label="Modelo del Vehículo"
+              placeholder="Ingrese el modelo de su vehículo"
+              value={modelo.value}
+              onValueChanged={(e) => (modelo.value = e.detail.value)}
+            />
+            <TextField
+              label="Marca del Vehículo"
+              placeholder="Ingrese la marca de su vehículo"
+              value={marca.value}
+              onValueChanged={(e) => (marca.value = e.detail.value)}
+            />
+          </div>
+        </div>
 
-        <EmailField
-          label="Correo electrónico"
-          placeholder="ejemplo@correo.com"
-          value={correo.value}
-          onValueChanged={(e) => (correo.value = e.detail.value)}
-        />
-
-        <PasswordField
-          label="Contraseña"
-          placeholder="Cree una contraseña segura"
-          value={clave.value}
-          onValueChanged={(e) => (clave.value = e.detail.value)}
-        />
-
-        <TextField
-          label="Placa del Vehículo"
-          placeholder="Ingrese la placa de su vehiculo"
-          value={placa.value}
-          onValueChanged={(e) => (placa.value = e.detail.value)}
-        />
-
-        <TextField
-          label="Modelo del Vehículo"
-          placeholder="Ingrese el modelo de su vehículo"
-          value={modelo.value}
-          onValueChanged={(e) => (modelo.value = e.detail.value)}
-        />
-
-        <TextField
-          label="Marca del Vehículo"
-          placeholder="Ingrese la marca de su vehículo"
-          value={marca.value}
-          onValueChanged={(e) => (marca.value = e.detail.value)}
-        />
-
-        <Button theme="primary" onClick={crearCuenta}style={{ display: 'block', margin: '0 auto' }}>
+        <Button theme="primary" onClick={crearCuenta} style={{ display: 'block', margin: '2rem auto 0 auto' }}>
           Registrar Cuenta
         </Button>
 
-        <p>
-          ¿Ya tienes una cuenta? <Link to="/login">Inicia sesión aquí</Link>
-        </p>
-      </VerticalLayout>
+        <p>¿Ya tienes una cuenta? <Link to="/login">Inicia sesión aquí</Link></p>
+      </div>
     </main>
   );
 }
