@@ -182,7 +182,7 @@ export default function PersonaView() {
     callData();
   }, []);
 
-  const deletePersona = async (persona: Persona) => {
+  /*const deletePersona = async (persona: Persona) => {
     // Mostrar confirmación antes de eliminar
     const confirmed = window.confirm(`¿Está seguro de que desea eliminar a la persona ${persona.usuario}?`);
 
@@ -205,7 +205,7 @@ export default function PersonaView() {
         });
       }
     }
-  }
+  }*/
 
   const order = (event, columnId) => {
     console.log(event);
@@ -298,3 +298,4 @@ export default function PersonaView() {
     </main >
   );
 }
+

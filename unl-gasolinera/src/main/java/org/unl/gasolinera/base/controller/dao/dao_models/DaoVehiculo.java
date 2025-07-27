@@ -96,17 +96,17 @@ public class DaoVehiculo extends AdapterDao<Vehiculo> {
         if (!this.listAll().isEmpty()) {
             Vehiculo[] arreglo = this.listAll().toArray();
             for (int i = 0; i < arreglo.length; i++) {
-                lista.add(toDict(arreglo[i]));
+                lista.add(toDict(arreglo[i], i));
             }
         }
         return lista;
     }
 
-    private HashMap<String, Object> toDict(Vehiculo arreglo) {
+    private HashMap<String, Object> toDict(Vehiculo arreglo, Integer i) {
         HashMap<String, Object> map = new HashMap<>();
         DaoPersona dp = new DaoPersona();
         HashMap<String, Object> aux = new HashMap<>();
-        aux.put("id", arreglo.getId().toString());
+        aux.put("id", arreglo.getId().toString(i));
         aux.put("placa", arreglo.getPlaca());
         aux.put("modelo", arreglo.getModelo());
         aux.put("marca", arreglo.getMarca());
