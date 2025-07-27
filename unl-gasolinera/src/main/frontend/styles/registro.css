@@ -75,7 +75,7 @@
 .registro-container vaadin-email-field,
 .registro-container vaadin-button {
   width: 100%;
-  margin-top: 1.2rem;
+  margin-top: 0.2rem;
   font-family: 'Montserrat', sans-serif;
   --vaadin-input-field-border-radius: 12px;
 

@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoCuenta;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoPersona;
 import org.unl.gasolinera.base.controller.dao.dao_models.DaoRol;
+import org.unl.gasolinera.base.controller.dao.dao_models.DaoVehiculo;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.Cuenta;
 import org.unl.gasolinera.base.models.Persona;
@@ -27,6 +28,7 @@ import jakarta.validation.constraints.NotEmpty;
 public class PersonaService {
     private DaoPersona da;
     private DaoCuenta dc;
+    private DaoVehiculo dv;
 
     public PersonaService() {
         da = new DaoPersona();
@@ -82,23 +84,36 @@ public class PersonaService {
         }
     }
 
-    public void createRegistro(@NotEmpty String usuario, @NotEmpty String cedula, @NotEmpty String correo, @NotEmpty String clave) throws Exception {
-        if (usuario.trim().length() > 0 && cedula.trim().length() > 0 && correo.trim().length() > 0 && clave.trim().length() > 0) {
+public void createRegistro(@NotEmpty String usuario, @NotEmpty String cedula, @NotEmpty String correo,
+            @NotEmpty String clave, @NotEmpty String placa, @NotEmpty String modelo, @NotEmpty String marca)
+            throws Exception {
+        if (usuario.trim().length() > 0 && cedula.trim().length() > 0 && correo.trim().length() > 0
+                && clave.trim().length() > 0 && placa.trim().length() > 0 && modelo.trim().length() > 0
+                && marca.trim().length() > 0) {
             dc = new DaoCuenta();
+            dv = new DaoVehiculo();
             da.getObj().setUsuario(usuario);
             da.getObj().setCedula(cedula);
-            da.getObj().setId_rol(2); 
+            da.getObj().setId_rol(2);
             Integer idPersona = da.listAll().getLength() + 1;
             if (!da.save())
-            throw new Exception("No se pudo guardar los datos de Persona");
+                throw new Exception("No se pudo guardar los datos de Persona");
             dc.getObj().setCorreo(correo);
             dc.getObj().setClave(clave);
             dc.getObj().setId_persona(idPersona);
-            dc.getObj().setEstado(true); 
+            dc.getObj().setEstado(true);
             if (!dc.save())
-            throw new Exception("No se pudo guardar la cuenta del usuario");
+                throw new Exception("No se pudo guardar la cuenta del usuario");
+            dv.getObj().setIdPropietario(idPersona);
+            dv.getObj().setPlaca(placa);
+            dv.getObj().setModelo(modelo);
+            dv.getObj().setMarca(marca);
+            if (!dv.save())
+                throw new Exception("No se pudo guardar el vehículo del usuario");
+
         }
     }
+
 
     public List<HashMap> listRolCombo() {
         List<HashMap> lista = new ArrayList<>();
