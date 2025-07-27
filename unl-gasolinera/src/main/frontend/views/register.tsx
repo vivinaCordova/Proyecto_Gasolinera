@@ -20,7 +20,6 @@ export const config: ViewConfig = {
 };
 
 export default function CuentaView() {
-  const navigate = useNavigate();
 
   useEffect(() => {
     isLogin().then((data) => {
