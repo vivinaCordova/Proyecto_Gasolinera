@@ -52,7 +52,7 @@ public class DaoPago extends AdapterDao<Pago> {
         }
     }
 
-    public Boolean deletePago(Integer id) {
+    /*public Boolean deletePago(Integer id) {
         try {
             super.delete(id);
             return true;
@@ -61,7 +61,7 @@ public class DaoPago extends AdapterDao<Pago> {
             System.out.println(e);
             return false;
         }
-    }
+    }*/
 
     public LinkedList<HashMap<String, Object>> all() throws Exception {
         LinkedList<HashMap<String, Object>> lista = new LinkedList<>();

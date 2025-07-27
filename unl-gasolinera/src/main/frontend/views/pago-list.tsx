@@ -162,7 +162,7 @@ function ReciboDialog({ pago, opened, onClose }: ReciboDialogProps) {
       <body>
         <div class="header">
           <h1>RECIBO DE PAGO</h1>
-          <p>Sistema de Gestión de Gasolinera</p>
+          <p>Gasolinera UNL</p>
         </div>
 
         <div class="section">
@@ -670,7 +670,7 @@ export default function PagoView() {
           value={criterio.value}
           onValueChanged={(evt) => {
             criterio.value = evt.detail.value;
-            texto.value = ''; 
+            texto.value = '';
           }}
           placeholder={'Seleccione un criterio'}>
 
@@ -697,12 +697,12 @@ export default function PagoView() {
             <Icon slot="prefix" icon="vaadin:search" />
           </TextField>
         )}
-        
+
         <Button onClick={search} theme="primary">
           BUSCAR
         </Button>
         <Button onClick={callData} theme="secondary">
-          REFRESCAR
+          <Icon icon="vaadin:refresh" />
         </Button>
 
       </HorizontalLayout>
@@ -726,7 +726,7 @@ export default function PagoView() {
             </Button>
           )}
         />
-        <GridColumn
+        {/*<GridColumn
           header="Eliminar"
           renderer={({ item }) => (
             <Button
@@ -736,7 +736,7 @@ export default function PagoView() {
               Eliminar
             </Button>
           )}
-        />
+        />*/}
       </Grid>
 
       <ReciboDialog

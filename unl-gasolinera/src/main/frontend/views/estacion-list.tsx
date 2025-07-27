@@ -377,15 +377,15 @@ export default function EstacionView() {
           BUSCAR
         </Button>
         <Button onClick={callData} theme="secondary">
-          REFRESCAR
+          <Icon icon="vaadin:refresh" />
         </Button>
       </HorizontalLayout>
       <Grid items={items}>
         <GridColumn renderer={indexIndex} header="Nro" />
         <GridSortColumn onDirectionChanged={(e) => order(e, "codigo")} path="codigo" header="Estacion" />
-        <GridSortColumn onDirectionChanged={(e) => order(e, "estado")} renderer={renderEstado} header="estado" />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "estado")} renderer={renderEstado} header="Estado" />
         <GridColumn header="Acciones" renderer={indexLink} />
-        <GridColumn
+        {/*<GridColumn
           header="Eliminar"
           renderer={({ item }) => (
             <Button
@@ -395,8 +395,7 @@ export default function EstacionView() {
               Eliminar
             </Button>
           )}
-        />
-
+        />*/}
       </Grid>
     </main>
   );

@@ -131,7 +131,7 @@ public class DaoEstacion extends AdapterDao<Estacion> {
         return null;
     }
 
-    public Boolean deleteEstacion(Integer id) {
+    /* public Boolean deleteEstacion(Integer id) {
         try {
             super.delete(id);
             return true;
@@ -140,7 +140,7 @@ public class DaoEstacion extends AdapterDao<Estacion> {
             System.out.println(e);
             return false;
         }
-    }
+    }*/
 
     private Integer bynaryLineal(HashMap<String, Object>[] arr, String attribute, String text) {
         Integer half = 0;

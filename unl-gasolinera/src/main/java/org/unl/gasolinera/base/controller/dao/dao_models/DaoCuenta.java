@@ -217,7 +217,7 @@ public LinkedList<HashMap<String, Object>> all() throws Exception {
             return BinarySearchRecursive(arr, n + 1, b, attribute, value);
     }
 
-    public Boolean deleteCuenta(Integer id) {
+    /*public Boolean deleteCuenta(Integer id) {
         try {
             super.delete(id);
             return true;
@@ -226,6 +226,6 @@ public LinkedList<HashMap<String, Object>> all() throws Exception {
             System.out.println(e);
             return false;
         }
-    }
+    }*/
 
 }

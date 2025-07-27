@@ -95,7 +95,7 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
         idPrecioEstablecido.value &&
         idEstacion.value
       ) {
-       
+
         await OrdenDespachoService.create(
           codigo.value,
           parseFloat(nroGalones.value),
@@ -245,7 +245,7 @@ function OrdenDespachoUpdateForm(props: OrdenDespachoEntryFormUpdate) {
     fecha.value = props.orden_despacho?.fecha || '';
     precioTotal.value = props.orden_despacho?.precioTotal || '';
     estado.value = props.orden_despacho?.estado || '';
-    
+
     // Cargar valores para los ComboBox con setTimeout para asegurar que las listas estén cargadas
     setTimeout(() => {
       // Para el vehículo, necesitamos encontrar el ID basado en la placa
@@ -255,7 +255,7 @@ function OrdenDespachoUpdateForm(props: OrdenDespachoEntryFormUpdate) {
           idVehiculo.value = vehiculoEncontrado.value;
         }
       }
-      
+
       // Para el precio establecido, basado en precio_establecido
       if (props.orden_despacho?.precio_establecido && listaPrecios.value.length > 0) {
         const precioEncontrado = listaPrecios.value.find(p => p.precio == props.orden_despacho.precio_establecido);
@@ -263,7 +263,7 @@ function OrdenDespachoUpdateForm(props: OrdenDespachoEntryFormUpdate) {
           idPrecioEstablecido.value = precioEncontrado.value;
         }
       }
-      
+
       // Para la estación, basado en el nombre de la estación
       if (props.orden_despacho?.estacion && listaEstaciones.value.length > 0) {
         const estacionEncontrada = listaEstaciones.value.find(e => e.label === props.orden_despacho.estacion);
@@ -289,13 +289,13 @@ function OrdenDespachoUpdateForm(props: OrdenDespachoEntryFormUpdate) {
         idEstacion.value.trim().length > 0
       ) {
         await OrdenDespachoService.update(
-          parseInt(id.value), 
-          codigo.value, 
-          parseFloat(String(nroGalones.value)), 
-          new Date(fecha.value), 
-          estado.value, 
-          parseInt(idPrecioEstablecido.value), 
-          parseInt(idVehiculo.value), 
+          parseInt(id.value),
+          codigo.value,
+          parseFloat(String(nroGalones.value)),
+          new Date(fecha.value),
+          estado.value,
+          parseInt(idPrecioEstablecido.value),
+          parseInt(idVehiculo.value),
           parseInt(idEstacion.value)
         );
         if (props.onOrdenUpdated) {
@@ -356,7 +356,7 @@ function OrdenDespachoUpdateForm(props: OrdenDespachoEntryFormUpdate) {
   const idPrecioEstablecido = useSignal('');
   const idEstacion = useSignal('');
 
- useEffect(() => {
+  useEffect(() => {
     if (nroGalones.value && idPrecioEstablecido.value) {
       const precioSeleccionado = listaPrecios.value.find(
         (p) => p.value === idPrecioEstablecido.value
@@ -639,7 +639,7 @@ export default function OrdenDespachoView() {
           placeholder={'Seleccione un criterio'}>
 
         </Select>
-        
+
         {criterio.value === 'estado' ? (
           <Select
             items={[
@@ -666,7 +666,7 @@ export default function OrdenDespachoView() {
           BUSCAR
         </Button>
         <Button onClick={callData} theme="secondary">
-          REFRESCAR
+          <Icon icon="vaadin:refresh" />
         </Button>
 
       </HorizontalLayout>
@@ -676,12 +676,12 @@ export default function OrdenDespachoView() {
         <GridSortColumn onDirectionChanged={(e) => order(e, "fecha")} path="fecha" header="Fecha" width="320px" flexGrow={0} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "placa")} path="placa" header="Placa del Vehículo" width="200px" flexGrow={0} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "estacion")} path="estacion" header="Estación" width="150px" flexGrow={0} />
-        <GridSortColumn onDirectionChanged={(e) => order(e, "nombreGasolina")} path="nombreGasolina" header="Tipo de Gasolina" width="150px" flexGrow={0} />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "nombreGasolina")} path="nombreGasolina" header="Tipo de Gasolina" width="200px" flexGrow={0} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "precio_establecido")} path="precio_establecido" header="Precio por Galón" width="170px" flexGrow={0} renderer={precioRenderer} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "nroGalones")} path="nroGalones" header="Galones" width="150px" flexGrow={0} />
-        <GridSortColumn onDirectionChanged={(e) => order(e, "precioTotal")} path="precioTotal" header="Precio Total" width="120px" flexGrow={0} renderer={precioTotalRenderer} />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "precioTotal")} path="precioTotal" header="Precio Total" width="150px" flexGrow={0} renderer={precioTotalRenderer} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "estado")} path="estado" header="Estado" width="230px" flexGrow={0} />
-        <GridColumn header="Editar" renderer={indexLink} />
+        {/* <GridColumn header="Editar" renderer={indexLink} /> */}
         <GridColumn
           header="Pagar"
           renderer={({ item }) => (
@@ -700,7 +700,7 @@ export default function OrdenDespachoView() {
           )}
         />
 
-        <GridColumn
+        {/*<GridColumn
           header="Eliminar"
           renderer={({ item }) => (
             <Button
@@ -710,7 +710,7 @@ export default function OrdenDespachoView() {
               Eliminar
             </Button>
           )}
-        />
+        />*/}
       </Grid>
 
       {ordenPago && !checkoutId && (
