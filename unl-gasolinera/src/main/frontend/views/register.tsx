@@ -10,6 +10,7 @@ import handleError from './_ErrorHandler';
 import { Email } from '@vaadin/hilla-lit-form';
 import { login } from 'Frontend/generated/CuentaService';
 import { Link } from 'react-router-dom';
+import '../styles/registro.css';
 
 export const config: ViewConfig = {
   skipLayouts: true,
@@ -19,12 +20,14 @@ export const config: ViewConfig = {
 };
 
 export default function CuentaView() {
+  const navigate = useNavigate();
+
   useEffect(() => {
-    isLogin().then(data => {
+    isLogin().then((data) => {
       if (data === true) {
         navigate('/');
       }
-      console.log(data + " -- ");
+      console.log(data + ' -- ');
     });
   }, []);
 
@@ -32,7 +35,6 @@ export default function CuentaView() {
   const cedula = useSignal('');
   const correo = useSignal('');
   const clave = useSignal('');
-  const navigate = useNavigate();
 
   const crearCuenta = async () => {
     try {
@@ -93,7 +95,7 @@ export default function CuentaView() {
         const loginResult = await login(correo.value, clave.value);
         if (loginResult && !loginResult.error) {
           window.location.reload();
-          navigate('/'); 
+          navigate('/');
         } else {
           Notification.show('Error al iniciar sesión automáticamente', {
             duration: 5000,
@@ -114,26 +116,16 @@ export default function CuentaView() {
   };
 
   return (
-    <main className="flex items-center justify-center h-screen">
-      <VerticalLayout
-        theme="spacing"
-        style={{
-          width: '22rem',
-          padding: '2rem',
-          border: '1px solid #ccc',
-          borderRadius: '8px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-        }}>
-        <h2>
-        Crea una Cuenta
-        </h2>
+    <main className="registro-fondo">
+      <div className="registro-overlay"></div>
+      <VerticalLayout className="registro-container animado" theme="spacing">
+        <h2>Crea una Cuenta</h2>
 
         <TextField
           label="Usuario"
           placeholder="Ingrese su usuario"
           value={usuario.value}
           onValueChanged={(e) => (usuario.value = e.detail.value)}
-          style={{ width: '100%' }} 
         />
 
         <TextField
@@ -141,7 +133,6 @@ export default function CuentaView() {
           placeholder="Ingrese su número de cédula"
           value={cedula.value}
           onValueChanged={(e) => (cedula.value = e.detail.value)}
-          style={{ width: '100%' }}
         />
 
         <EmailField
@@ -149,7 +140,6 @@ export default function CuentaView() {
           placeholder="ejemplo@correo.com"
           value={correo.value}
           onValueChanged={(e) => (correo.value = e.detail.value)}
-          style={{ width: '100%' }}
         />
 
         <PasswordField
@@ -157,13 +147,13 @@ export default function CuentaView() {
           placeholder="Cree una contraseña segura"
           value={clave.value}
           onValueChanged={(e) => (clave.value = e.detail.value)}
-          style={{ width: '100%' }}
         />
 
-        <Button theme="primary" onClick={crearCuenta}style={{ display: 'block', margin: '0 auto' }}>
+        <Button theme="primary" onClick={crearCuenta}>
           Registrar Cuenta
         </Button>
-        <p style={{ marginTop: '1rem', textAlign: 'center' }}>
+
+        <p>
           ¿Ya tienes una cuenta? <Link to="/login">Inicia sesión aquí</Link>
         </p>
       </VerticalLayout>
