@@ -66,7 +66,7 @@ public class DaoProveedor extends AdapterDao<Proveedor> {
     private HashMap<String, Object> toDict(Proveedor arreglo, Integer i) {
         DaoPrecioEstablecido daoPrecioEstablecido = new DaoPrecioEstablecido();
         HashMap<String, Object> aux = new HashMap<>();
-        aux.put("id", arreglo.getId().toString());
+        aux.put("id", arreglo.getId());
         aux.put("nombre", arreglo.getNombre().toString());
         aux.put("correoElectronico", arreglo.getCorreoElectronico().toString());
 
@@ -74,13 +74,16 @@ public class DaoProveedor extends AdapterDao<Proveedor> {
             PrecioEstablecido precioEstablecido = daoPrecioEstablecido.getById(arreglo.getIdPrecioEstablecido());
             if (precioEstablecido != null) {
                 aux.put("tipoCombustible", precioEstablecido.getTipoCombustible());
+                aux.put("precioPorGalon", precioEstablecido.getPrecio()); // Agregar el precio por galón
             } else {
                 aux.put("tipoCombustible", "N/A");
+                aux.put("precioPorGalon", "N/A"); // Precio no disponible
             }
         } else {
             aux.put("tipoCombustible", "N/A");
+            aux.put("precioPorGalon", "N/A"); // Precio no disponible
         }
-
+    
         return aux;
     }
 
