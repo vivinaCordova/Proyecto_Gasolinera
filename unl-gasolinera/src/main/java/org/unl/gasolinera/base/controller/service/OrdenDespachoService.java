@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,10 +39,8 @@ public class OrdenDespachoService {
         db = new DaoOrdenDespacho();
     }
 
-    public void create(@NotEmpty String codigo, float nroGalones, @NonNull Date fecha, @NotEmpty String estado,
-            Integer idPrecioEstablecido, Integer idVehiculo, Integer idEstacion) throws Exception {
-        if (codigo.trim().length() > 0 && nroGalones > 0 && fecha != null && estado.trim().length() > 0
-                && idPrecioEstablecido != null && idVehiculo != null && idEstacion != null) {
+    public void create(float nroGalones, Integer idPrecioEstablecido, Integer idVehiculo) throws Exception {
+        if (nroGalones > 0 && idPrecioEstablecido != null && idVehiculo != null) {
 
             DaoPrecioEstablecido daoPrecio = new DaoPrecioEstablecido();
             PrecioEstablecido precio = daoPrecio.getById(idPrecioEstablecido);
@@ -51,11 +50,27 @@ public class OrdenDespachoService {
 
             float precioTotal = Math.round((precio.getPrecio() * nroGalones) * 100.0f) / 100.0f;
 
+            // Generar un código único para la orden
+            Integer tamaño = db.listAll().getLength() + 1;
+            String codigo = String.valueOf(tamaño);
+
+            // Obtener la fecha actual
+            Date fecha = new Date();
+
+            // Generar una estacion aleatoria para simulacion
+            DaoEstacion daoEstacion = new DaoEstacion();
+            var estaciones = daoEstacion.listAll();
+            if (estaciones.isEmpty()) {
+                throw new Exception("No hay estaciones registradas.");
+            }
+            int indexAleatorio = new Random().nextInt(estaciones.getLength());
+            Integer idEstacion = estaciones.get(indexAleatorio).getId();
+
             db.getObj().setCodigo(codigo);
             db.getObj().setNroGalones(nroGalones);
             db.getObj().setFecha(fecha);
             db.getObj().setPrecioTotal(precioTotal);
-            db.getObj().setEstado(EstadoOrdenDespachadoEnum.valueOf(estado));
+            db.getObj().setEstado((EstadoOrdenDespachadoEnum.EN_PROCESO));
             db.getObj().setIdPrecioEstablecido(idPrecioEstablecido);
             db.getObj().setIdVehiculo(idVehiculo);
             db.getObj().setIdEstacion(idEstacion);
@@ -66,61 +81,6 @@ public class OrdenDespachoService {
         }
     }
 
-    public void update(@NotNull Integer id, @NotEmpty String codigo, float nroGalones, @NotEmpty String fecha,
-            @NotEmpty String estado, Integer idPrecioEstablecido, Integer idVehiculo, Integer idEstacion)
-            throws Exception {
-        if (codigo.trim().length() > 0 && nroGalones > 0 && fecha != null && estado.trim().length() > 0
-                && idPrecioEstablecido != null && idVehiculo != null && idEstacion != null) {
-
-            // Buscar la orden por ID y obtener su posición en la lista
-            var listaOrdenes = db.listAll();
-            OrdenDespacho ordenExistente = null;
-            Integer posicion = null;
-
-            for (int i = 0; i < listaOrdenes.getLength(); i++) {
-                if (listaOrdenes.get(i).getId().equals(id)) {
-                    ordenExistente = listaOrdenes.get(i);
-                    posicion = i;
-                    break;
-                }
-            }
-
-            if (ordenExistente == null) {
-                throw new Exception("No se encontró la Orden de Despacho con id: " + id);
-            }
-
-            DaoPrecioEstablecido daoPrecio = new DaoPrecioEstablecido();
-            PrecioEstablecido precio = daoPrecio.getById(idPrecioEstablecido);
-            if (precio == null) {
-                throw new Exception("No se encontró el PrecioEstablecido con id: " + idPrecioEstablecido);
-            }
-
-            Utiles utiles = new Utiles();
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            Date fechaDate = formatter.parse(fecha);
-            float precioTotal = Float.parseFloat(utiles.tranformStringFloatTwoDecimal(precio.getPrecio() * nroGalones));
-
-            // Actualizar el objeto existente
-            ordenExistente.setCodigo(codigo);
-            ordenExistente.setNroGalones(nroGalones);
-            ordenExistente.setFecha(fechaDate);
-            ordenExistente.setPrecioTotal(precioTotal);
-            ordenExistente.setEstado(EstadoOrdenDespachadoEnum.valueOf(estado));
-            ordenExistente.setIdPrecioEstablecido(idPrecioEstablecido);
-            ordenExistente.setIdVehiculo(idVehiculo);
-            ordenExistente.setIdEstacion(idEstacion);
-
-            // Establecer el objeto actualizado en el DAO
-            db.setObj(ordenExistente);
-
-            // Usar la posición en lugar del ID para la actualización
-            if (!db.update(posicion)) {
-                throw new Exception("No se pudo actualizar la Orden de Despacho");
-            }
-        }
-    }
-
-    // Ahora el DAO ya entrega todos los datos listos, no necesitas getById
     public List<HashMap> listOrdenDespacho() {
         return Arrays.asList(db.all().toArray());
     }
@@ -187,7 +147,6 @@ public class OrdenDespachoService {
         return Arrays.asList(db.orderByOrdenDespacho(type, attribute).toArray());
     }
 
-    
     public void actualizarEstado(@NotNull Integer id, @NotEmpty String nuevoEstado) throws Exception {
         if (id == null || id <= 0) {
             throw new Exception("ID de orden de despacho inválido");
@@ -255,21 +214,22 @@ public class OrdenDespachoService {
         }
     }
 
-    /*public void delete(Integer id) throws Exception {
-        if (id == null || id <= 0) {
-            throw new Exception("ID de pago inválido");
-        }
-        if (!db.deleteOrdenDespacho(id)) {
-            throw new Exception("No se pudo eliminar el pago con ID: " + id);
-        }
-    }*/
+    /*
+     * public void delete(Integer id) throws Exception {
+     * if (id == null || id <= 0) {
+     * throw new Exception("ID de pago inválido");
+     * }
+     * if (!db.deleteOrdenDespacho(id)) {
+     * throw new Exception("No se pudo eliminar el pago con ID: " + id);
+     * }
+     * }
+     */
 
     public OrdenDespacho getById(Integer id) throws Exception {
         if (id == null) {
             throw new Exception("ID no puede ser null");
         }
 
-        // Buscar en la lista por ID
         if (!db.listAll().isEmpty()) {
             OrdenDespacho[] ordenes = db.listAll().toArray();
             for (OrdenDespacho orden : ordenes) {
@@ -278,10 +238,11 @@ public class OrdenDespachoService {
                 }
             }
         }
-        return null; // No se encontró
+        return null;
     }
 
     public EstadoOrdenDespachadoEnum getEstadoDespacho() {
         return EstadoOrdenDespachadoEnum.EN_PROCESO;
     }
+
 }

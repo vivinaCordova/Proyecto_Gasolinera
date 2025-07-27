@@ -38,8 +38,8 @@ function ProveedorEntryForm(props: ProveedorEntryFormProps) {
   const tipoCombustible = useSignal('');
   const createProveedor = async () => {
     try {
-      if (nombre.value.trim().length > 0 && correoElectronico.value.trim().length > 0 && tipoCombustible.value.trim().length > 0) {
-        await ProveedorService.createProveedor((nombre.value), (correoElectronico.value), (tipoCombustible.value));
+      if (nombre.value.trim().length > 0 && correoElectronico.value.trim().length > 0 && tipoCombustible.value.trim().length > 0){
+        await ProveedorService.createProveedor((nombre.value),(correoElectronico.value),(tipoCombustible.value));
         if (props.onProveedorCreated) {
           props.onProveedorCreated();
         }
@@ -57,10 +57,10 @@ function ProveedorEntryForm(props: ProveedorEntryFormProps) {
       handleError(error);
     }
   };
-
-  let listaTipoCombustible = useSignal<String[]>([]);
+  
+  let listaTipoCombustible= useSignal<String[]>([]);
   useEffect(() => {
-    ProveedorService.listTipo().then(data =>
+  ProveedorService.listTipo().then(data =>
       listaTipoCombustible.value = data
     );
   }, []);
@@ -103,8 +103,8 @@ function ProveedorEntryForm(props: ProveedorEntryFormProps) {
             aria-label='Ingrese Correo Electronico'
             value={correoElectronico.value}
             onValueChanged={(evt) => (correoElectronico.value = evt.detail.value)}
-          />
-          <ComboBox label="Tipo"
+            />
+            <ComboBox label="Tipo" 
             items={listaTipoCombustible.value}
             placeholder='Seleccione un tipo'
             aria-label='Seleccione un tipo de combustible'
@@ -223,7 +223,7 @@ export default function ProveedorView() {
         <GridSortColumn path="nombre" header="Nombre" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridSortColumn path="tipoCombustible" header="Tipo" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridColumn path="correoElectronico" header="Correo Electronico">
-
+        
 
         </GridColumn>
       </Grid>

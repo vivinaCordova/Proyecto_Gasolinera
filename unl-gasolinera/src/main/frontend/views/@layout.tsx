@@ -54,8 +54,7 @@ function MainMenu({ username, setUsername }: { username: string | null; setUsern
     { to: '/precioestablecido-list', icon: 'vaadin:money', title: 'Precios Establecidos' },
     { to: '/Proveedor-list', icon: 'vaadin:truck', title: 'Proveedores' },
     { to: '/tanque-list', icon: 'vaadin:bar-chart', title: 'Tanques' },
-    { to: '/vehiculo-list', icon: 'vaadin:car', title: 'Vehículos' },
-    {to: '/bienvenida-list', icon: 'vaadin:home', title: 'Bienvenida' },
+    { to: '/vehiculo-list', icon: 'vaadin:car', title: 'Vehículos' }
 
   ];
 

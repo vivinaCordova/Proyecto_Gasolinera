@@ -23,27 +23,11 @@ type OrdenDespachoEntryFormProps = {
   onOrdenCreated?: () => void;
 };
 
-type OrdenDespachoEntryFormUpdate = {
-  orden_despacho: OrdenDespacho;
-  onOrdenUpdated?: () => void;
-};
-
 function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
-  const codigo = useSignal('');
   const nroGalones = useSignal('');
-  const fecha = useSignal('');
   const precioTotal = useSignal('');
-  const estado = useSignal('');
   const idVehiculo = useSignal('');
   const idPrecioEstablecido = useSignal('');
-  const idEstacion = useSignal('');
-
-  const listaEstados = useSignal<any[]>([]);
-  useEffect(() => {
-    OrdenDespachoService.listEstadoOrdenDespacho().then((data) => {
-      listaEstados.value = data || [];
-    });
-  }, []);
 
   const listaPrecios = useSignal<any[]>([]);
   useEffect(() => {
@@ -86,38 +70,27 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
   const createOrden = async () => {
     try {
       if (
-        codigo.value.trim() &&
         nroGalones.value &&
-        fecha.value &&
         precioTotal.value &&
-        estado.value &&
         idVehiculo.value &&
-        idPrecioEstablecido.value &&
-        idEstacion.value
+        idPrecioEstablecido.value
       ) {
 
         await OrdenDespachoService.create(
-          codigo.value,
           parseFloat(nroGalones.value),
-          new Date(fecha.value),
-          estado.value,
           parseInt(idPrecioEstablecido.value),
-          parseInt(idVehiculo.value),
-          parseInt(idEstacion.value)
+          parseInt(idVehiculo.value)
         );
 
         if (props.onOrdenCreated) {
           props.onOrdenCreated();
         }
 
-        codigo.value = '';
+
         nroGalones.value = '';
-        fecha.value = '';
         precioTotal.value = '';
-        estado.value = '';
         idVehiculo.value = '';
         idPrecioEstablecido.value = '';
-        idEstacion.value = '';
 
         dialogOpened.value = false;
         Notification.show('Orden de despacho creada', {
@@ -158,18 +131,6 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
         }
       >
         <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
-          <TextField
-            label="Código"
-            placeholder="Ingrese el código"
-            value={codigo.value}
-            onValueChanged={(e) => (codigo.value = e.detail.value)}
-          />
-          <DatePicker
-            label="Fecha"
-            placeholder="Seleccione la fecha"
-            value={fecha.value}
-            onValueChanged={(e) => (fecha.value = e.detail.value)}
-          />
           <NumberField
             label="Nro Galones"
             placeholder="Ingrese el número de galones"
@@ -193,13 +154,6 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
             readonly
           />
           <ComboBox
-            label="Estado"
-            items={listaEstados.value}
-            placeholder="Seleccione un estado"
-            value={estado.value}
-            onValueChanged={(e) => (estado.value = e.detail.value)}
-          />
-          <ComboBox
             label="Matrícula del Vehículo"
             items={listaVehiculos.value}
             placeholder="Seleccione una matrícula"
@@ -207,15 +161,6 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
             itemValuePath="value"
             value={idVehiculo.value}
             onValueChanged={(e) => (idVehiculo.value = e.detail.value)}
-          />
-          <ComboBox
-            label="Estación"
-            items={listaEstaciones.value}
-            placeholder="Seleccione una estación"
-            itemLabelPath="label"
-            itemValuePath="value"
-            value={idEstacion.value}
-            onValueChanged={(e) => (idEstacion.value = e.detail.value)}
           />
         </VerticalLayout>
       </Dialog>
@@ -225,239 +170,7 @@ function OrdenDespachoEntryForm(props: OrdenDespachoEntryFormProps) {
   );
 }
 
-function OrdenDespachoUpdateForm(props: OrdenDespachoEntryFormUpdate) {
-  const dialogOpened = useSignal(false);
-
-  const id = useSignal(props.orden_despacho?.id?.toString() || '');
-  const codigo = useSignal(props.orden_despacho?.codigo || '');
-  const nroGalones = useSignal(props.orden_despacho?.nroGalones || '');
-  const fecha = useSignal(props.orden_despacho?.fecha || '');
-  const precioTotal = useSignal(props.orden_despacho?.precioTotal || '');
-  const estado = useSignal(props.orden_despacho?.estado || '');
-  const placa = useSignal(props.orden_despacho?.placa || '');
-  const precioEstablecido = useSignal(props.orden_despacho?.precio_establecido || '');
-  const estacion = useSignal(props.orden_despacho?.estacion || '');
-
-  const openDialog = () => {
-    id.value = props.orden_despacho?.id?.toString() || '';
-    codigo.value = props.orden_despacho?.codigo || '';
-    nroGalones.value = props.orden_despacho?.nroGalones || '';
-    fecha.value = props.orden_despacho?.fecha || '';
-    precioTotal.value = props.orden_despacho?.precioTotal || '';
-    estado.value = props.orden_despacho?.estado || '';
-
-    // Cargar valores para los ComboBox con setTimeout para asegurar que las listas estén cargadas
-    setTimeout(() => {
-      // Para el vehículo, necesitamos encontrar el ID basado en la placa
-      if (props.orden_despacho?.placa && listaVehiculos.value.length > 0) {
-        const vehiculoEncontrado = listaVehiculos.value.find(v => v.label === props.orden_despacho.placa);
-        if (vehiculoEncontrado) {
-          idVehiculo.value = vehiculoEncontrado.value;
-        }
-      }
-
-      // Para el precio establecido, basado en precio_establecido
-      if (props.orden_despacho?.precio_establecido && listaPrecios.value.length > 0) {
-        const precioEncontrado = listaPrecios.value.find(p => p.precio == props.orden_despacho.precio_establecido);
-        if (precioEncontrado) {
-          idPrecioEstablecido.value = precioEncontrado.value;
-        }
-      }
-
-      // Para la estación, basado en el nombre de la estación
-      if (props.orden_despacho?.estacion && listaEstaciones.value.length > 0) {
-        const estacionEncontrada = listaEstaciones.value.find(e => e.label === props.orden_despacho.estacion);
-        if (estacionEncontrada) {
-          idEstacion.value = estacionEncontrada.value;
-        }
-      }
-    }, 100);
-
-    dialogOpened.value = true;
-  };
-
-  const updateOrdenDespacho = async () => {
-    try {
-      if (
-        codigo.value.trim().length > 0 &&
-        Number(nroGalones.value) > 0 &&
-        fecha.value.trim().length > 0 &&
-        Number(precioTotal.value) > 0 &&
-        estado.value.trim().length > 0 &&
-        idVehiculo.value.trim().length > 0 &&
-        idPrecioEstablecido.value.trim().length > 0 &&
-        idEstacion.value.trim().length > 0
-      ) {
-        await OrdenDespachoService.update(
-          parseInt(id.value),
-          codigo.value,
-          parseFloat(String(nroGalones.value)),
-          new Date(fecha.value),
-          estado.value,
-          parseInt(idPrecioEstablecido.value),
-          parseInt(idVehiculo.value),
-          parseInt(idEstacion.value)
-        );
-        if (props.onOrdenUpdated) {
-          props.onOrdenUpdated();
-        }
-        codigo.value = '';
-        nroGalones.value = '';
-        fecha.value = '';
-        precioTotal.value = '';
-        estado.value = '';
-        placa.value = '';
-        precioEstablecido.value = '';
-        estacion.value = '';
-
-
-        dialogOpened.value = false;
-        Notification.show('Orden de Despacho editada', { duration: 5000, position: 'bottom-end', theme: 'success' });
-      } else {
-        Notification.show('No se pudo editar, faltan datos', { duration: 5000, position: 'top-center', theme: 'error' });
-      }
-
-    } catch (error) {
-      console.log(error);
-      handleError(error);
-    }
-  };
-
-
-  let listaEstados = useSignal<any[]>([]);
-  useEffect(() => {
-    OrdenDespachoService.listEstadoOrdenDespacho().then((data) => {
-      listaEstados.value = data || [];
-    });
-  }, []);
-
-  let listaPrecios = useSignal<any[]>([]);
-  useEffect(() => {
-    OrdenDespachoService.listPrecioGalonCombo().then((data) => {
-      listaPrecios.value = data || [];
-    });
-  }, []);
-
-  let listaVehiculos = useSignal<any[]>([]);
-  useEffect(() => {
-    OrdenDespachoService.listVehiculoCombo().then((data) => {
-      listaVehiculos.value = data || [];
-    });
-  }, []);
-
-  let listaEstaciones = useSignal<any[]>([]);
-  useEffect(() => {
-    OrdenDespachoService.listEstacionCombo().then((data) => {
-      listaEstaciones.value = data || [];
-    });
-  }, []);
-
-  const idVehiculo = useSignal('');
-  const idPrecioEstablecido = useSignal('');
-  const idEstacion = useSignal('');
-
-  useEffect(() => {
-    if (nroGalones.value && idPrecioEstablecido.value) {
-      const precioSeleccionado = listaPrecios.value.find(
-        (p) => p.value === idPrecioEstablecido.value
-      );
-      if (precioSeleccionado) {
-        const precio = parseFloat(precioSeleccionado.precio);
-        const galones = parseFloat(String(nroGalones.value));
-        if (!isNaN(precio) && !isNaN(galones)) {
-          precioTotal.value = (precio * galones).toFixed(2);
-        }
-      }
-    } else {
-      precioTotal.value = '';
-    }
-  }, [nroGalones.value, idPrecioEstablecido.value, listaPrecios.value]);
-
-  return (
-    <>
-      <Dialog
-        modeless
-        headerTitle="Editar Orden Despacho"
-        opened={dialogOpened.value}
-        onOpenedChanged={({ detail }) => {
-          dialogOpened.value = detail.value;
-        }}
-        footer={
-          <>
-            <Button onClick={() => { dialogOpened.value = false; }}>Cancelar</Button>
-            <Button onClick={updateOrdenDespacho} theme="primary">Registrar</Button>
-          </>
-        }
-      >
-        <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
-          <TextField
-            label="Código"
-            placeholder="Ingrese el código"
-            value={codigo.value}
-            onValueChanged={(e) => (codigo.value = e.detail.value)}
-          />
-          <DatePicker
-            label="Fecha"
-            placeholder="Seleccione la fecha"
-            value={fecha.value}
-            onValueChanged={(e) => (fecha.value = e.detail.value)}
-          />
-          <NumberField
-            label="Nro Galones"
-            placeholder="Ingrese el número de galones"
-            value={nroGalones.value}
-            onValueChanged={(e) => (nroGalones.value = e.detail.value)}
-          />
-          <ComboBox
-            label="Tipo de Gasolina"
-            items={listaPrecios.value}
-            placeholder="Seleccione el tipo"
-            itemLabelPath="label"
-            itemValuePath="value"
-            value={idPrecioEstablecido.value}
-            onValueChanged={(e) => {
-              idPrecioEstablecido.value = e.detail.value;
-            }}
-          />
-          <TextField
-            label="Precio Total (automático)"
-            value={precioTotal.value?.toString() ?? ''}
-            readonly
-          />
-          <ComboBox
-            label="Estado"
-            items={listaEstados.value}
-            placeholder="Seleccione un estado"
-            value={estado.value}
-            onValueChanged={(e) => (estado.value = e.detail.value)}
-          />
-          <ComboBox
-            label="Matrícula del Vehículo"
-            items={listaVehiculos.value}
-            placeholder="Seleccione una matrícula"
-            itemLabelPath="label"
-            itemValuePath="value"
-            value={idVehiculo.value}
-            onValueChanged={(e) => (idVehiculo.value = e.detail.value)}
-          />
-          <ComboBox
-            label="Estación"
-            items={listaEstaciones.value}
-            placeholder="Seleccione una estación"
-            itemLabelPath="label"
-            itemValuePath="value"
-            value={idEstacion.value}
-            onValueChanged={(e) => (idEstacion.value = e.detail.value)}
-          />
-        </VerticalLayout>
-      </Dialog>
-      <Button onClick={openDialog}>Editar</Button>
-    </>
-  );
-
-}
-
-export default function OrdenDespachoView() {
+export default function OrdenDespachoUserView() {
   const dataProvider = useDataProvider<any>({
     list: () => OrdenDespachoService.listOrdenDespacho().then(data => data || [])
   });
@@ -475,7 +188,7 @@ export default function OrdenDespachoView() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
-    const ordenPagoId = ordenPago?.id || localStorage.getItem('ordenPagoId');
+    const ordenPagoId = ordenPago?.id || localStorage.getItem('ordenPagoId'); 
     if (id) {
       console.log('Llamando a consultarEstadoPago solo con checkoutId:', id);
       PagoService.consultarEstadoPago(id).then(async resultado => {
@@ -513,31 +226,6 @@ export default function OrdenDespachoView() {
     OrdenDespachoService.listAll().then(function (data: any) {
       setItems(data || []);
     });
-  }
-
-  const deleteOrdenDespacho = async (orden_despacho: OrdenDespacho) => {
-    // Mostrar confirmación antes de eliminar
-    const confirmed = window.confirm(`¿Está seguro de que desea eliminar el despacho con código ${orden_despacho.codigo}?`);
-
-    if (confirmed) {
-      try {
-        await OrdenDespachoService.delete(orden_despacho.id);
-        Notification.show('Despacho eliminado exitosamente', {
-          duration: 5000,
-          position: 'bottom-end',
-          theme: 'success'
-        });
-        // Recargar la lista después de eliminar
-        callData();
-      } catch (error) {
-        console.error('Error al eliminar la orden de despacho:', error);
-        Notification.show('Error al eliminar la orden de despacho', {
-          duration: 5000,
-          position: 'top-center',
-          theme: 'error'
-        });
-      }
-    }
   }
 
   //BUSCAR
@@ -606,13 +294,6 @@ export default function OrdenDespachoView() {
     return <span>{model.index + 1}</span>;
   }
 
-  function indexLink({ model }: { model: GridItemModel<OrdenDespacho> }) {
-    return (
-      <span>
-        <OrdenDespachoUpdateForm orden_despacho={model.item} onOrdenUpdated={callData} />
-      </span>
-    );
-  }
 
   function precioRenderer({ model }: { model: GridItemModel<any> }) {
     const precio = model.item.precio_establecido;
@@ -673,7 +354,37 @@ export default function OrdenDespachoView() {
       <Grid items={items}>
         <GridColumn renderer={indexIndex} header="Nro" width="70px" flexGrow={0} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "codigo")} path="codigo" header="Código" width="140px" flexGrow={0} />
-        <GridSortColumn onDirectionChanged={(e) => order(e, "fecha")} path="fecha" header="Fecha" width="320px" flexGrow={0} />
+        <GridSortColumn
+          path="fecha"
+          header="Fecha"
+          width="150px"
+          flexGrow={0}
+          renderer={({ model }) => {
+            console.log('Fecha cruda:', model.item.fecha);
+
+            let rawFecha = model.item.fecha;
+
+            // Asegúrate de que sea string, por si viene como Date ya
+            if (typeof rawFecha === 'string') {
+              // Reemplazar "ECT" por "GMT-5" o eliminarlo completamente
+              rawFecha = rawFecha.replace('ECT', 'GMT-5');
+            }
+
+            const fecha = new Date(rawFecha);
+            const esValida = !isNaN(fecha.getTime());
+
+            const fechaFormateada = esValida
+              ? new Intl.DateTimeFormat('es-EC', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+              }).format(fecha)
+              : 'Fecha inválida';
+
+            return <span>{fechaFormateada}</span>;
+          }}
+          onDirectionChanged={(e) => order(e, "fecha")}
+        />
         <GridSortColumn onDirectionChanged={(e) => order(e, "placa")} path="placa" header="Placa del Vehículo" width="200px" flexGrow={0} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "estacion")} path="estacion" header="Estación" width="150px" flexGrow={0} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "nombreGasolina")} path="nombreGasolina" header="Tipo de Gasolina" width="200px" flexGrow={0} />
@@ -681,7 +392,6 @@ export default function OrdenDespachoView() {
         <GridSortColumn onDirectionChanged={(e) => order(e, "nroGalones")} path="nroGalones" header="Galones" width="150px" flexGrow={0} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "precioTotal")} path="precioTotal" header="Precio Total" width="150px" flexGrow={0} renderer={precioTotalRenderer} />
         <GridSortColumn onDirectionChanged={(e) => order(e, "estado")} path="estado" header="Estado" width="230px" flexGrow={0} />
-        {/* <GridColumn header="Editar" renderer={indexLink} /> */}
         <GridColumn
           header="Pagar"
           renderer={({ item }) => (
