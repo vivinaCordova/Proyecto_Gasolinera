@@ -36,12 +36,13 @@ useEffect(() => {
   const estado = useSignal('');
   const proveedor = useSignal('');
   const tanque = useSignal('');
+  const precioTotal = useSignal('');
   const createOrdenCompra = async () => {
     try {
       if (cantidad.value.trim().length > 0 && estado.value.trim().length > 0) {
         const idProveedor = parseInt(proveedor.value) + 1;
         const idTanque = parseInt(tanque.value) + 1;
-        await OrdenCompraService.createOrdenCompra(parseInt(cantidad.value), idProveedor, idTanque, (estado.value));
+        await OrdenCompraService.createOrdenCompra(parseInt(cantidad.value), idProveedor, idTanque, (estado.value), precioTotal.value);
         if (props.onOrdenCompraCreated) {
           props.onOrdenCompraCreated();
         }
@@ -175,6 +176,20 @@ export default function OrdenCompraView() {
       </span>
     );
   }
+  function precioTotal({ item }: { item: OrdenCompra }) {
+    return (
+      <span>
+        {item.precioTotal} $
+      </span>
+    );
+  }
+  function cantidad({ item }: { item: OrdenCompra }) {
+    return (
+      <span>
+        {item.cantidad} gal
+      </span>
+    );
+  }
   const criterio = useSignal('');
   const texto = useSignal('');
   const itemSelect = [
@@ -233,9 +248,10 @@ export default function OrdenCompraView() {
       </HorizontalLayout>
       <Grid items={items}>
         <GridColumn renderer={indexIndex} header="Nro" />
-        <GridSortColumn path="cantidad" header="Cantidad" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridSortColumn path="proveedor" header="Proveedor" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridSortColumn path="tanque" header="Tanque" onDirectionChanged={(e) => order(e, 'nombre')} />
+        <GridSortColumn renderer={precioTotal} header="Precio Total" onDirectionChanged={(e) => order(e, 'precioTotal')} />
+        <GridSortColumn renderer={cantidad} header="Cantidad" onDirectionChanged={(e) => order(e, 'cantidad')} />
         <GridColumn path="estado" header="Estado">
 
         </GridColumn>
