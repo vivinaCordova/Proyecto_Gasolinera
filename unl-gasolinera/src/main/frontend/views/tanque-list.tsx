@@ -79,6 +79,7 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
     });
   }, []);
 
+
   const dialogOpened = useSignal(false);
   return (
     <>
@@ -152,6 +153,7 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
     </>
   );
 }
+
 //LiSTA TANQUES
 export default function TanqueView() {
   const [items, setItems] = useState([]);
@@ -236,49 +238,12 @@ export default function TanqueView() {
       handleError(error);
     }
   };
-
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
 
       <ViewToolbar title="Lista de Tanques">
         <Group>
           <TanqueEntryForm onTanqueCreated={callData} />
-          <Button
-            theme="error"
-            onClick={async () => {
-              try {
-                const mensajes = await TanqueService.obtenerAlertasTanques(); // Obtiene las alertas de los tanques
-                if (mensajes && mensajes.length > 0) {
-                  for (const msg of mensajes) {
-                    if (msg && msg.includes("por debajo del mínimo")) {
-                      const resultado = await TanqueService.aumentarStockAutomaticamente(); // Llama al método para aumentar el stock
-                      if (resultado) {
-                        Notification.show(
-                          "Stock aumentado automáticamente y orden de compra generada exitosamente.",
-                          { duration: 5000, position: "bottom-end", theme: "success" }
-                        );
-                        await callData(); // Refresca la lista de tanques
-                      } else {
-                        Notification.show(
-                          "No se pudo aumentar el stock ni generar la orden de compra. Verifique los datos.",
-                          { duration: 5000, position: "top-center", theme: "error" }
-                        );
-                      }
-                    } else if (msg) {
-                      Notification.show(msg, { duration: 6000, position: "bottom-start", theme: "contrast" });
-                    }
-                  }
-                } else {
-                  Notification.show("No hay alertas disponibles.", { duration: 5000, position: "top-center", theme: "warning" });
-                }
-              } catch (error) {
-                console.error(error);
-                Notification.show("Error al verificar alertas.", { duration: 5000, position: "top-center", theme: "error" });
-              }
-            }}
-          >
-            Verificar Alertas
-          </Button>
         </Group>
       </ViewToolbar>
       <HorizontalLayout theme="spacing">
@@ -311,52 +276,48 @@ export default function TanqueView() {
         <GridSortColumn renderer={capacidad} header="Capacidad" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridSortColumn renderer={capacidadMinima} header="Capacidad Minima" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridSortColumn renderer={capacidadTotal} header="Capacidad Maxima" onDirectionChanged={(e) => order(e, 'nombre')} />
-        <GridColumn path="tipoCombustible" header="Tipo">
-        </GridColumn>
+        <GridColumn path="tipoCombustible" header="Tipo" />
+        <GridColumn
+          header="Acciones"
+          renderer={({ item }: { item: Tanque }) => (
+            <Button
+              theme="primary"
+              onClick={async () => {
+                try {
+                  // Llamar al método del servicio para aumentar el stock
+                  const resultado = await TanqueService.aumentarStock(item.codigo);
+
+                  // Mostrar notificaciones según el resultado
+                  if (resultado) {
+                    Notification.show(
+                      `El stock del tanque ${item.codigo} se ha aumentado exitosamente.`,
+                      { duration: 5000, position: 'bottom-end', theme: 'success' }
+                    );
+                  } else {
+                    Notification.show(
+                      `El tanque ${item.codigo} no requiere reposición.`,
+                      { duration: 5000, position: 'top-center', theme: 'warning' }
+                    );
+                  }
+
+                  // Refrescar la lista de tanques después de la operación
+                  await callData();
+                } catch (error) {
+                  console.error('Error al intentar aumentar el stock:', error);
+
+                  // Mostrar notificación de error
+                  Notification.show(
+                    `Error al intentar aumentar el stock del tanque ${item.codigo}. Por favor, inténtelo de nuevo.`,
+                    { duration: 5000, position: 'top-center', theme: 'error' }
+                  );
+                }
+              }}
+            >
+              Aumentar Stock
+            </Button>
+          )}
+        />
       </Grid>
     </main>
   );
 }
-/*export default function TanqueView() {
-  const [items, setItems] = useState([]);
-
-  const callData = () => {
-    TanqueService.listAll().then(function (data: [Tanque]) {
-      setItems(data);
-    });
-  };
-
-  useEffect(() => {
-    callData();
-  }, []);
-
-  return (
-    <main className="w-full h-full flex flex-col box-border gap-s p-m">
-      <ViewToolbar title="Lista de Tanques">
-        <Group>
-          <TanqueEntryForm onTanqueCreated={callData} />
-        </Group>
-      </ViewToolbar>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {items.map((tanque) => (
-          <Card key={tanque.codigo}>
-            <img
-              slot="media"
-              width="60%"
-              src={'/img/tanque.jpg'} // URL de la imagen del tanque
-              alt={`Tanque ${tanque.codigo}`}
-            />
-            <div style={{ padding: '1rem' }}>
-              <GridSortColumn path="codigo" header="Codigo" />
-              <GridSortColumn path="capacidad" header="Capacidad"  />
-              <GridSortColumn path="capacidadMinima" header="Capacidad Minima"  />
-              <GridSortColumn path="capacidadTotal" header="Capacidad Maxima"  />
-              <GridColumn path="tipo" header="Tipo" />
-            </div>
-          </Card>
-        ))}
-      </div>
-    </main>
-  );
-}*/
