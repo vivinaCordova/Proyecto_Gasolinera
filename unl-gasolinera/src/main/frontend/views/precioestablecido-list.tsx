@@ -1,5 +1,5 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, NumberField, TextField, VerticalLayout } from '@vaadin/react-components';
+import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, HorizontalLayout, Icon, NumberField, Select, TextField, VerticalLayout } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
 import { OrdenDespachoService, PrecioEstablecidoService, TaskService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
@@ -89,13 +89,13 @@ function PrecioEstablecidoForm(props: PrecioEstablecidoEntryFormProps) {
   };
 
   let listaTipoCombustible = useSignal<string[]>([]);
-    useEffect(() => {
-      PrecioEstablecidoService.listTipoCombustible().then(data => {
-        if (data) {
-          listaTipoCombustible.value = data.filter((item): item is string => item !== undefined);
-        }
-      });
-    }, []);
+  useEffect(() => {
+    PrecioEstablecidoService.listTipoCombustible().then(data => {
+      if (data) {
+        listaTipoCombustible.value = data.filter((item): item is string => item !== undefined);
+      }
+    });
+  }, []);
 
   const dialogOpened = useSignal(false);
 
@@ -164,7 +164,7 @@ function PrecioEstablecidoForm(props: PrecioEstablecidoEntryFormProps) {
 function PrecioEstablecidoEntryFormUpdate(props: PrecioEstablecidoEntryFormPropsUpdate) {
   const dialogOpened = useSignal(false);
   const id = useSignal(props.precioEstablecido.id.toString());
-  
+
   // Helper function to convert date to string
   const dateToString = (date: any): string => {
     if (date instanceof Date) {
@@ -175,7 +175,7 @@ function PrecioEstablecidoEntryFormUpdate(props: PrecioEstablecidoEntryFormProps
     }
     return date ? date.toString() : '';
   };
-  
+
   const fecha = useSignal(dateToString(props.precioEstablecido.fecha));
   const fechaFin = useSignal(dateToString(props.precioEstablecido.fechaFin));
   const estado = useSignal(props.precioEstablecido.estado);
@@ -235,7 +235,7 @@ function PrecioEstablecidoEntryFormUpdate(props: PrecioEstablecidoEntryFormProps
           <ComboBox label="Tipo de Combustible" items={listaTipoCombustible.value} value={tipoCombustible.value} onValueChanged={(e) => tipoCombustible.value = e.detail.value} />
         </VerticalLayout>
       </Dialog>
-      <Button onClick={openDialog}>Editar</Button>
+      <Button onClick={openDialog}>Actualizar</Button>
     </>
   );
 }
@@ -270,6 +270,50 @@ export default function PrecioEstablecidoView() {
     <span>{model.index + 1}</span>
   );
 
+  function renderEstado({ model }: { model: GridItemModel<PrecioEstablecido> }) {
+    return <span>{model.item.estado ? 'Activo' : 'Inactivo'}</span>;
+  }
+
+  const criterio = useSignal('');
+  const texto = useSignal('');
+
+  const itemSelect = [
+    {
+      label: 'Fecha Inicio',
+      value: 'fecha',
+    },
+    {
+      label: 'Fecha Fin',
+      value: 'fechaFin',
+    },
+    {
+      label: 'Estado',
+      value: 'estado',
+    }
+  ];
+
+  const search = async () => {
+    try {
+      PrecioEstablecidoService.search(criterio.value, texto.value, 0).then(function (data) {
+        setItems(data);
+      });
+
+      criterio.value = '';
+      texto.value = '';
+
+      Notification.show('Busqueda realizada', { duration: 5000, position: 'bottom-end', theme: 'success' });
+
+    } catch (error) {
+      console.log(error);
+      handleError(error);
+    }
+  };
+
+  function precioRenderer({ model }: { model: GridItemModel<PrecioEstablecido> }) {
+      const precio = model.item.precio;
+      return <span>${precio ? Number(precio).toFixed(2) : '0.00'}</span>;
+    }
+
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
       <ViewToolbar title="Lista de Precio Establecidos">
@@ -277,14 +321,55 @@ export default function PrecioEstablecidoView() {
           <PrecioEstablecidoForm onPrecioEstablecidoCreated={callData} />
         </Group>
       </ViewToolbar>
+      <HorizontalLayout theme="spacing">
+        <Select items={itemSelect}
+          value={criterio.value}
+          onValueChanged={(evt) => {
+            criterio.value = evt.detail.value;
+            texto.value = '';
+          }}
+          placeholder={'Seleccione un criterio'}>
+
+        </Select>
+
+        {criterio.value === 'estado' ? (
+          <Select
+            items={[
+              { label: 'Activo', value: 'true' },
+              { label: 'Inactivo', value: 'false' },
+            ]}
+            value={texto.value}
+            onValueChanged={(evt) => (texto.value = evt.detail.value)}
+            placeholder="Seleccione el estado"
+            style={{ width: '50%' }}
+          />
+        ) : (
+          <TextField
+            placeholder="Search"
+            style={{ width: '50%' }}
+            value={texto.value}
+            onValueChanged={(evt) => (texto.value = evt.detail.value)}
+          >
+            <Icon slot="prefix" icon="vaadin:search" />
+          </TextField>
+        )}
+
+        <Button onClick={search} theme="primary">
+          BUSCAR
+        </Button>
+        <Button onClick={callData} theme="secondary">
+          <Icon icon="vaadin:refresh" />
+        </Button>
+
+      </HorizontalLayout>
       <Grid items={items}>
         <GridColumn renderer={indexIndex} header="Nro" />
-        <GridSortColumn path="fecha" onDirectionChanged={(e) => order(e, 'fecha')} header="Fecha Inicio" />
-        <GridSortColumn path="fechaFin" onDirectionChanged={(e) => order(e, 'fechaFin')} header="Fecha Fin" />
-        <GridSortColumn path="estado" onDirectionChanged={(e) => order(e, 'estado')} header="Estado" />
-        <GridSortColumn path="precio" onDirectionChanged={(e) => order(e, 'precio')} header="Precio" />
-        <GridSortColumn path="tipoCombustible" onDirectionChanged={(e) => order(e, 'tipoCombustible')} header="Tipo de Combustible" />
-        <GridColumn header="Acciones" renderer={indexLink} />
+        <GridSortColumn path="fecha" onDirectionChanged={(e) => order(e, 'fecha')} header="Fecha Inicio" width="320px" flexGrow={0} />
+        <GridSortColumn path="fechaFin" onDirectionChanged={(e) => order(e, 'fechaFin')} header="Fecha Fin" width="320px" flexGrow={0} />
+        <GridSortColumn path="estado" onDirectionChanged={(e) => order(e, 'estado')} header="Estado" renderer={renderEstado} />
+        <GridSortColumn path="precio" onDirectionChanged={(e) => order(e, 'precio')} header="Precio" renderer={precioRenderer} />
+        <GridSortColumn path="tipoCombustible" onDirectionChanged={(e) => order(e, 'tipoCombustible')} header="Tipo de Combustible" width="200px" flexGrow={0} />
+        <GridColumn header="Actualizar" renderer={indexLink} />
       </Grid>
     </main>
   );

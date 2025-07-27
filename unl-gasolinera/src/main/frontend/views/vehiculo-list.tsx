@@ -1,5 +1,5 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, NumberField, TextField, VerticalLayout } from '@vaadin/react-components';
+import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, HorizontalLayout, Icon, NumberField, Select, TextField, VerticalLayout } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
 import { VehiculoService, TaskService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
@@ -25,7 +25,7 @@ type Vehiculo = {
   modelo: string;
   marca: string;
   propietario: string;
-  
+
 };
 
 
@@ -57,7 +57,7 @@ function VehiculoEntryForm(props: VehiculoEntryFormProps) {
         modelo.value = '';
         marca.value = '';
         propietario.value = '';
-        
+
 
         dialogOpened.value = false;
         Notification.show('Vehiculo creada', { duration: 5000, position: 'bottom-end', theme: 'success' });
@@ -78,7 +78,7 @@ function VehiculoEntryForm(props: VehiculoEntryFormProps) {
       listaPersona.value = data
     );
   }, []);
-  
+
   const dialogOpened = useSignal(false);
   return (
     <>
@@ -118,7 +118,7 @@ function VehiculoEntryForm(props: VehiculoEntryFormProps) {
             value={modelo.value}
             onValueChanged={(evt) => (modelo.value = evt.detail.value)}
           />
-           <TextField label="Marca del Vehiculo"
+          <TextField label="Marca del Vehiculo"
             placeholder="Ingrese la Marca del Vehiculo"
             aria-label="Marca del Vehiculo"
             value={marca.value}
@@ -169,7 +169,7 @@ function VehiculoEntryFormUpdate(props: VehiculoEntryFormPropsUpdate) {
     try {
       if (placa.value.trim().length > 0 && modelo.value.trim().length > 0 && marca.value.trim().length > 0 && propietario.value.trim().length > 0) {
         const id_propietario = parseInt(propietario.value);
-        await VehiculoService.update(parseInt(id.value),placa.value, modelo.value, marca.value, id_propietario);
+        await VehiculoService.update(parseInt(id.value), placa.value, modelo.value, marca.value, id_propietario);
         if (props.onVehiculoUpdated) {
           props.onVehiculoUpdated();
         }
@@ -177,7 +177,7 @@ function VehiculoEntryFormUpdate(props: VehiculoEntryFormPropsUpdate) {
         modelo.value = '';
         marca.value = '';
         propietario.value = '';
-        
+
 
         dialogOpened.value = false;
         Notification.show('Vehiculo creado', { duration: 5000, position: 'bottom-end', theme: 'success' });
@@ -198,7 +198,7 @@ function VehiculoEntryFormUpdate(props: VehiculoEntryFormPropsUpdate) {
       listaPersona.value = data
     );
   }, []);
-  
+
 
   return (
     <>
@@ -229,7 +229,7 @@ function VehiculoEntryFormUpdate(props: VehiculoEntryFormPropsUpdate) {
             value={modelo.value}
             onValueChanged={(evt) => (modelo.value = evt.detail.value)}
           />
-           <TextField label="Marca del Vehiculo"
+          <TextField label="Marca del Vehiculo"
             placeholder="Ingrese la Marca del Vehiculo"
             aria-label="Marca del Vehiculo"
             value={marca.value}
@@ -296,20 +296,80 @@ export default function VehiculoView() {
     );
   }
 
+  const criterio = useSignal('');
+  const texto = useSignal('');
+
+  const itemSelect = [
+    {
+      label: 'Placa',
+      value: 'placa',
+    },
+    {
+      label: 'Modelo',
+      value: 'modelo',
+    },
+    {
+      label: 'Marca',
+      value: 'marca',
+    },
+    {
+      label: 'Propietario',
+      value: 'propietario',
+    }
+  ];
+
+  const search = async () => {
+    try {
+      VehiculoService.search(criterio.value, texto.value, 0).then(function (data) {
+        setItems(data);
+      });
+
+      criterio.value = '';
+      texto.value = '';
+
+      Notification.show('Busqueda realizada', { duration: 5000, position: 'bottom-end', theme: 'success' });
+
+    } catch (error) {
+      console.log(error);
+      handleError(error);
+    }
+  };
+
   return (
 
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
 
-      <ViewToolbar title="Lista de Vehiculos">
+      <ViewToolbar title="Lista de Vehículos">
         <Group>
           <VehiculoEntryForm onVehiculoCreated={callData} />
         </Group>
       </ViewToolbar>
+      <HorizontalLayout theme="spacing">
+        <Select
+          items={itemSelect}
+          value={criterio.value}
+          onValueChanged={(evt) => (criterio.value = evt.detail.value)}
+          placeholder="Selecione un criterio"></Select>
+
+        <TextField
+          placeholder="Search"
+          style={{ width: '50%' }}
+          value={texto.value}
+          onValueChanged={(evt) => (texto.value = evt.detail.value)}>
+          <Icon slot="prefix" icon="vaadin:search" />
+        </TextField>
+        <Button onClick={search} theme="primary">
+          BUSCAR
+        </Button>
+        <Button onClick={callData} theme="secondary">
+          <Icon icon="vaadin:refresh" />
+        </Button>
+      </HorizontalLayout>
       <Grid items={items}>
         <GridColumn renderer={indexIndex} header="Nro" />
-        <GridSortColumn onDirectionChanged={(e) => order(e, "placa")} path="placa" header="Vehiculo" />
-        <GridSortColumn onDirectionChanged={(e) => order(e, "modelo")} path="modelo" header="modelo" />
-        <GridSortColumn onDirectionChanged={(e) => order(e, "marca")} path="marca" header="marca" />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "placa")} path="placa" header="Placa Vehiculo" />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "modelo")} path="modelo" header="Modelo" />
+        <GridSortColumn onDirectionChanged={(e) => order(e, "marca")} path="marca" header="Marca" />
         <GridSortColumn onDirectionChanged={(e) => order(e, "propietario")} path="propietario" header="Propietario" />
         <GridColumn header="Acciones" renderer={indexLink} />
 

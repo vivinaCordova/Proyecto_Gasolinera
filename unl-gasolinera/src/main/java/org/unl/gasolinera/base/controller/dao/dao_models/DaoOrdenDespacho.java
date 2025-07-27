@@ -295,7 +295,7 @@ public class DaoOrdenDespacho extends AdapterDao<OrdenDespacho> {
         return resp;
     }
 
-    public Boolean deleteOrdenDespacho(Integer id) {
+    /*public Boolean deleteOrdenDespacho(Integer id) {
         try {
             super.delete(id);
             return true;
@@ -304,6 +304,6 @@ public class DaoOrdenDespacho extends AdapterDao<OrdenDespacho> {
             System.out.println(e);
             return false;
         }
-    }
+    }*/
 
 }

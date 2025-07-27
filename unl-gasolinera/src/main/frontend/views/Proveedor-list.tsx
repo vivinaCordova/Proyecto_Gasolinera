@@ -26,13 +26,13 @@ type ProveedorEntryFormProps = {
 //GUARDAR Proveedor
 function ProveedorEntryForm(props: ProveedorEntryFormProps) {
   useEffect(() => {
-      role().then(async (data) => {
-        if (data?.rol != 'ROLE_admin') {
-          await CuentaService.logout();
-          await logout();
-        }
-      });
-    }, []);
+    role().then(async (data) => {
+      if (data?.rol != 'ROLE_admin') {
+        await CuentaService.logout();
+        await logout();
+      }
+    });
+  }, []);
   const nombre = useSignal('');
   const correoElectronico = useSignal('');
   const tipoCombustible = useSignal('');
@@ -88,18 +88,18 @@ function ProveedorEntryForm(props: ProveedorEntryFormProps) {
             <Button onClick={createProveedor} theme="primary">
               Registrar
             </Button>
-            
+
           </>
         }
       >
         <VerticalLayout style={{ alignItems: 'stretch', width: '18rem', maxWidth: '100%' }}>
-          <TextField label="Nombre del Proveedor" 
+          <TextField label="Nombre del Proveedor"
             placeholder="Ingrese el nombre del Proveedor"
             aria-label="Nombre del Proveedor"
             value={nombre.value}
             onValueChanged={(evt) => (nombre.value = evt.detail.value)}
-            />
-          <TextField label="Correo Electronico" 
+          />
+          <TextField label="Correo Electronico"
             placeholder='Ingrese Correo Electronico'
             aria-label='Ingrese Correo Electronico'
             value={correoElectronico.value}
@@ -111,16 +111,16 @@ function ProveedorEntryForm(props: ProveedorEntryFormProps) {
             aria-label='Seleccione un tipo de combustible'
             value={tipoCombustible.value}
             onValueChanged={(evt) => (tipoCombustible.value = evt.detail.value)}
-            /> 
+          />
         </VerticalLayout>
       </Dialog>
       <Button
-            onClick={() => {
-              dialogOpened.value = true;
-            }}
-          >
-            Agregar
-          </Button>
+        onClick={() => {
+          dialogOpened.value = true;
+        }}
+      >
+        Agregar
+      </Button>
     </>
   );
 }
@@ -176,7 +176,7 @@ export default function ProveedorView() {
   ]
   const search = async () => {
     try {
-      ProveedorService.search(criterio.value, texto.value, 0).then(function (data) { 
+      ProveedorService.search(criterio.value, texto.value, 0).then(function (data) {
         setItems(data);
       });
       criterio.value = '';
@@ -193,14 +193,14 @@ export default function ProveedorView() {
 
       <ViewToolbar title="Lista de Proveedores">
         <Group>
-          <ProveedorEntryForm onProveedorCreated={callData}/>
+          <ProveedorEntryForm onProveedorCreated={callData} />
         </Group>
       </ViewToolbar>
       <HorizontalLayout theme="spacing">
         <Select items={itemSelect}
           value={criterio.value}
           onValueChanged={(evt) => (criterio.value = evt.detail.value)}
-          placeholder="seleccione criterio">
+          placeholder="Seleccione un criterio">
 
         </Select>
         <TextField
@@ -213,13 +213,16 @@ export default function ProveedorView() {
           <Icon slot="prefix" icon="vaadin:search" />
         </TextField>
         <Button onClick={search} theme="primary">
-          Buscar
+          BUSCAR
+        </Button>
+        <Button onClick={callData} theme="secondary">
+          <Icon icon="vaadin:refresh" />
         </Button>
       </HorizontalLayout>
       <Grid items={items}>
-        <GridColumn  renderer={indexIndex} header="Nro" />
-        <GridSortColumn path="nombre" header="Nombre" onDirectionChanged={(e) => order(e, 'nombre')}/>
-        <GridSortColumn path="tipoCombustible" header="Tipo"onDirectionChanged={(e) => order(e, 'nombre')}/>
+        <GridColumn renderer={indexIndex} header="Nro" />
+        <GridSortColumn path="nombre" header="Nombre" onDirectionChanged={(e) => order(e, 'nombre')} />
+        <GridSortColumn path="tipoCombustible" header="Tipo" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridColumn path="correoElectronico" header="Correo Electronico">
         </GridColumn>
       </Grid>

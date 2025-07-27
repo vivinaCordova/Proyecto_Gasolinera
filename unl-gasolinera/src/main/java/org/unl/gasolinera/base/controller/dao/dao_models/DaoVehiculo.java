@@ -58,6 +58,7 @@ public class DaoVehiculo extends AdapterDao<Vehiculo> {
             quickSort(arr, partitionIndex + 1, end, type, attribute);
         }
     }
+
     private int partition(HashMap<String, Object> arr[], int begin, int end, Integer type, String attribute) {
         HashMap<String, Object> pivot = arr[end];
         int i = (begin - 1);
@@ -114,7 +115,7 @@ public class DaoVehiculo extends AdapterDao<Vehiculo> {
         return aux;
     }
 
-    public LinkedList<HashMap<String, Object>> orderbyVehiculo(Integer type, String attribute) throws Exception {
+    public LinkedList<HashMap<String, Object>> orderByVehiculo(Integer type, String attribute) throws Exception {
         LinkedList<HashMap<String, Object>> lista = all();
         if (!listAll().isEmpty()) {
             HashMap arr[] = lista.toArray();
@@ -122,6 +123,116 @@ public class DaoVehiculo extends AdapterDao<Vehiculo> {
             lista.toList(arr);
         }
         return lista;
+    }
+
+    private Integer bynaryLineal(HashMap<String, Object>[] arr, String attribute, String text) {
+        Integer half = 0;
+        if (!(arr.length == 0) && !text.isEmpty()) {
+            half = arr.length / 2;
+            int aux = 0;
+            if (text.trim().toLowerCase().charAt(0) > arr[half].get(attribute).toString().trim().toLowerCase().charAt(0)) {
+                aux = 1;
+            } else if (text.trim().toLowerCase().charAt(0) < arr[half].get(attribute).toString().trim().toLowerCase().charAt(0)) {
+                aux = -1;
+            }
+
+            half = half * aux;
+
+        }
+        return half;
+    }
+
+    public LinkedList<HashMap<String, Object>> search(String attribute, String text, Integer type) throws Exception {
+        LinkedList<HashMap<String, Object>> lista = all();
+        LinkedList<HashMap<String, Object>> resp = new LinkedList<>();
+        if (!lista.isEmpty()) {
+            lista = orderByVehiculo(Utiles.ASCENDENTE, attribute);
+            HashMap<String, Object>[] arr = lista.toArray();
+            Integer n = bynaryLineal(arr, attribute, text);
+            switch (type) {
+                case 1:
+                    if (n > 0) {
+                        for (int i = n; i < arr.length; i++) {
+                            if (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase())) {
+                                resp.add(arr[i]);
+                            }
+                        }
+                    } else if (n < 0) {
+                        n *= -1;
+                        for (int i = 0; i < n; i++) {
+                            if (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase())) {
+                                resp.add(arr[i]);
+                            }
+                        }
+                    } else {
+                        for (int i = 0; i < arr.length; i++) {
+                            if (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase())) {
+                                resp.add(arr[i]);
+                            }
+                        }
+                    }
+                    break;
+                case 2:
+                    if (n > 0) {
+                        for (int i = n; i < arr.length; i++) {
+                            if (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase())) {
+                                resp.add(arr[i]);
+                            }
+                        }
+                    } else if (n < 0) {
+                        n *= -1;
+                        for (int i = 0; i < n; i++) {
+                            if (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase())) {
+                                resp.add(arr[i]);
+                            }
+                        }
+                    } else {
+                        for (int i = 0; i < arr.length; i++) {
+                            if (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase())) {
+                                resp.add(arr[i]);
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    /*
+                     * if (n > 0) {
+                     * for (int i = n; i < arr.length; i++) {
+                     * if
+                     * (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase()
+                     * )) {
+                     * resp.add(arr[i]);
+                     * }
+                     * }
+                     * } else if (n < 0) {
+                     * n *= -1;
+                     * for (int i = 0; i < n; i++) {
+                     * if
+                     * (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase()
+                     * )) {
+                     * resp.add(arr[i]);
+                     * }
+                     * }
+                     * } else {
+                     * for (int i = 0; i < arr.length; i++) {
+                     * if
+                     * (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase()
+                     * )) {
+                     * resp.add(arr[i]);
+                     * }
+                     * }
+                     * }
+                     */
+                    for (int i = 0; i < arr.length; i++) {
+                        if (arr[i].get(attribute).toString().toLowerCase().startsWith(text.toLowerCase())) {
+                            resp.add(arr[i]);
+                        }
+                    }
+                    break;
+
+            }
+        }
+        return resp;
     }
     
 }
