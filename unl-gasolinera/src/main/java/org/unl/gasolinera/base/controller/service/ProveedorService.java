@@ -43,29 +43,27 @@ public class ProveedorService {
     
     }
     public void createProveedor(@NotEmpty String nombre, @NotEmpty String correoElectronico, Integer tipoCombustible) throws Exception {
-        if (nombre.trim().length() > 0 && correoElectronico.trim().length()> 0 && tipoCombustible > 0 ) {
-    
-        db.getObj().setNombre(nombre);
-        db.getObj().setCorreoElectronico(correoElectronico);
-        db.getObj().setIdPrecioEstablecido(tipoCombustible);
-    
-        if (!db.save()) 
-            throw new Exception("No se pudo guardar los datos del proveedor. Verifica la conexión o los datos.");
+        if(nombre.trim().length() > 0 && correoElectronico.trim().length() > 0 && tipoCombustible > 0) {
+            db.getObj().setNombre(nombre);
+            db.getObj().setCorreoElectronico(correoElectronico);
+            db.getObj().setIdPrecioEstablecido(tipoCombustible);
+            if(!db.save())
+                throw new  Exception("No se pudo guardar los datos de la Proveedor");
         }
     }
     public List<HashMap> listTipo() {
         List<HashMap> lista = new ArrayList<>();
         DaoPrecioEstablecido da = new DaoPrecioEstablecido();
-        if (!db.listAll().isEmpty()) {
+        if(!db.listAll().isEmpty()) {
             PrecioEstablecido[] arreglo = da.listAll().toArray();
-            for (int i = 0; i < arreglo.length; i++) {
+            for(int i = 0; i < arreglo.length; i++) {
                 HashMap<String, String> aux = new HashMap<>();
-                aux.put("value", arreglo[i].getId().toString());
+                aux.put("value", arreglo[i].getId().toString(i));
                 aux.put("label", arreglo[i].getTipoCombustible().toString());
-                lista.add(aux);
+                lista.add(aux); 
             }
 
         }
         return lista;
-    } 
+    }  
 }
