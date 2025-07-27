@@ -127,3 +127,19 @@
     transform: translateY(0);
   }
 }
+
+.registro-formulario {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+
+.columna {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-width: 45%;
+}
