@@ -76,7 +76,7 @@ public class VehiculoService {
         return lista;
     }
 
-    public List<HashMap> listAll() {
+    public List<HashMap> listAll() throws Exception {
         return Arrays.asList(dv.all().toArray());
     }
 
