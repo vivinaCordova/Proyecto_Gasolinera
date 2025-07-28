@@ -48,7 +48,7 @@
   gap: 1rem;
 }
 
-/* Barra decorativa vertical */
+
 .login-container::before {
   content: "";
   position: absolute;
@@ -121,7 +121,7 @@
   font-weight: 600;
 }
 
-/* Mensaje de error */
+
 .error {
   background: rgba(255, 0, 0, 0.2);
   color: #fff;
@@ -131,7 +131,7 @@
   margin-top: 1rem;
 }
 
-/* Animación suave de entrada */
+
 @keyframes floatUp {
   from {
     opacity: 0;
