@@ -1,5 +1,5 @@
 import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridSortColumn, HorizontalLayout, Icon, NumberField, Select, TextField, VerticalLayout } from '@vaadin/react-components';
+import { Button, ComboBox, DatePicker, Dialog, Grid, GridColumn, GridItemModel, GridSortColumn, HorizontalLayout, Icon, NumberField, Select, TextField, VerticalLayout } from '@vaadin/react-components';
 import { Notification } from '@vaadin/react-components/Notification';
 import { CuentaService, OrdenCompraService, TaskService } from 'Frontend/generated/endpoints';
 import { useSignal } from '@vaadin/hilla-react-signals';
@@ -176,17 +176,14 @@ export default function OrdenCompraView() {
       </span>
     );
   }
-  function precioTotal({ item }: { item: OrdenCompra }) {
-    return (
-      <span>
-        {item.precioTotal} $
-      </span>
-    );
+  function precioTotalRenderer({ model }: { model: GridItemModel<any> }) {
+    const precioTotal = model.item.precioTotal;
+    return <span>${precioTotal ? Number(precioTotal).toFixed(2) : '0.00'}</span>;
   }
   function cantidad({ item }: { item: OrdenCompra }) {
     return (
       <span>
-        {item.cantidad} gal
+        {item.cantidad} Gal
       </span>
     );
   }
@@ -218,6 +215,8 @@ export default function OrdenCompraView() {
       handleError(error);
     }
   };
+
+  
   return (
     <main className="w-full h-full flex flex-col box-border gap-s p-m">
 
@@ -253,7 +252,7 @@ export default function OrdenCompraView() {
         <GridColumn renderer={indexIndex} header="Nro" />
         <GridSortColumn path="proveedor" header="Proveedor" onDirectionChanged={(e) => order(e, 'nombre')} />
         <GridSortColumn path="tanque" header="Tanque" onDirectionChanged={(e) => order(e, 'nombre')} />
-        <GridSortColumn renderer={precioTotal} header="Precio Total" onDirectionChanged={(e) => order(e, 'precioTotal')} />
+        <GridSortColumn renderer={precioTotalRenderer} header="Precio Total" onDirectionChanged={(e) => order(e, 'precioTotal')} />
         <GridSortColumn renderer={cantidad} header="Cantidad" onDirectionChanged={(e) => order(e, 'cantidad')} />
         <GridColumn path="estado" header="Estado">
 

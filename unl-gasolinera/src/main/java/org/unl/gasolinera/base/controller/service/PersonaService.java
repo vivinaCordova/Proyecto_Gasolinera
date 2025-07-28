@@ -95,9 +95,13 @@ public void createRegistro(@NotEmpty String usuario, @NotEmpty String cedula, @N
             da.getObj().setUsuario(usuario);
             da.getObj().setCedula(cedula);
             da.getObj().setId_rol(2);
-            Integer idPersona = da.listAll().getLength() + 1;
+            
             if (!da.save())
                 throw new Exception("No se pudo guardar los datos de Persona");
+            
+            // Obtener el ID real de la persona recién creada
+            Integer idPersona = da.getObj().getId();
+            
             dc.getObj().setCorreo(correo);
             dc.getObj().setClave(clave);
             dc.getObj().setId_persona(idPersona);

@@ -6,6 +6,7 @@ import org.unl.gasolinera.base.controller.Utiles;
 import org.unl.gasolinera.base.controller.dao.AdapterDao;
 import org.unl.gasolinera.base.controller.dataStruct.list.LinkedList;
 import org.unl.gasolinera.base.models.Vehiculo;
+import org.unl.gasolinera.base.models.Persona;
 
 public class DaoVehiculo extends AdapterDao<Vehiculo> {
     private Vehiculo obj;
@@ -103,15 +104,33 @@ public class DaoVehiculo extends AdapterDao<Vehiculo> {
     }
 
     private HashMap<String, Object> toDict(Vehiculo arreglo, Integer i) {
-        HashMap<String, Object> map = new HashMap<>();
-        DaoPersona dp = new DaoPersona();
         HashMap<String, Object> aux = new HashMap<>();
-        aux.put("id", arreglo.getId().toString(i));
+        DaoPersona dp = new DaoPersona();
+        
+        aux.put("id", arreglo.getId().toString());
         aux.put("placa", arreglo.getPlaca());
         aux.put("modelo", arreglo.getModelo());
         aux.put("marca", arreglo.getMarca());
-        aux.put("propietario", dp.listAll().get(arreglo.getIdPropietario()).getUsuario());
-
+        
+        String nombrePropietario = "Sin propietario";
+        if (arreglo.getIdPropietario() != null) {
+            try {
+                if (!dp.listAll().isEmpty()) {
+                    Persona[] personas = dp.listAll().toArray();
+                    for (Persona persona : personas) {
+                        if (persona.getId() != null && persona.getId().equals(arreglo.getIdPropietario())) {
+                            nombrePropietario = persona.getUsuario();
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Error al buscar propietario: " + e.getMessage());
+                nombrePropietario = "Error al cargar propietario";
+            }
+        }
+        
+        aux.put("propietario", nombrePropietario);
         return aux;
     }
 

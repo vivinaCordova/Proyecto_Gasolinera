@@ -1,5 +1,1 @@
-[
-  { "id": 1, "correo": "arelys@mail.com", "clave": "are", "estado": true, "id_persona": 1 },
-  { "id": 2, "correo": "shami@mail.com", "clave": "123", "estado": true, "id_persona": 2 },
-  { "id": 3, "correo": "carolina@mail.com", "clave": "123", "estado": true, "id_persona": 3 }
-]
+[{"id":1,"correo":"arelys@mail.com","clave":"are","estado":true,"id_persona":1},{"id":2,"correo":"shami@mail.com","clave":"123","estado":true,"id_persona":2},{"id":3,"correo":"carolina@mail.com","clave":"123","estado":true,"id_persona":3},{"id":4,"correo":"michu@gmail.com","clave":"Patacon25","estado":true,"id_persona":4},{"id":5,"correo":"halo06@gmail.com","clave":"Holamundo1","estado":true,"id_persona":5},{"id":6,"correo":"viviana@gmail.com","clave":"Mangos25","estado":true,"id_persona":6},{"id":7,"correo":"jordanortega@gmail.com","clave":"Lirililirila1","estado":true,"id_persona":7},{"id":8,"correo":"nicoa@gmail.com","clave":"cone189ABC","estado":true,"id_persona":8}]

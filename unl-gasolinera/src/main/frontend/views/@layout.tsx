@@ -60,11 +60,7 @@ function MainMenu({ username, setUsername }: { username: string | null; setUsern
 
   const userMenuItems = [
     { to: '/ordendespacho-list', icon: 'vaadin:clipboard-check', title: 'Orden de Despacho' },
-    { to: '/pago-list', icon: 'vaadin:list', title: 'Lista de Pagos' },
-    { to: '/ordendespacho-list', icon: 'vaadin:clipboard-check', title: 'Orden de Despacho' },
     { to: '/pago-list', icon: 'vaadin:list', title: 'Lista de Pagos' }
-
-
   ];
 
   const menuItems = role === 'ROLE_admin' ? adminMenuItems : userMenuItems;

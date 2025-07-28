@@ -1,14 +1,1 @@
-[
-    {
-        "id": 1,
-        "nombre": "PetroEcuador",
-        "correoElectronico": "petro.p.ecuad@gmail.gob..e",
-        "idPrecioEstablecido": 2
-    },
-    {
-        "id": 2,
-        "nombre": "Primax",
-        "correoElectronico": "primax.a.ecugob@gmail.pri.gob",
-        "idPrecioEstablecido": 1
-    }
-]
+[{"id":1,"nombre":"PetroEcuador","correoElectronico":"petro.p.ecuad@gmail.gob..e","idPrecioEstablecido":2},{"id":2,"nombre":"Primax","correoElectronico":"primax.a.ecugob@gmail.pri.gob","idPrecioEstablecido":1},{"id":3,"nombre":"Extra","correoElectronico":"extra@gmail.com","idPrecioEstablecido":3}]
