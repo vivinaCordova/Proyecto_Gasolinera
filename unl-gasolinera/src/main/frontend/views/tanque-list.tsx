@@ -23,7 +23,7 @@ export const config: ViewConfig = {
 type TanqueEntryFormProps = {
   onTanqueCreated?: () => void;
 };
-//GUARDAR Tanque
+
 function TanqueEntryForm(props: TanqueEntryFormProps) {
   useEffect(() => {
     role().then(async (data) => {
@@ -41,7 +41,7 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
   const createTanque = async () => {
     try {
       if (capacidad.value.trim().length > 0 && capacidadMinima.value.trim().length > 0 && capacidadTotal.value.trim().length > 0 && tipoCombustible.value.trim().length > 0 && codigo.value.trim().length > 0) {
-        // Orden correcto: capacidad, capacidadTotal, capacidadMinima, tipoCombustible (como Integer), codigo
+
         await TanqueService.createTanque(
           parseFloat(capacidad.value),
           parseFloat(capacidadTotal.value),

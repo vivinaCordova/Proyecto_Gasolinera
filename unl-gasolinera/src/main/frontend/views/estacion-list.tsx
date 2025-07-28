@@ -37,7 +37,7 @@ type EstacionEntryFormPropsUpdate = {
   onEstacionUpdated?: () => void;
 };
 
-//GUARDAR Estacion
+//Guardar Estacion
 function EstacionEntryForm(props: EstacionEntryFormProps) {
   useEffect(() => {
     role().then(async (data) => {

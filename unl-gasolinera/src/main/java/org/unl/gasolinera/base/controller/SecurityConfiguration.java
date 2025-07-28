@@ -35,7 +35,8 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 
         super.configure(http);
         setLoginView(http, "/login", "/");
-        setStatelessAuthentication(http, new SecretKeySpec(Base64.getDecoder().decode(authSecret), JwsAlgorithms.HS256),LOGOUT_URL);
+        setStatelessAuthentication(http, new SecretKeySpec(Base64.getDecoder().decode(authSecret), 
+        JwsAlgorithms.HS256),LOGOUT_URL);
     }
 
     @Override

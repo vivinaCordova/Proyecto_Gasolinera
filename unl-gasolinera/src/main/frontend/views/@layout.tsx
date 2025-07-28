@@ -60,9 +60,9 @@ function MainMenu({ username, setUsername }: { username: string | null; setUsern
 
   const userMenuItems = [
     { to: '/ordendespacho-list', icon: 'vaadin:clipboard-check', title: 'Orden de Despacho' },
-    { to: '/pago-form', icon: 'vaadin:credit-card', title: 'Formulario de Pago' },
     { to: '/pago-list', icon: 'vaadin:list', title: 'Lista de Pagos' },
-    {to: '/bienvenida-list', icon: 'vaadin:home', title: 'Bienvenida' },
+    { to: '/ordendespacho-list', icon: 'vaadin:clipboard-check', title: 'Orden de Despacho' },
+    { to: '/pago-list', icon: 'vaadin:list', title: 'Lista de Pagos' }
 
 
   ];
