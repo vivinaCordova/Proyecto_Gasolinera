@@ -21,7 +21,7 @@
   z-index: 0;
 }
 
-/* 🔧 Barra superior actualizada */
+
 .barra-superior {
   position: absolute;
   top: 0;
@@ -38,10 +38,10 @@
 }
 
 .emoji-inicio {
-  font-size: 2rem; /* 🔍 Más grande */
+  font-size: 2rem; 
 }
 
-/* 🔧 Contenido del título alineado y contenido */
+
 .titulo-barra {
   font-size: 1.1rem;
   font-weight: 700;
@@ -58,7 +58,7 @@
   box-sizing: border-box;
 }
 
-/* 💡 Centro visual */
+
 .contenido {
   position: relative;
   z-index: 1;

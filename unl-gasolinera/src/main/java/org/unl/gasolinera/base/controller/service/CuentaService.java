@@ -60,17 +60,16 @@ public class CuentaService {
         return false;
     }
 
-
     public void createCuenta(@NotEmpty @NotBlank String correo, @NotEmpty @NotBlank String clave, boolean estado,
             Integer id_persona) throws Exception {
-                    da.getObj().setCorreo(correo);
-                    da.getObj().setClave(clave);
-                    da.getObj().setId_persona(id_persona);
-                    da.getObj().setEstado(estado);
-            
-                    if (!da.save()) {
-                        throw new Exception("No se pudo guardar los datos de Cuenta");
-                    }
+        da.getObj().setCorreo(correo);
+        da.getObj().setClave(clave);
+        da.getObj().setId_persona(id_persona);
+        da.getObj().setEstado(estado);
+
+        if (!da.save()) {
+            throw new Exception("No se pudo guardar los datos de Cuenta");
+        }
     }
 
     public HashMap<String, String> createRoles() {
@@ -174,13 +173,15 @@ public class CuentaService {
         return lista;
     }
 
-    /*public void delete(Integer id) throws Exception {
-        if (id == null || id <= 0) {
-            throw new Exception("ID de pago inválido");
-        }
-        if (!da.deleteCuenta(id)) {
-            throw new Exception("No se pudo eliminar el pago con ID: " + id);
-        }
-    }*/
+    /*
+     * public void delete(Integer id) throws Exception {
+     * if (id == null || id <= 0) {
+     * throw new Exception("ID de pago inválido");
+     * }
+     * if (!da.deleteCuenta(id)) {
+     * throw new Exception("No se pudo eliminar el pago con ID: " + id);
+     * }
+     * }
+     */
 
 }
