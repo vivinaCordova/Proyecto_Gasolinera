@@ -115,7 +115,7 @@ function TanqueEntryForm(props: TanqueEntryFormProps) {
             onValueChanged={(evt) => (codigo.value = evt.detail.value)}
           />
           <NumberField label="Capacidad"
-            placeholder="Ingrese el nombre del Tanque"
+            placeholder="Ingrese la capacidad actual del Tanque"
             aria-label="Nombre del tanque"
             value={capacidad.value}
             onValueChanged={(evt) => (capacidad.value = evt.detail.value)}

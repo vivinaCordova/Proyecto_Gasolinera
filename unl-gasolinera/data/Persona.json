@@ -1,5 +1,1 @@
-[
-  { "id": 1, "usuario": "arelys", "cedula": "0707303293", "id_rol": 2 },
-  { "id": 2, "usuario": "shamira", "cedula": "0705036192", "id_rol": 2 },
-  { "id": 3, "usuario": "carolina", "cedula": "0708056974", "id_rol": 1 }
-]
+[{"id":1,"usuario":"arelys","cedula":"0707303293","id_rol":2},{"id":2,"usuario":"shamira","cedula":"0705036192","id_rol":2},{"id":3,"usuario":"carolina","cedula":"0708056974","id_rol":1},{"id":4,"usuario":"Fabricio Ruiz","cedula":"0706161585","id_rol":2},{"id":5,"usuario":"michu","cedula":"0705647656","id_rol":2},{"id":6,"usuario":"viviana","cedula":"1178676756","id_rol":2},{"id":7,"usuario":"Jordan Ortega","cedula":"0789786756","id_rol":2},{"id":8,"usuario":"Nicolás Añazco","cedula":"0767878908","id_rol":2}]

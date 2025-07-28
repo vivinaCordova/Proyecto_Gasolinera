@@ -4,7 +4,8 @@ Este trabajo presenta el desarrollo de un sistema informático para automatizar 
 </p>
 
 ## Diagrama UML
-![Image](https://github.com/user-attachments/assets/16d25f85-62aa-45d9-ac6e-7ed5e801c51a)
+![diagrama de clases gasolinera final](https://github.com/user-attachments/assets/84a2ecce-b48c-4fe6-93cf-e02fa6063a05)
+
 
 ## Dirección de los códigos.
 - [Models.](https://github.com/vivinaCordova/Proyecto_Gasolinera/tree/main/unl-gasolinera/src/main/java/org/unl/gasolinera/base/models)

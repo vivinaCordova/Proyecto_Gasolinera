@@ -304,6 +304,7 @@ export default function OrdenDespachoUserView() {
     const precioTotal = model.item.precioTotal;
     return <span>${precioTotal ? Number(precioTotal).toFixed(2) : '0.00'}</span>;
   }
+  
 
 
   return (
